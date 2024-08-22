@@ -32,9 +32,10 @@ yarn-error.log*
 # turbo
 .turbo
 
-# ui dist
+# packages dist
 packages/ui/dist
 packages/database/dist/
+packages/layer-prisma/dist/
 
 # vscode
 .vscode

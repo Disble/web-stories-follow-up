@@ -1,9 +1,9 @@
-import prisma from "@repo/database";
+import prisma from "@repo/layer-prisma";
 import { Button } from "@repo/ui/nextui";
 import { FormButton } from "@repo/ui/commons";
 
 export default async function IndexPage() {
-  const users = await prisma.user.findMany();
+  const users = await prisma.userService.getAllUsers();
 
   return (
     <div>
