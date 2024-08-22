@@ -1,4 +1,4 @@
-import { prisma } from "@repo/database";
+import prisma from "@repo/database";
 import { Button } from "@repo/ui/nextui";
 import { FormButton } from "@repo/ui/commons";
 

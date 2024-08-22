@@ -34,6 +34,7 @@ yarn-error.log*
 
 # ui dist
 packages/ui/dist
+packages/database/dist/
 
 # vscode
 .vscode
