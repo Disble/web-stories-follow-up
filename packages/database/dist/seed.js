@@ -25,7 +25,9 @@ __export(client_exports, {
 var import_client = require("@prisma/client");
 __reExport(client_exports, require("@prisma/client"));
 var prisma = global.prisma || new import_client.PrismaClient();
-if (process.env.NODE_ENV !== "production") global.prisma = prisma;
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}
 
 // src/seed.ts
 var DEFAULT_USERS = [

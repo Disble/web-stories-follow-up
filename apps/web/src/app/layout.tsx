@@ -1,4 +1,4 @@
-import "./globals.css";
+import Providers from "@/components/providers";
 import "@repo/ui/styles.css";
 
 export default function RootLayout({
@@ -8,7 +8,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }

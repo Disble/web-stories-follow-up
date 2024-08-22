@@ -98,6 +98,14 @@ To develop all apps and packages, run the following command:
 yarn run dev
 ```
 
+## Sync packages with Sherif
+
+To sync packages with Sherif, run the following command:
+
+```bash
+bunx sherif@latest --fix
+```
+
 ## Useful Links
 
 Learn more about the power of Turborepo:

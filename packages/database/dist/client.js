@@ -27,7 +27,9 @@ module.exports = __toCommonJS(client_exports);
 var import_client = require("@prisma/client");
 __reExport(client_exports, require("@prisma/client"), module.exports);
 var prisma = global.prisma || new import_client.PrismaClient();
-if (process.env.NODE_ENV !== "production") global.prisma = prisma;
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   prisma,
