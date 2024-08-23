@@ -2,12 +2,4 @@
   "extends": "@repo/typescript-config/base.json",
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist"],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/director/*": ["src/director/*"],
-      "@/builder/*": ["src/builder/*"],
-      "@/model/*": ["src/model/*"]
-    }
-  }
 }

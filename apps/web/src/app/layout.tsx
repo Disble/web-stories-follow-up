@@ -1,4 +1,4 @@
-import Providers from "@/components/providers";
+import Providers from "#components/providers";
 import "@repo/ui/styles.css";
 
 export default function RootLayout({

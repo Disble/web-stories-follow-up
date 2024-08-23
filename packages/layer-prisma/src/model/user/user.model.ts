@@ -1,4 +1,4 @@
-import { PrismaDirector } from "@/director/prisma-director";
+import { PrismaDirector } from "#director/prisma-director";
 
 export class UserModel extends PrismaDirector {
   public async getMe() {

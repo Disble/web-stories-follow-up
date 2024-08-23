@@ -1,17 +1,6 @@
 {
   "extends": "@repo/typescript-config/nextjs.json",
-  "compilerOptions": {
-    "plugins": [{ "name": "next" }],
-    "baseUrl": ".",
-    "paths": {
-      "@/components/*": ["src/components/*"],
-
-      // layer-prisma
-      "@/director/*": ["../../packages/layer-prisma/src/director/*"],
-      "@/builder/*": ["../../packages/layer-prisma/src/builder/*"],
-      "@/model/*": ["../../packages/layer-prisma/src/model/*"]
-    }
-  },
+  "compilerOptions": { "plugins": [{ "name": "next" }] },
   "include": [
     "next-env.d.ts",
     "next.config.js",

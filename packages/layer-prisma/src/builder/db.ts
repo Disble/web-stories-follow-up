@@ -1,5 +1,5 @@
+import { UserModel } from "#model/user/user.model";
 import { PrismaBuilder } from "./prisma-builder";
-import { UserModel } from "@/model/user/user.model";
 
 export class Db extends PrismaBuilder {
   protected baseURL = process.env.BASE_URL ?? "";

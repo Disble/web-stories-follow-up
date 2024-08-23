@@ -1,8 +1,8 @@
 import { Button } from "@repo/ui/nextui";
 import { FormButton } from "@repo/ui/commons";
 import { db } from "@repo/layer-prisma";
-import UserList from "@/components/user/user-list";
-import PaginationNext from "@/components/commons/pagination-next";
+import PaginationNext from "#components/commons/pagination-next";
+import UserList from "#components/user/user-list";
 
 type IndexPageProps = {
   searchParams: { page: string };

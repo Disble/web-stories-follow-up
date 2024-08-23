@@ -2,6 +2,9 @@
   "private": true,
   "name": "web",
   "version": "1.0.0",
+  "imports": {
+    "#*": ["./src/*.ts", "./src/*.tsx", "./src/*.d.ts", "./src/*/index.ts", "./src/*/index.tsx", "./src/index.d.ts", "./src/*"]
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -25,6 +28,6 @@
     "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.19",
     "eslint": "^8.57.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.4"
   }
 }
