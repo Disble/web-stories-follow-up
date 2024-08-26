@@ -5,6 +5,14 @@ export class UserModel extends PrismaDirector {
     return this.prisma.user.findFirst();
   }
 
+  public async getUserByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+  }
+
   public async getUsers({ page, limit }: { page: number; limit: number }) {
     return this.prisma.user.paginate({
       select: {

@@ -11,7 +11,9 @@
     "./styles.css": "./dist/index.css",
     "./tailwind.config.ts": "./tailwind.config.ts",
     "./nextui": "./src/nextui/index.ts",
-    "./commons": "./src/commons/index.ts"
+    "./nextui/framer-utils": "./src/nextui/framer-utils.ts",
+    "./commons": "./src/commons/index.ts",
+    "./utils": "./src/utils/index.ts"
   },
   "license": "MIT",
   "scripts": {
@@ -35,6 +37,8 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.4.6",
-    "framer-motion": "^11.3.29"
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.3.29",
+    "tailwind-merge": "^2.5.2"
   }
 }
