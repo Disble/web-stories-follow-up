@@ -55,6 +55,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.29",
     "lucide-react": "^0.436.0",
+    "react-dropzone": "14.2.3",
     "react-hook-form": "7.50.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"

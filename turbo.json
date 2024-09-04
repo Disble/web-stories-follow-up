@@ -16,18 +16,17 @@
       "cache": false,
       "persistent": true
     },
+    "type-check": {
+      "cache": true
+    },
     "generate": {
       "dependsOn": ["^generate"]
     },
     "ui:build": {
-      "dependsOn": ["^build"],
       "cache": false
     },
-    "//#format-and-lint": {
-      "dependsOn": ["^build"]
-    },
+    "//#format-and-lint": {},
     "//#format-and-lint:fix": {
-      "dependsOn": ["^build"],
       "cache": false
     }
   }

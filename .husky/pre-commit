@@ -1,0 +1,4 @@
+bun ls-lint
+bun sherif
+bun lint-staged
+bun type-check
