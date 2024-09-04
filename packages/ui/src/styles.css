@@ -1,3 +1,52 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --ui-chat-background: #EDF0F5;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  .tiptap ol > li,
+  .tiptap ul > li,
+  #message ol > li,
+  #message ul > li {
+    @apply list-inside;
+    @apply my-1;
+  }
+
+  .tiptap li > p,
+  #message li > p {
+    @apply inline;
+  }
+
+  .tiptap ol,
+  .tiptap ul,
+  #message ol,
+  #message ul {
+    @apply my-2;
+  }
+
+  .tiptap ol > li,
+  #message ol > li {
+    @apply list-decimal;
+  }
+
+  .tiptap ul > li,
+  #message ul > li {
+    @apply list-disc;
+  }
+}
+
+@layer components {
+  .scrollbar-slender {
+    @apply scrollbar-thin;
+    @apply scrollbar-thumb-gray-300;
+    @apply [scrollbar-gutter:stable];
+    @apply hover:scrollbar-thumb-gray-400;
+  }
+}

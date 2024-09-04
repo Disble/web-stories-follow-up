@@ -3,9 +3,11 @@
   "globalEnv": ["BASE_URL", "DATABASE_URL", "DISCORD_CLIENT_ID", "DISCORD_CLIENT_SECRET"],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
+      "env": [],
+      "dependsOn": ["^ui:build", "^build"],
       "inputs": ["$TURBO_DEFAULT", ".env*"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "cache": false
     },
     "db:migrate:deploy": {},
     "db:push": {},
@@ -17,7 +19,17 @@
     "generate": {
       "dependsOn": ["^generate"]
     },
-    "lint": {}
+    "ui:build": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "//#format-and-lint": {
+      "dependsOn": ["^build"]
+    },
+    "//#format-and-lint:fix": {
+      "dependsOn": ["^build"],
+      "cache": false
+    }
   }
 }
 

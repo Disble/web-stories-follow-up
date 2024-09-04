@@ -12,10 +12,20 @@
     "dev": "turbo run dev",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "generate": "turbo run generate",
-    "lint": "turbo run lint"
+    "format-and-lint": "biome check .",
+    "format-and-lint:fix": "biome check . --write",
+    "prepare": "husky",
+    "commitlint": "commitlint --edit",
+    "type-check": "turbo run type-check"
   },
   "devDependencies": {
-    "prettier": "^3.2.5",
+    "@biomejs/biome": "1.8.3",
+    "@commitlint/cli": "^19.4.1",
+    "@commitlint/config-conventional": "^19.4.1",
+    "@ls-lint/ls-lint": "v2.3.0-beta.1",
+    "husky": "^9.1.5",
+    "lint-staged": "^15.2.9",
+    "sherif": "^1.0.0",
     "prisma": "5.10.2",
     "tsx": "^4.7.1",
     "turbo": "^2.0.14"

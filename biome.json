@@ -1,0 +1,68 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+  "vcs": { "clientKind": "git", "enabled": true, "useIgnoreFile": true },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 80,
+    "attributePosition": "auto",
+    "ignore": [
+      "node_modules/*",
+      "*.config.*",
+      "*.json",
+      "tsconfig.json",
+      ".turbo"
+    ]
+  },
+  "organizeImports": { "enabled": false },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "complexity": {
+        "noBannedTypes": "error",
+        "noUselessThisAlias": "error",
+        "noUselessTypeConstraint": "error"
+      },
+      "correctness": {
+        "noPrecisionLoss": "error"
+      },
+      "style": {
+        "noNamespace": "error",
+        "useAsConstAssertion": "error",
+        "useImportType": "warn"
+      },
+      "suspicious": {
+        "noConsoleLog": "warn",
+        "noExplicitAny": "error",
+        "noExtraNonNullAssertion": "error",
+        "noMisleadingInstantiator": "error",
+        "noUnsafeDeclarationMerging": "error"
+      }
+    },
+    "ignore": ["**/.*.js", "**/node_modules/"]
+  },
+  "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSpacing": true,
+      "bracketSameLine": false,
+      "quoteStyle": "double",
+      "attributePosition": "auto"
+    },
+    "globals": ["React", "JSX"]
+  },
+  "overrides": [
+    { "include": ["*.js?(x)", "*.ts?(x)"] },
+    {
+      "include": ["*.d.ts"]
+    }
+  ]
+}

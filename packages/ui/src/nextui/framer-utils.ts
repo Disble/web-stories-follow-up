@@ -1,1 +1,1 @@
-export * from '@nextui-org/framer-utils';
+export * from "@nextui-org/framer-utils";

@@ -13,14 +13,11 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "lint": "eslint src/",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "@repo/database": "*",
-    "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
-    "eslint": "^8.57.0",
     "typescript": "^5.5.4",
     "server-only": "^0.0.1",
     "tsup": "^8.0.2"
