@@ -5,14 +5,15 @@
     "seed": "tsx packages/database/src/seed.ts"
   },
   "scripts": {
-    "build": "turbo run build",
+    "build": "turbo run generate && turbo run build",
     "db:migrate:deploy": "turbo run db:migrate:deploy",
+    "db:migrate:dev": "turbo run db:migrate:dev",
     "db:push": "turbo run db:push",
     "db:seed": "turbo run db:seed",
     "dev": "turbo run dev",
     "generate": "turbo run generate",
-    "format-and-lint": "biome check .",
-    "format-and-lint:fix": "biome check . --write",
+    "format-and-lint": "turbo run generate && biome check .",
+    "format-and-lint:fix": "turbo run generate && biome check . --write",
     "prepare": "husky",
     "commitlint": "commitlint --edit",
     "type-check": "turbo run type-check"

@@ -1,10 +1,17 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["BASE_URL", "DATABASE_URL", "DISCORD_CLIENT_ID", "DISCORD_CLIENT_SECRET"],
+  "globalEnv": [
+    "BASE_URL",
+    "POSTGRES_PRISMA_URL",
+    "POSTGRES_URL_NON_POOLING",
+    "AUTH_SECRET",
+    "DISCORD_CLIENT_ID",
+    "DISCORD_CLIENT_SECRET"
+  ],
   "tasks": {
     "build": {
       "env": [],
-      "dependsOn": ["^ui:build", "^build"],
+      "dependsOn": ["^generate", "^ui:build", "^build"],
       "inputs": ["$TURBO_DEFAULT", ".env*"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
       "cache": false
@@ -12,7 +19,12 @@
     "db:migrate:deploy": {},
     "db:push": {},
     "db:seed": {},
+    "db:migrate:dev": {
+      "env": ["POSTGRES_URL_NON_POOLING", "POSTGRES_PRISMA_URL"],
+      "cache": false
+    },
     "dev": {
+      "dependsOn": ["^db:generate", "^build"],
       "cache": false,
       "persistent": true
     },
@@ -20,7 +32,8 @@
       "cache": true
     },
     "generate": {
-      "dependsOn": ["^generate"]
+      "dependsOn": ["^generate"],
+      "cache": false
     },
     "ui:build": {
       "cache": false
