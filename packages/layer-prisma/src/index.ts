@@ -1,5 +1,5 @@
-import { Db } from "./builder/db";
+import { ModelFactory } from "./factory/model-factory";
 
-export const db = new Db();
+export const db = new ModelFactory();
 
 export * from "@repo/database";

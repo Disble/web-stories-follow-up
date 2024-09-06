@@ -24,7 +24,9 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
+    "@repo/auth-config": "*",
     "@repo/database": "*",
+    "@repo/types": "*",
     "@repo/typescript-config": "*",
     "server-only": "^0.0.1",
     "tsup": "^8.0.2",

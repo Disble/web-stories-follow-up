@@ -1,6 +1,6 @@
-import {Chip} from "@nextui-org/react";
+import { Chip } from "@nextui-org/react";
 
-import {type SidebarItem, SidebarItemType} from "./sidebard";
+import { type SidebarItem, SidebarItemType } from "./sidebard";
 import TeamAvatar from "./team-avatar";
 import { SolarAddCircleBoldDuotone } from "../icons";
 
@@ -234,9 +234,7 @@ export const brandItems: SidebarItem[] = [
         icon: "solar:widget-2-outline",
         title: "Projects",
         endContent: (
-          <SolarAddCircleBoldDuotone
-            className="text-primary-foreground/60 size-6"
-          />
+          <SolarAddCircleBoldDuotone className="text-primary-foreground/60 size-6" />
         ),
       },
       {
@@ -245,9 +243,7 @@ export const brandItems: SidebarItem[] = [
         icon: "solar:checklist-minimalistic-outline",
         title: "Tasks",
         endContent: (
-          <SolarAddCircleBoldDuotone
-            className="text-primary-foreground/60 size-6"
-          />
+          <SolarAddCircleBoldDuotone className="text-primary-foreground/60 size-6" />
         ),
       },
       {
@@ -262,7 +258,11 @@ export const brandItems: SidebarItem[] = [
         icon: "solar:sort-by-time-linear",
         title: "Tracker",
         endContent: (
-          <Chip className="bg-primary-foreground font-medium text-primary" size="sm" variant="flat">
+          <Chip
+            className="bg-primary-foreground font-medium text-primary"
+            size="sm"
+            variant="flat"
+          >
             New
           </Chip>
         ),

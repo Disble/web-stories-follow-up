@@ -1,21 +1,15 @@
 "use client";
 
 import { Button, Card, CardFooter, Image } from "@repo/ui/nextui";
-import { db } from "@repo/layer-prisma";
+import type { db } from "@repo/layer-prisma";
 
 type UserCardProps = {
   user: Awaited<ReturnType<typeof db.user.getUsers>>[0][0];
 };
 
-export default function UserCard({
-  user,
-}: UserCardProps): JSX.Element {
+export default function UserCard({ user }: UserCardProps): JSX.Element {
   return (
-    <Card
-      isFooterBlurred
-      radius="lg"
-      className="border-none"
-    >
+    <Card isFooterBlurred radius="lg" className="border-none">
       <Image
         alt={`Profile picture of ${user.name}`}
         className="object-cover"
@@ -25,7 +19,13 @@ export default function UserCard({
       />
       <CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
         <p className="text-tiny text-white/80">{user.name}</p>
-        <Button className="text-tiny text-white bg-black/20" variant="flat" color="default" radius="lg" size="sm">
+        <Button
+          className="text-tiny text-white bg-black/20"
+          variant="flat"
+          color="default"
+          radius="lg"
+          size="sm"
+        >
           View Profile
         </Button>
       </CardFooter>

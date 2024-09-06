@@ -3,7 +3,9 @@ import Sidebar from "#components/sidebar";
 import { PATH_AUTH } from "#routes/index";
 import { redirect } from "next/navigation";
 
-export default async function Layout({children}: {children: React.ReactNode}): Promise<JSX.Element> {
+export default async function Layout({
+  children,
+}: { children: React.ReactNode }): Promise<JSX.Element> {
   const session = await auth();
 
   if (!session) {

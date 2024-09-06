@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
-import {Avatar, Button, Spacer, useDisclosure} from "@nextui-org/react";
+import type React from "react";
+import { Avatar, Button, Spacer, useDisclosure } from "@nextui-org/react";
 
-import {sectionItemsWithTeams} from "./sidebar-items";
+import { sectionItemsWithTeams } from "./sidebar-items";
 import SidebarDrawer from "./sidebar-drawer";
 
 import Sidebar from "./sidebard";
@@ -14,6 +14,7 @@ import {
   SolarUserCircleBoldDuotone,
 } from "../icons";
 import { logOut } from "#components/auth/login/login.action";
+import { useSession } from "next-auth/react";
 
 /**
  * 💡 TIP: You can use the usePathname hook from Next.js App Router to get the current pathname
@@ -28,8 +29,9 @@ import { logOut } from "#components/auth/login/login.action";
  * <Sidebar defaultSelectedKey="home" selectedKeys={[currentPath]} />
  * ```
  */
-export default function Component({children}: {children: React.ReactNode}) {
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+export default function Component({ children }: { children: React.ReactNode }) {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { data, status } = useSession();
 
   const content = (
     <div className="relative flex h-full w-72 flex-1 flex-col p-6">
@@ -37,14 +39,26 @@ export default function Component({children}: {children: React.ReactNode}) {
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground">
           <SolarUserCircleBoldDuotone className="text-background" />
         </div>
-        <span className="text-small font-bold uppercase text-foreground">Acme</span>
+        <span className="text-small font-bold uppercase text-foreground">
+          Acme
+        </span>
       </div>
       <Spacer y={8} />
       <div className="flex items-center gap-3 px-3">
-        <Avatar isBordered size="sm" src="https://i.pravatar.cc/150?u=a04258114e29026708c" />
+        <Avatar
+          isBordered
+          size="sm"
+          src={
+            status === "authenticated" && data?.user?.image
+              ? data.user.image
+              : "https://i.pravatar.cc/150?u=a04258114e29026708c"
+          }
+        />
         <div className="flex flex-col">
-          <p className="text-small font-medium text-default-600">John Doe</p>
-          <p className="text-tiny text-default-400">Product Designer</p>
+          <p className="text-small font-medium text-default-600">
+            {status === "authenticated" ? data?.user?.name : "Guest"}
+          </p>
+          <p className="text-tiny text-default-400">Admin</p>
         </div>
       </div>
 
@@ -67,9 +81,7 @@ export default function Component({children}: {children: React.ReactNode}) {
         <Button
           className="justify-start text-default-500 data-[hover=true]:text-foreground"
           startContent={
-            <SolarLogout2Outline
-              className="rotate-180 text-default-500 size-6"
-            />
+            <SolarLogout2Outline className="rotate-180 text-default-500 size-6" />
           }
           variant="light"
           onPress={() => logOut()}
@@ -91,10 +103,14 @@ export default function Component({children}: {children: React.ReactNode}) {
       </SidebarDrawer>
       <div className="w-full flex-1 flex-col p-4">
         <header className="flex h-16 items-center gap-2 rounded-medium border-small border-divider px-4">
-          <Button isIconOnly className="flex sm:hidden" size="sm" variant="light" onPress={onOpen}>
-            <SolarChatSquareCallBoldDuotone
-              className="text-default-500 size-6"
-            />
+          <Button
+            isIconOnly
+            className="flex sm:hidden"
+            size="sm"
+            variant="light"
+            onPress={onOpen}
+          >
+            <SolarChatSquareCallBoldDuotone className="text-default-500 size-6" />
           </Button>
           <h2 className="text-medium font-medium text-default-700">Overview</h2>
         </header>

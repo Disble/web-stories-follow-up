@@ -24,7 +24,7 @@
       "cache": false
     },
     "dev": {
-      "dependsOn": ["^db:generate", "^build"],
+      "dependsOn": ["^generate", "^build"],
       "cache": false,
       "persistent": true
     },
@@ -32,7 +32,6 @@
       "cache": true
     },
     "generate": {
-      "dependsOn": ["^generate"],
       "cache": false
     },
     "ui:build": {

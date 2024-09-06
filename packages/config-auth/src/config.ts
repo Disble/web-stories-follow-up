@@ -1,4 +1,4 @@
-import { PrismaAdapter } from "@auth/prisma-adapter"
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@repo/database";
 import discord from "next-auth/providers/discord";
 import type { NextAuthConfig } from "next-auth";

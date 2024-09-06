@@ -1,0 +1,5 @@
+{
+  "extends": "@repo/typescript-config/base.json",
+  "include": ["**/*.ts", "**/*.tsx", "../layer-fetch/src/director/interfaces/fetch-director.interface.ts"],
+  "exclude": ["node_modules", "dist"],
+}
