@@ -2,9 +2,13 @@
 
 import { Button, Card, CardFooter, Image } from "@repo/ui/nextui";
 import type { db } from "@repo/layer-prisma";
+import type { SessionError } from "@repo/types/utils/errors";
 
 type UserCardProps = {
-  user: Awaited<ReturnType<typeof db.user.getUsers>>[0][0];
+  user: Exclude<
+    Awaited<ReturnType<typeof db.user.getUsers>>[0],
+    SessionError
+  >[0];
 };
 
 export default function UserCard({ user }: UserCardProps): JSX.Element {
