@@ -80,3 +80,91 @@ model Authenticator {
  
   @@id([userId, credentialID])
 }
+
+model Novel {
+  id String @id @default(cuid())
+  title String
+  synopsis String
+  note String?
+  urlCoverNovel String
+  urlNovel String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  chapters Chapter[]
+  authors NovelAutor[]
+  template Template?
+}
+
+model NovelAutor {
+  novel     Novel     @relation(fields: [novelId], references: [id])
+  novelId   String
+  author    Author    @relation(fields: [authorId], references: [id])
+  authorId  String
+  assignedAt DateTime @default(now())
+
+  @@id([novelId, authorId])
+}
+
+model Author {
+  id String @id @default(cuid())
+  name String?
+  pseudonym String
+  urlProfile String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  novels NovelAutor[]
+}
+
+model Chapter {
+  id String @id @default(cuid())
+  title String
+  urlChapter String
+  urlCoverChapter String
+  publishedAt DateTime
+  status ChapterStatus
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  novelId String
+  novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  publication Publication?
+}
+
+model Publication {
+  id String @id @default(cuid())
+  text String
+  chapterId String @unique
+  status PublicationStatus
+  chapter Chapter @relation(fields: [chapterId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Template {
+  id String @id @default(cuid())
+  text String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  novelId String @unique
+  novel Novel @relation(fields: [novelId], references: [id])
+}
+
+// Here web store: cron-job, frecuency, fac-api-key...
+model Parameter {
+  id String @id @default(cuid())
+  name String
+  value String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PublicationStatus {
+  DRAFT
+  PUBLISHED
+  REJECTED
+}
+
+enum ChapterStatus {
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
