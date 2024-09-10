@@ -13,9 +13,23 @@ export const PATH_DASHBOARD = {
     create: path(ROOTS_DASHBOARD, "/users", "/create"),
     update: path(ROOTS_DASHBOARD, "/users", "/update"),
   },
-  binnacles: path(ROOTS_DASHBOARD, "/binnacles"),
+  novels: {
+    list: path(ROOTS_DASHBOARD, "/novels"),
+    create: path(ROOTS_DASHBOARD, "/novels", "/create"),
+    update: path(ROOTS_DASHBOARD, "/novels", "/update"),
+  },
+  authors: {
+    list: path(ROOTS_DASHBOARD, "/authors"),
+    create: path(ROOTS_DASHBOARD, "/authors", "/create"),
+    update: path(ROOTS_DASHBOARD, "/authors", "/update"),
+  },
+  publications: {
+    list: path(ROOTS_DASHBOARD, "/publications"),
+    create: path(ROOTS_DASHBOARD, "/publications", "/create"),
+    update: path(ROOTS_DASHBOARD, "/publications", "/update"),
+  },
   settings: {
-    root: path(ROOTS_DASHBOARD, "/settings"),
+    list: path(ROOTS_DASHBOARD, "/settings"),
   },
 } as const;
 

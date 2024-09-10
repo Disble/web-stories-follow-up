@@ -13,3 +13,4 @@ export * from "./solar-user-id-bold-duotone";
 export * from "./solar-verified-check-bold-duotone";
 export * from "./solar-widget-5-bold-duotone";
 export * from "./solar-logout2-outline";
+export * from "./solar-hamburger-menu-line-duotone";

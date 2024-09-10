@@ -114,32 +114,14 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 : item.endContent ?? null
             }
             startContent={
-              isCompact || isNestType ? null : item.icon ? (
-                <SolarAddCircleBoldDuotone
-                  className={cn(
-                    "text-default-500 group-data-[selected=true]:text-foreground size-6",
-                    iconClassName
-                  )}
-                />
-              ) : (
-                item.startContent ?? null
-              )
+              isCompact || isNestType ? null : item.startContent ?? null
             }
             title={isCompact || isNestType ? null : item.title}
           >
             {isCompact ? (
               <Tooltip content={item.title} placement="right">
                 <div className="flex w-full items-center justify-center">
-                  {item.icon ? (
-                    <SolarVideoFramePlayVerticalLineDuotone
-                      className={cn(
-                        "text-default-500 group-data-[selected=true]:text-foreground size-6",
-                        iconClassName
-                      )}
-                    />
-                  ) : (
-                    item.startContent ?? null
-                  )}
+                  {item.startContent ?? null}
                 </div>
               </Tooltip>
             ) : null}
@@ -154,23 +136,16 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                     content: "py-0 pl-4",
                   }}
                   title={
-                    item.icon ? (
+                    item.startContent ? (
                       <div
                         className={"flex h-11 items-center gap-2 px-2 py-1.5"}
                       >
-                        <SolarVideoFramePlayVerticalLineDuotone
-                          className={cn(
-                            "text-default-500 group-data-[selected=true]:text-foreground size-6",
-                            iconClassName
-                          )}
-                        />
+                        {item.startContent ?? null}
                         <span className="text-small font-medium text-default-500 group-data-[selected=true]:text-foreground">
                           {item.title}
                         </span>
                       </div>
-                    ) : (
-                      item.startContent ?? null
-                    )
+                    ) : null
                   }
                 >
                   {item.items && item.items?.length > 0 ? (
@@ -214,34 +189,14 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             endContent={
               isCompact || hideEndContent ? null : item.endContent ?? null
             }
-            startContent={
-              isCompact ? null : item.icon ? (
-                <SolarNotebookBoldDuotone
-                  className={cn(
-                    "text-default-500 group-data-[selected=true]:text-foreground size-6",
-                    iconClassName
-                  )}
-                />
-              ) : (
-                item.startContent ?? null
-              )
-            }
+            startContent={isCompact ? null : item.startContent ?? null}
             textValue={item.title}
             title={isCompact ? null : item.title}
           >
             {isCompact ? (
               <Tooltip content={item.title} placement="right">
                 <div className="flex w-full items-center justify-center">
-                  {item.icon ? (
-                    <SolarDeliveryLineDuotone
-                      className={cn(
-                        "text-default-500 group-data-[selected=true]:text-foreground size-6",
-                        iconClassName
-                      )}
-                    />
-                  ) : (
-                    item.startContent ?? null
-                  )}
+                  {item.startContent ?? null}
                 </div>
               </Tooltip>
             ) : null}
