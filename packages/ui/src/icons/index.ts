@@ -36,3 +36,4 @@ export * from "./random/user-solid";
 export * from "./random/users";
 export * from "./random/whatsapp-alt";
 export * from "./dashboard";
+export * from "./auth";
