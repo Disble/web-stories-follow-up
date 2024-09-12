@@ -19,26 +19,10 @@ import {
 } from "#components/icons";
 import { logOut } from "#components/auth/login/login.action";
 import { useSession } from "next-auth/react";
-import {
-  ElLectorNovato,
-  SolarPenNewRoundBoldDuotone,
-  SolarQuestionCircleLinear,
-} from "@repo/ui/icons";
+import { ElLectorNovato, SolarQuestionCircleLinear } from "@repo/ui/icons";
 import { usePathname } from "next/navigation";
+import { getTitle } from "#routes/index";
 
-/**
- * 💡 TIP: You can use the usePathname hook from Next.js App Router to get the current pathname
- * and use it as the active key for the Sidebar component.
- *
- * ```tsx
- * import {usePathname} from "next/navigation";
- *
- * const pathname = usePathname();
- * const currentPath = pathname.split("/")?.[1]
- *
- * <Sidebar defaultSelectedKey="home" selectedKeys={[currentPath]} />
- * ```
- */
 export default function Component({ children }: { children: React.ReactNode }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data, status } = useSession();
@@ -126,7 +110,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
       >
         {content}
       </SidebarDrawer>
-      <div className="w-full flex-1 flex-col p-4 h-dvh">
+      <div className="w-full flex-1 flex-col p-4 h-dvh overflow-auto">
         <header className="flex h-16 items-center gap-2 rounded-medium border-small border-divider px-4">
           <Button
             isIconOnly
@@ -137,9 +121,11 @@ export default function Component({ children }: { children: React.ReactNode }) {
           >
             <SolarHamburgerMenuLineDuotone className="text-default-500 size-6" />
           </Button>
-          <h2 className="text-medium font-medium text-default-700">Overview</h2>
+          <h2 className="text-medium font-medium text-default-700">
+            {getTitle(currentPath)}
+          </h2>
         </header>
-        <main className="mt-4 h-[calc(100%-5rem)] w-full overflow-visible">
+        <main className="mt-4 min-h-[calc(100%-5rem)] w-full">
           <div className="flex h-full w-full flex-col gap-4 rounded-medium border-small border-divider">
             {children}
           </div>

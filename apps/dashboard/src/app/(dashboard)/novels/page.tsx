@@ -1,7 +1,9 @@
 export default function Page(): JSX.Element {
   return (
-    <>
-      <div>Novels</div>
-    </>
+    <section className="max-w-4xl mx-auto">
+      <div>
+        <h1>Novelas</h1>
+      </div>
+    </section>
   );
 }

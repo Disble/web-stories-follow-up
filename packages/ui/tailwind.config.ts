@@ -16,22 +16,22 @@ const config = {
         light: {
           colors: {
             primary: {
-              DEFAULT: "#094A73",
-              foreground: "#FFFAF4",
+              DEFAULT: "#1abc9c",
+              foreground: "#FFFFFF",
             },
             secondary: {
-              DEFAULT: "#FAB8CE",
-              foreground: "#FFFAF4",
+              DEFAULT: "#e67e22",
+              foreground: "#FFFFFF",
             },
-            background: "#FFFAF4",
+            background: "#FFFFFF",
           },
         },
         dark: {
           colors: {
-            primary: "#094A73",
-            secondary: "#FAB8CE",
-            background: "#FFFAF4",
-            foreground: "#3E3E3E",
+            primary: "#1abc9c",
+            secondary: "#e67e22",
+            background: "#000000",
+            foreground: "#FFFFFF",
           },
         },
       },

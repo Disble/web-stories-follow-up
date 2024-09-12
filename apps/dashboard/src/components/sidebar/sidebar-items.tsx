@@ -7,6 +7,7 @@ import {
   SolarAddCircleLinear,
   SolarBook2Linear,
   SolarCalendarLinear,
+  SolarChecklistMinimalisticLinear,
   SolarHome2Linear,
   SolarUserLinear,
   SolarUsersGroupTwoRoundedLinear,
@@ -126,12 +127,29 @@ export const sectionNestedItems: SidebarItem[] = [
   },
   {
     key: PATH_DASHBOARD.novels.list,
-    href: PATH_DASHBOARD.novels.list,
+    title: "Novelas",
     startContent: (
       <SolarBook2Linear className="text-default-500 group-data-[selected=true]:text-foreground size-6" />
     ),
-    title: "Novelas",
-    endContent: <SolarAddCircleLinear className="text-default-400 size-6" />,
+    type: SidebarItemType.Nest,
+    items: [
+      {
+        key: PATH_DASHBOARD.novels.list,
+        href: PATH_DASHBOARD.novels.list,
+        startContent: (
+          <SolarChecklistMinimalisticLinear className="text-default-500 group-data-[selected=true]:text-foreground size-6" />
+        ),
+        title: "Lista",
+      },
+      {
+        key: PATH_DASHBOARD.novels.create,
+        href: PATH_DASHBOARD.novels.create,
+        startContent: (
+          <SolarAddCircleLinear className="text-default-500 group-data-[selected=true]:text-foreground size-6" />
+        ),
+        title: "Agregar",
+      },
+    ],
   },
   {
     key: PATH_DASHBOARD.authors.list,
@@ -167,40 +185,5 @@ export const sectionNestedItems: SidebarItem[] = [
         3
       </Chip>
     ),
-  },
-  {
-    key: "cap_table",
-    title: "Cap Table",
-    icon: "solar:pie-chart-outline",
-    startContent: (
-      <SolarUserLinear className="text-default-500 group-data-[selected=true]:text-foreground size-6" />
-    ),
-    type: SidebarItemType.Nest,
-    items: [
-      {
-        key: "shareholders",
-        startContent: (
-          <SolarUserLinear className="text-default-500 group-data-[selected=true]:text-foreground size-6" />
-        ),
-        href: "#",
-        title: "Shareholders",
-      },
-      {
-        key: "note_holders",
-        startContent: (
-          <SolarUserLinear className="text-default-500 group-data-[selected=true]:text-foreground size-6" />
-        ),
-        href: "#",
-        title: "Note Holders",
-      },
-      {
-        key: "transactions_log",
-        startContent: (
-          <SolarUserLinear className="text-default-500 group-data-[selected=true]:text-foreground size-6" />
-        ),
-        href: "#",
-        title: "Transactions Log",
-      },
-    ],
   },
 ];
