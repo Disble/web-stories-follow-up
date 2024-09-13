@@ -82,6 +82,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       }),
     };
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: nextui.pro code
     const renderNestItem = React.useCallback(
       (item: SidebarItem) => {
         const isNestType =
@@ -91,6 +92,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
 
         if (isNestType) {
           // Is a nest type item , so we need to remove the href
+          // biome-ignore lint/performance/noDelete: nextui.pro code
           delete item.href;
         }
 
@@ -111,10 +113,10 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             endContent={
               isCompact || isNestType || hideEndContent
                 ? null
-                : item.endContent ?? null
+                : (item.endContent ?? null)
             }
             startContent={
-              isCompact || isNestType ? null : item.startContent ?? null
+              isCompact || isNestType ? null : (item.startContent ?? null)
             }
             title={isCompact || isNestType ? null : item.title}
           >
@@ -171,6 +173,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       [isCompact, hideEndContent, iconClassName, items]
     );
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: nextui.pro code
     const renderItem = React.useCallback(
       (item: SidebarItem) => {
         const isNestType =
@@ -187,9 +190,9 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             {...item}
             key={item.key}
             endContent={
-              isCompact || hideEndContent ? null : item.endContent ?? null
+              isCompact || hideEndContent ? null : (item.endContent ?? null)
             }
-            startContent={isCompact ? null : item.startContent ?? null}
+            startContent={isCompact ? null : (item.startContent ?? null)}
             textValue={item.title}
             title={isCompact ? null : item.title}
           >

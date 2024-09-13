@@ -82,7 +82,7 @@ export default function PullOrCreateNovel(): JSX.Element {
   const urlCoverNovel = form.watch("urlCoverNovel");
   const urlCoverNovelError = urlSchema.safeParse(urlCoverNovel);
 
-  let formatter = useDateFormatter({ dateStyle: "full" });
+  const formatter = useDateFormatter({ dateStyle: "full" });
 
   const handlePullNovel = async () => {
     try {

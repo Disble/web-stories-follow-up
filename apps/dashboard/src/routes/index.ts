@@ -7,6 +7,7 @@ const ROOTS_DASHBOARD = "/";
 const ROOTS_AUTH = "/auth";
 
 export const PATH_DASHBOARD = {
+  verifyUser: path(ROOTS_DASHBOARD, "verify-user"),
   root: ROOTS_DASHBOARD,
   default: path(ROOTS_DASHBOARD),
   users: {
@@ -36,8 +37,8 @@ export const PATH_DASHBOARD = {
 
 export const PATH_AUTH = {
   root: ROOTS_AUTH,
-  signin: path(ROOTS_AUTH, "/login"),
-  signup: path(ROOTS_AUTH, "/register"),
+  signin: path(ROOTS_AUTH, "login"),
+  signup: path(ROOTS_AUTH, "register"),
 } as const;
 
 export const enumPathDashboard = {

@@ -45,7 +45,7 @@ const SidebarDrawer = React.forwardRef<
             },
           },
           exit: {
-            x: sidebarPlacement == "left" ? -sidebarWidth : sidebarWidth,
+            x: sidebarPlacement === "left" ? -sidebarWidth : sidebarWidth,
             transition: {
               x: {
                 duration: 0.2,

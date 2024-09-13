@@ -77,6 +77,7 @@ export default function InputFiles<FakeFileType extends FakeFile>({
     <div>
       <div>
         <label
+          htmlFor="dropzone-file"
           {...getRootProps()}
           className={cn(
             "relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-default-100 py-6 hover:bg-default-200",
@@ -150,14 +151,14 @@ export default function InputFiles<FakeFileType extends FakeFile>({
       )}
 
       {errors.length > 0 &&
-        errors.map((error) => {
+        errors.map((error, index) => {
           return (
             <>
               <p
                 key={error.fileName}
                 className="p-1.5 text-tiny text-danger"
               >{`${error.fileName}:`}</p>
-              <ul className="ml-5 list-disc">
+              <ul className="ml-5 list-disc" key={`${error.fileName}-${index}`}>
                 {error.errors.map((error) => {
                   return (
                     <li key={error} className="text-tiny text-danger">

@@ -96,6 +96,7 @@ export const FileItem = ({
         </div>
       </div>
       <button
+        type="button"
         onClick={onRemove}
         className="hidden cursor-pointer items-center justify-center bg-red-500 px-2 text-white transition-all group-hover:flex"
       >

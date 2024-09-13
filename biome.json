@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
   "vcs": { "clientKind": "git", "enabled": true, "useIgnoreFile": true },
   "formatter": {
     "enabled": true,
@@ -21,26 +21,9 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": false,
-      "complexity": {
-        "noBannedTypes": "error",
-        "noUselessThisAlias": "error",
-        "noUselessTypeConstraint": "error"
-      },
-      "correctness": {
-        "noPrecisionLoss": "error"
-      },
-      "style": {
-        "noNamespace": "error",
-        "useAsConstAssertion": "error",
-        "useImportType": "warn"
-      },
+      "recommended": true,
       "suspicious": {
-        "noConsoleLog": "warn",
-        "noExplicitAny": "error",
-        "noExtraNonNullAssertion": "error",
-        "noMisleadingInstantiator": "error",
-        "noUnsafeDeclarationMerging": "error"
+        "noConsoleLog": "warn"
       }
     },
     "ignore": ["**/.*.js", "**/node_modules/"]
@@ -63,6 +46,19 @@
     { "include": ["*.js?(x)", "*.ts?(x)"] },
     {
       "include": ["*.d.ts"]
+    },
+    {
+      "include": ["packages/ui/src/icons/**/*.tsx", "**/icons/**/*.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useSelfClosingElements": "off"
+          },
+          "a11y": {
+            "noSvgWithoutTitle": "off"
+          }
+        }
+      }
     }
   ]
 }

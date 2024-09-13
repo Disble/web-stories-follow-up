@@ -1,5 +1,4 @@
 "use server";
-
 import { signIn, signOut } from "@repo/auth-config/auth";
 
 export async function authenticateWithDiscord() {

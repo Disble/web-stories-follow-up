@@ -17,10 +17,8 @@ export class PrismaAuthMiddleware {
 
   protected get connect() {
     return {
-      public: this.publicClient || (this.publicClient = this.getClient()),
-      protected:
-        this.protectedClient ||
-        (this.protectedClient = this.getClientProtected()),
+      public: this.publicClient || this.initPublicClient(),
+      protected: this.protectedClient || this.initProtectedClient(),
     };
   }
 
@@ -38,5 +36,15 @@ export class PrismaAuthMiddleware {
 
       return this.getClient()();
     };
+  }
+
+  private initPublicClient() {
+    this.publicClient = this.getClient();
+    return this.publicClient;
+  }
+
+  private initProtectedClient() {
+    this.protectedClient = this.getClientProtected();
+    return this.protectedClient;
   }
 }

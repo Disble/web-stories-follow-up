@@ -50,7 +50,7 @@ export default function FormTextareaModal<TFieldValues extends FieldValues>({
               }}
             />
           </ModalBody>
-          <ModalFooter></ModalFooter>
+          <ModalFooter />
         </>
       </ModalContent>
     </Modal>

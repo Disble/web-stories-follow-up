@@ -39,7 +39,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
         {status === "loading" ? (
           <>
             <Skeleton className="rounded-full">
-              <div className="h-8 w-8 rounded-full bg-default-200"></div>
+              <div className="h-8 w-8 rounded-full bg-default-200" />
             </Skeleton>
             <div className="flex flex-col">
               <Skeleton className="h-4 w-24 rounded mb-2" />
