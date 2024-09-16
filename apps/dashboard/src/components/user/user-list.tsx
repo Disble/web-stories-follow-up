@@ -1,6 +1,6 @@
 import type { SessionError } from "@repo/types/utils/errors";
 import UserCard from "./user-card";
-import type { db } from "@repo/layer-prisma";
+import type { db } from "@repo/layer-prisma/db";
 
 type UserListProps = {
   users: Exclude<Awaited<ReturnType<typeof db.user.getUsers>>[0], SessionError>;
