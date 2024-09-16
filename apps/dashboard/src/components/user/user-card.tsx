@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Card, CardFooter, Image } from "@repo/ui/nextui";
-import type { db } from "@repo/layer-prisma";
+import type { db } from "@repo/layer-prisma/db";
 import type { SessionError } from "@repo/types/utils/errors";
 
 type UserCardProps = {

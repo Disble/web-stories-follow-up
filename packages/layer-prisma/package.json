@@ -16,7 +16,8 @@
     ]
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./db": "./src/db.ts"
   },
   "scripts": {
     "build": "tsup",

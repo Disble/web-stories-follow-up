@@ -26,6 +26,8 @@ import { SolarCloudDownloadLinear } from "@repo/ui/icons";
 import { SolarTrashBinTrashOutline } from "#components/icons/index";
 import { useDateFormatter } from "@react-aria/i18n";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { createFullNovel } from "./pull-novel.action";
+import { ChapterStatus } from "@repo/layer-prisma";
 
 const urlSchema = z.string().url("La URL de la novela no es válida");
 
@@ -41,7 +43,7 @@ const FormSchema = z.object({
       urlChapter: urlSchema,
       urlCoverChapter: urlSchema,
       publishedAt: z.custom<CalendarDate>().nullable(),
-      status: z.string(),
+      status: z.nativeEnum(ChapterStatus),
     })
   ),
   authorName: z.string(),
@@ -110,7 +112,7 @@ export default function PullOrCreateNovel(): JSX.Element {
         urlCoverChapter:
           "https://img.wattpad.com/story_parts/1277859900/images/171e6dffce91cf47538086341392.png",
         publishedAt: today(getLocalTimeZone()),
-        status: "published",
+        status: ChapterStatus.COMPLETED,
       });
       form.setValue("authorName", "Juan Pérez");
       form.setValue("authorPseudonym", "Juancho");
@@ -137,19 +139,39 @@ export default function PullOrCreateNovel(): JSX.Element {
     try {
       setIsLoading(true);
 
-      // const dateCard = values.expiration_date.toDate(getLocalTimeZone());
+      await createFullNovel({
+        title: values.title,
+        synopsis: values.synopsis,
+        note: values.note,
+        urlNovel: values.urlNovel,
+        urlCoverNovel: values.urlCoverNovel,
+        chapters: {
+          createMany: {
+            data: values.chapters.map((chapter) => ({
+              title: chapter.title,
+              urlChapter: chapter.urlChapter,
+              urlCoverChapter: chapter.urlCoverChapter,
+              publishedAt:
+                chapter.publishedAt
+                  ?.toDate(getLocalTimeZone())
+                  ?.toISOString() ?? new Date(),
+              status: chapter.status,
+            })),
+          },
+        },
+        authors: {
+          create: {
+            author: {
+              create: {
+                name: values.authorName,
+                pseudonym: values.authorPseudonym,
+                urlProfile: values.authorUrlProfile,
+              },
+            },
+          },
+        },
+      });
 
-      // const year = dateCard.getFullYear();
-      // const month = dateCard.getMonth();
-      // const expirationDate = `${month + 1}/${year}`;
-
-      // if (
-      //   !subscription.monthly_braintree_plan_id ||
-      //   !subscription.annual_braintree_plan_id
-      // ) {
-      //   toast.error("No se ha encontrado el plan de pago");
-      //   return;
-      // }
       toast.success("Descargando datos de la novela...");
     } catch (error) {
       toast.error(
@@ -374,7 +396,7 @@ export default function PullOrCreateNovel(): JSX.Element {
                   urlChapter: "",
                   urlCoverChapter: "",
                   publishedAt: null,
-                  status: "",
+                  status: ChapterStatus.PENDING,
                 })
               }
             >

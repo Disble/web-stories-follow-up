@@ -1,6 +1,6 @@
 import React from "react";
 import UserList from "#components/user/user-list";
-import { db } from "@repo/layer-prisma";
+import { db } from "@repo/layer-prisma/db";
 import { SessionError } from "@repo/types/utils/errors";
 import PaginationNext from "#components/commons/pagination-next";
 

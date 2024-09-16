@@ -165,6 +165,7 @@ enum PublicationStatus {
 }
 
 enum ChapterStatus {
+  PENDING
   IN_PROGRESS
   COMPLETED
   FAILED
