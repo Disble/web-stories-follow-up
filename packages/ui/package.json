@@ -14,7 +14,9 @@
     "#commons/*": [
       "./src/commons/*.ts",
       "./src/commons/*.tsx"
-    ]
+    ],
+    "#crud-data-table": "./src/crud-data-table/index.ts",
+    "#data-table": "./src/data-table/index.ts"
   },
   "exports": {
     "./styles.css": "./dist/index.css",
@@ -24,7 +26,9 @@
     "./commons": "./src/commons/index.ts",
     "./utils": "./src/utils/index.ts",
     "./icons": "./src/icons/index.ts",
-    "./form": "./src/form/index.ts"
+    "./form": "./src/form/index.ts",
+    "./data-table": "./src/data-table/index.ts",
+    "./crud-data-table": "./src/crud-data-table/index.ts"
   },
   "license": "MIT",
   "scripts": {

@@ -37,3 +37,4 @@ export * from "./random/whatsapp-alt";
 export * from "./dashboard";
 export * from "./auth";
 export * from "./novels";
+export * from "./tables";

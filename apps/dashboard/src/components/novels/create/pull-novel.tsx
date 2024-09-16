@@ -172,7 +172,7 @@ export default function PullOrCreateNovel(): JSX.Element {
         },
       });
 
-      toast.success("Descargando datos de la novela...");
+      toast.success("Novela creada correctamente");
     } catch (error) {
       toast.error(
         "Error de registro. Por favor, revise los datos e intente nuevamente."
