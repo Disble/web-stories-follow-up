@@ -1,29 +1,17 @@
 "use server";
 
-import puppeteer from "puppeteer";
+import { JSDOM } from "jsdom";
 
 export async function scrapeNovel(url: string) {
   try {
-    let allChapters: Array<string | null> = [];
+    const response = await fetch(url);
+    const html = await response.text();
 
-    await (async () => {
-      const browser = await puppeteer.launch({ headless: true });
-      const page = await browser.newPage();
-      await page.goto(url, {
-        waitUntil: "networkidle0",
-        timeout: 50000,
-      });
+    const dom = new JSDOM(html);
+    const document = dom.window.document;
 
-      allChapters = await page.evaluate(() => {
-        const elements = document.querySelectorAll(
-          ".story-parts__part .part-title"
-        );
-        return Array.from(elements).map((el) => el.textContent);
-      });
-
-      await browser.close();
-    })();
-
+    const stories = document.querySelectorAll(".story-parts__part .part-title");
+    const allChapters = Array.from(stories).map((story) => story.textContent);
     return allChapters;
   } catch (error) {
     return {
