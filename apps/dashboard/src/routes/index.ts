@@ -60,6 +60,16 @@ export const enumPathDashboard = {
       title: "Actualizar novela",
     },
   },
+  authors: {
+    list: {
+      path: PATH_DASHBOARD.authors.list,
+      title: "Lista de autores",
+    },
+    create: {
+      path: PATH_DASHBOARD.authors.create,
+      title: "Agregar autor",
+    },
+  },
   users: {
     list: {
       path: PATH_DASHBOARD.users.list,

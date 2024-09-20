@@ -11,11 +11,14 @@ import {
 type FormInputProps<FormData extends FieldValues> = {
   control: UseFormReturn<FormData>["control"];
   name: UseControllerProps<FormData>["name"];
-} & InputProps;
+} & InputProps & {
+    onChangeAfter?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  };
 
 export const FormInput = <TFieldValues extends FieldValues>({
   control,
   name,
+  onChangeAfter,
   ...props
 }: FormInputProps<TFieldValues>) => {
   return (
@@ -30,6 +33,11 @@ export const FormInput = <TFieldValues extends FieldValues>({
             fullWidth
             {...props}
             {...field}
+            onChange={(e) => {
+              field.onChange(e);
+              props.onChange?.(e);
+              onChangeAfter?.(e);
+            }}
           />
         );
       }}

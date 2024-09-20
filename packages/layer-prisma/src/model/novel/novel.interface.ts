@@ -6,6 +6,23 @@ export const novelCardListSelect = {
   synopsis: true,
   urlCoverNovel: true,
   urlNovel: true,
+  authors: {
+    select: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          urlProfile: true,
+          pseudonym: true,
+        },
+      },
+    },
+  },
+  _count: {
+    select: {
+      chapters: true,
+    },
+  },
 } satisfies Prisma.NovelSelect;
 
 export type NovelCardListPayload = Prisma.NovelGetPayload<{

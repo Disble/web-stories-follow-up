@@ -15,8 +15,8 @@ export type DataTableRow = {
 };
 
 export type DataTableSearchParams = {
-  page?: string;
-  page_size?: string;
+  page?: number;
+  page_size?: number;
   // biome-ignore lint/suspicious/noExplicitAny: library syntax
   [key: string]: any;
 };
