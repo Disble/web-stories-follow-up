@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "web",
+  "name": "dashboard",
   "version": "1.0.0",
   "imports": {
     "#*": [

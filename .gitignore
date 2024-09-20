@@ -39,6 +39,7 @@ packages/layer-prisma/dist/
 
 # vscode
 .vscode
+.ignore
 
 # tsbuildinfo
 *.tsbuildinfo

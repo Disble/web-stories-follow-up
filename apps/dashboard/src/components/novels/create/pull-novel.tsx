@@ -25,30 +25,31 @@ import { FormInput, FormSection, FormTextarea } from "@repo/ui/form";
 import { SolarCloudDownloadLinear } from "@repo/ui/icons";
 import { SolarTrashBinTrashOutline } from "#components/icons/index";
 import { useDateFormatter } from "@react-aria/i18n";
-import { getLocalTimeZone, today } from "@internationalized/date";
-import { createFullNovel } from "./pull-novel.action";
+import { getLocalTimeZone, parseDate } from "@internationalized/date";
+import { createFullNovel, scrapeNovel } from "./pull-novel.action";
 import { ChapterStatus } from "@repo/layer-prisma";
 
 const urlSchema = z.string().url("La URL de la novela no es válida");
+const urlRelativeSchema = z.string().regex(/\/(?:[\w-]+\/)*[\w-]+/);
 
-const FormSchema = z.object({
+export const FormSchema = z.object({
   urlNovel: urlSchema,
   title: z.string(),
   synopsis: z.string(),
-  note: z.string(),
+  note: z.string().optional(),
   urlCoverNovel: urlSchema,
   chapters: z.array(
     z.object({
       title: z.string(),
-      urlChapter: urlSchema,
-      urlCoverChapter: urlSchema,
+      urlChapter: urlRelativeSchema,
+      urlCoverChapter: urlSchema.optional(),
       publishedAt: z.custom<CalendarDate>().nullable(),
       status: z.nativeEnum(ChapterStatus),
     })
   ),
-  authorName: z.string(),
+  authorName: z.string().optional(),
   authorPseudonym: z.string(),
-  authorUrlProfile: urlSchema,
+  authorUrlProfile: urlRelativeSchema,
 });
 
 type FormData = z.infer<typeof FormSchema>;
@@ -91,32 +92,36 @@ export default function PullOrCreateNovel(): JSX.Element {
       setIsPulling(true);
       toast.success("Descargando datos de la novela...");
 
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      const novelScraped = await scrapeNovel(urlNovel);
 
-      // clean chapters
-      if (fields.length > 0) {
-        fields.forEach((_, index) => remove(index));
+      if ("error" in novelScraped) {
+        toast.error(novelScraped.error);
+        return;
       }
 
-      form.setValue("title", "Mi novela");
-      form.setValue("synopsis", "Sinopsis de mi novela");
-      form.setValue("note", "Nota de mi novela");
-      form.setValue(
-        "urlCoverNovel",
-        "https://img.wattpad.com/cover/324398974-512-k859929.jpg"
-      );
-      append({
-        title: "Capítulo 1",
-        urlChapter:
-          "https://www.wattpad.com/1277859900-10-000-roentgens-capítulo-1-mareas-cambiantes",
-        urlCoverChapter:
-          "https://img.wattpad.com/story_parts/1277859900/images/171e6dffce91cf47538086341392.png",
-        publishedAt: today(getLocalTimeZone()),
-        status: ChapterStatus.COMPLETED,
-      });
-      form.setValue("authorName", "Juan Pérez");
-      form.setValue("authorPseudonym", "Juancho");
-      form.setValue("authorUrlProfile", "https://www.wattpad.com/juanperez");
+      if (fields.length > 0) {
+        // // clean chapters
+        remove();
+      }
+
+      form.setValue("title", novelScraped.title);
+      form.setValue("synopsis", novelScraped.synopsis);
+      form.setValue("note", novelScraped.note);
+      form.setValue("urlCoverNovel", novelScraped.urlCoverNovel);
+
+      for (const chapter of novelScraped.chapters) {
+        append({
+          title: chapter.title,
+          urlChapter: chapter.urlChapter,
+          publishedAt: chapter.publishedAt
+            ? parseDate(chapter.publishedAt.split("T")[0])
+            : null,
+          status: chapter.status,
+        });
+      }
+      form.setValue("authorName", novelScraped.authorName);
+      form.setValue("authorPseudonym", novelScraped.authorPseudonym);
+      form.setValue("authorUrlProfile", novelScraped.authorUrlProfile);
       toast.success("Datos de la novela descargados correctamente");
     } catch (error) {
       toast.error("Error al descargar los datos de la novela");
@@ -150,7 +155,7 @@ export default function PullOrCreateNovel(): JSX.Element {
             data: values.chapters.map((chapter) => ({
               title: chapter.title,
               urlChapter: chapter.urlChapter,
-              urlCoverChapter: chapter.urlCoverChapter,
+              urlCoverChapter: chapter.urlCoverChapter ?? "", // TODO: change in schema
               publishedAt:
                 chapter.publishedAt
                   ?.toDate(getLocalTimeZone())
@@ -276,117 +281,124 @@ export default function PullOrCreateNovel(): JSX.Element {
             description="Ingresa los capítulos de la novela."
           >
             {fields.length > 0 && (
-              <Accordion
-                showDivider={false}
-                className="p-2 flex flex-col gap-1"
-                variant="bordered"
-                itemClasses={{
-                  base: "py-0",
-                  title: "font-normal text-medium",
-                  trigger:
-                    "px-2 py-0 data-[hover=true]:bg-default-100 rounded-lg h-14 flex items-center",
-                  indicator: "text-medium",
-                  content: "text-small px-2",
-                }}
-              >
-                {fields.map((field, index) => {
-                  const chapterTitle = form.watch(`chapters.${index}.title`);
-                  const urlCoverChapter = form.watch(
-                    `chapters.${index}.urlCoverChapter`
-                  );
-                  const isValidUrlCoverChapter =
-                    urlSchema.safeParse(urlCoverChapter);
+              <>
+                <span className="text-sm text-gray-500">
+                  {fields.length} capítulos encontrados
+                </span>
+                <Accordion
+                  showDivider={false}
+                  className="p-2 flex flex-col gap-1"
+                  variant="bordered"
+                  itemClasses={{
+                    base: "py-0",
+                    title:
+                      "text-base text-ellipsis overflow-hidden line-clamp-1",
+                    subtitle: "text-ellipsis overflow-hidden line-clamp-1",
+                    trigger:
+                      "px-2 py-0 data-[hover=true]:bg-default-100 rounded-lg h-14 flex items-center",
+                    indicator: "text-medium",
+                    content: "text-small px-2",
+                  }}
+                >
+                  {fields.map((field, index) => {
+                    const chapterTitle = form.watch(`chapters.${index}.title`);
+                    const urlCoverChapter = form.watch(
+                      `chapters.${index}.urlCoverChapter`
+                    );
+                    const isValidUrlCoverChapter =
+                      urlSchema.safeParse(urlCoverChapter);
 
-                  const publishedAt = form.watch(
-                    `chapters.${index}.publishedAt`
-                  );
+                    const publishedAt = form.watch(
+                      `chapters.${index}.publishedAt`
+                    );
 
-                  return (
-                    <AccordionItem
-                      key={field.id}
-                      aria-label={
-                        chapterTitle.length > 0
-                          ? chapterTitle
-                          : "Capítulo de la novela"
-                      }
-                      startContent={
-                        isValidUrlCoverChapter.success ? (
-                          <Image
-                            src={urlCoverChapter}
-                            alt="Portada de la novela"
-                            width={40}
-                            height={40}
-                            classNames={{
-                              img: "object-cover",
-                            }}
-                          />
-                        ) : (
-                          <div className="w-10 h-10 bg-gray-300 rounded-lg grid place-items-center font-bold">
-                            {chapterTitle.length > 0
-                              ? chapterTitle.slice(0, 1).toUpperCase()
-                              : "N"}
-                          </div>
-                        )
-                      }
-                      subtitle={
-                        <p className="flex">
-                          {publishedAt
+                    return (
+                      <AccordionItem
+                        key={field.id}
+                        aria-label={
+                          chapterTitle.length > 0
+                            ? chapterTitle
+                            : "Capítulo de la novela"
+                        }
+                        startContent={
+                          isValidUrlCoverChapter.success ? (
+                            <Image
+                              src={urlCoverChapter}
+                              alt="Portada de la novela"
+                              width={40}
+                              height={40}
+                              classNames={{
+                                img: "object-cover",
+                              }}
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gray-300 rounded-lg grid place-items-center font-bold">
+                              {chapterTitle.length > 0
+                                ? chapterTitle.slice(0, 1).toUpperCase()
+                                : "N"}
+                            </div>
+                          )
+                        }
+                        subtitle={
+                          publishedAt
                             ? formatter.format(
                                 publishedAt.toDate(getLocalTimeZone())
                               )
-                            : "--"}
-                        </p>
-                      }
-                      title={
-                        chapterTitle.length > 0
-                          ? chapterTitle
-                          : "Capítulo de la novela"
-                      }
-                    >
-                      <div className="space-y-3" key={field.id}>
-                        <Input
-                          {...form.register(
-                            `chapters.${index}.urlChapter` as const
-                          )}
-                          placeholder="URL del capítulo"
-                          label="URL del capítulo"
-                        />
-                        <Input
-                          {...form.register(`chapters.${index}.title` as const)}
-                          placeholder="Título del capítulo"
-                          label="Título del capítulo"
-                        />
-                        <Input
-                          {...form.register(
-                            `chapters.${index}.urlCoverChapter` as const
-                          )}
-                          placeholder="URL de la portada del capítulo"
-                          label="URL de la portada del capítulo"
-                        />
-                        <DatePicker
-                          value={publishedAt}
-                          onChange={(value) => {
-                            form.setValue(
-                              `chapters.${index}.publishedAt`,
-                              value
-                            );
-                          }}
-                          label="Fecha de publicación"
-                        />
-                        <Button
-                          isIconOnly
-                          onClick={() => handleWarningDeleteChapter(index)}
-                          color="danger"
-                          variant="ghost"
-                          className="w-full"
-                        >
-                          <SolarTrashBinTrashOutline className="size-5" />
-                        </Button>
-                      </div>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
+                            : "--"
+                        }
+                        title={
+                          chapterTitle.length > 0
+                            ? chapterTitle
+                            : "Capítulo de la novela"
+                        }
+                      >
+                        <div className="space-y-3" key={field.id}>
+                          <Input
+                            {...form.register(
+                              `chapters.${index}.urlChapter` as const
+                            )}
+                            placeholder="URL del capítulo"
+                            label="URL del capítulo"
+                          />
+                          <Input
+                            {...form.register(
+                              `chapters.${index}.title` as const
+                            )}
+                            placeholder="Título del capítulo"
+                            label="Título del capítulo"
+                          />
+                          <Input
+                            {...form.register(
+                              `chapters.${index}.urlCoverChapter` as const
+                            )}
+                            placeholder="URL de la portada del capítulo"
+                            label="URL de la portada del capítulo"
+                          />
+                          <DatePicker
+                            value={publishedAt}
+                            onChange={(value) => {
+                              form.setValue(
+                                `chapters.${index}.publishedAt`,
+                                value
+                              );
+                            }}
+                            label="Fecha de publicación"
+                          />
+                          <Button
+                            isIconOnly
+                            onClick={() => handleWarningDeleteChapter(index)}
+                            color="danger"
+                            variant="ghost"
+                            className="w-full"
+                          >
+                            <SolarTrashBinTrashOutline className="size-5" />
+                          </Button>
+                        </div>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              </>
             )}
             <Button
               fullWidth

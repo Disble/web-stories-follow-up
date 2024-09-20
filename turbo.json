@@ -24,7 +24,7 @@
       "cache": false
     },
     "dev": {
-      "dependsOn": ["^generate", "^build"],
+      "dependsOn": ["^generate"],
       "cache": false,
       "persistent": true
     },

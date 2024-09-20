@@ -98,6 +98,12 @@ To develop all apps and packages, run the following command:
 yarn run dev
 ```
 
+```bash
+bun dev --filter=@repo/ui --filter=@repo/database --filter=dashboard
+```
+
+
+
 ## Sync packages with Sherif
 
 To sync packages with Sherif, run the following command:
