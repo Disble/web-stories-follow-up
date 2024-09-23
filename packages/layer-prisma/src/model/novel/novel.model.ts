@@ -26,6 +26,9 @@ export class NovelModel extends PrismaDB {
     return prisma.novel
       .paginate({
         select: novelCardListSelect,
+        orderBy: {
+          updatedAt: "desc",
+        },
       })
       .withPages({
         page,

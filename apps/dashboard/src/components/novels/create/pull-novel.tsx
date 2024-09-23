@@ -50,6 +50,7 @@ export const FormSchema = z.object({
   authorName: z.string().optional(),
   authorPseudonym: z.string(),
   authorUrlProfile: urlRelativeSchema,
+  authorUrlCoverProfile: urlSchema.optional(),
 });
 
 type FormData = z.infer<typeof FormSchema>;
@@ -84,6 +85,9 @@ export default function PullOrCreateNovel(): JSX.Element {
 
   const urlCoverNovel = form.watch("urlCoverNovel");
   const urlCoverNovelError = urlSchema.safeParse(urlCoverNovel);
+
+  const authorUrlCoverProfile = form.watch("authorUrlCoverProfile");
+  const authorUrlCoverProfileError = urlSchema.safeParse(authorUrlCoverProfile);
 
   const formatter = useDateFormatter({ dateStyle: "full" });
 
@@ -122,6 +126,10 @@ export default function PullOrCreateNovel(): JSX.Element {
       form.setValue("authorName", novelScraped.authorName);
       form.setValue("authorPseudonym", novelScraped.authorPseudonym);
       form.setValue("authorUrlProfile", novelScraped.authorUrlProfile);
+      form.setValue(
+        "authorUrlCoverProfile",
+        novelScraped.authorUrlCoverProfile
+      );
       toast.success("Datos de la novela descargados correctamente");
     } catch (error) {
       toast.error("Error al descargar los datos de la novela");
@@ -171,6 +179,7 @@ export default function PullOrCreateNovel(): JSX.Element {
                 name: values.authorName,
                 pseudonym: values.authorPseudonym,
                 urlProfile: values.authorUrlProfile,
+                urlCoverProfile: values.authorUrlCoverProfile,
               },
             },
           },
@@ -447,6 +456,24 @@ export default function PullOrCreateNovel(): JSX.Element {
               variant="bordered"
               color="primary"
             />
+            <FormInput
+              control={form.control}
+              name="authorUrlCoverProfile"
+              id="authorUrlCoverProfile"
+              label="URL de la portada del perfil del autor"
+              placeholder="URL de la portada del perfil del autor"
+              variant="bordered"
+              color="primary"
+            />
+            {authorUrlCoverProfileError.success && (
+              <Image
+                src={authorUrlCoverProfile}
+                alt="Portada del perfil del autor"
+                classNames={{
+                  img: "object-cover w-20 h-20",
+                }}
+              />
+            )}
           </FormSection>
           <Button
             type="submit"

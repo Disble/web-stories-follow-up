@@ -14,6 +14,7 @@ export const novelCardListSelect = {
           name: true,
           urlProfile: true,
           pseudonym: true,
+          urlCoverProfile: true,
         },
       },
     },

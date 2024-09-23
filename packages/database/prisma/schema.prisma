@@ -93,6 +93,8 @@ model Novel {
   updatedAt DateTime @updatedAt
   chapters Chapter[]
   authors NovelAutor[]
+
+  platforms NovelPlatform[]
   template Template?
 }
 
@@ -111,9 +113,30 @@ model Author {
   name String?
   pseudonym String
   urlProfile String
+  urlCoverProfile String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   novels NovelAutor[]
+}
+
+model NovelPlatform {
+  novel     Novel     @relation(fields: [novelId], references: [id])
+  novelId   String
+  platform    Platform    @relation(fields: [platformId], references: [id])
+  platformId  String
+  assignedAt DateTime @default(now())
+
+  @@id([novelId, platformId])
+}
+
+model Platform {
+  id String @id @default(cuid())
+  name String
+  baseUrl String
+  urlCover String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  novels NovelPlatform[]
 }
 
 model Chapter {

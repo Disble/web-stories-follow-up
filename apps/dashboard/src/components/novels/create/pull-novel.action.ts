@@ -28,6 +28,7 @@ const dataNovelServer = z.object({
   authorName: z.string(),
   authorPseudonym: z.string(),
   authorUrlProfile: urlRelativeSchema,
+  authorUrlCoverProfile: urlSchema.optional(),
 });
 
 type DataNovelServer = z.infer<typeof dataNovelServer>;
@@ -106,6 +107,11 @@ export async function scrapeNovel(url: string) {
       throw new Error("Can't get authorPseudonym or authorUrlProfile");
     }
 
+    const authorProfilePhotoEl = document.querySelector(".author-info__badge");
+
+    const authorUrlCoverProfile =
+      authorProfilePhotoEl?.getAttribute("src") ?? undefined;
+
     const formData = {
       urlNovel: url,
       title,
@@ -116,6 +122,7 @@ export async function scrapeNovel(url: string) {
       authorName: "",
       authorPseudonym,
       authorUrlProfile,
+      authorUrlCoverProfile,
     } satisfies DataNovelServer;
     return formData;
   } catch (error) {

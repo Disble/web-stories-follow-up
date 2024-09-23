@@ -54,16 +54,33 @@ export default function ListNovel({
           />
           <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100">
             <div className="flex flex-grow gap-2 items-center">
-              <Image
-                alt="Breathing app icon"
-                className="rounded-full w-10 h-11 bg-black"
-                src="https://nextui.org/images/breathing-app-icon.jpeg"
-              />
+              {novel.authors[0].author.urlCoverProfile ? (
+                <Image
+                  alt="Breathing app icon"
+                  className="rounded-full size-10 bg-black"
+                  src={
+                    novel.authors[0].author.urlCoverProfile ??
+                    novel.authors[0].author.urlProfile
+                  }
+                />
+              ) : (
+                <div className="rounded-full size-10 bg-gray-100 flex items-center justify-center">
+                  <span className="text-black">
+                    {novel.authors[0].author.pseudonym
+                      ?.charAt(0)
+                      .toUpperCase() ?? "?"}
+                  </span>
+                </div>
+              )}
               <div className="flex flex-col">
                 <p className="text-tiny text-white/60">
                   {novel.authors
                     .map((author) => author.author.pseudonym)
                     .join(", ")}
+                </p>
+                <p className="text-tiny text-white/60">
+                  {novel._count.chapters}{" "}
+                  {novel._count.chapters === 1 ? "Capítulo" : "Capítulos"}
                 </p>
               </div>
             </div>
