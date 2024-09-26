@@ -38,8 +38,5 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ],
-  "dependencies": {
-    "nuqs": "^1.19.1"
-  }
+  ]
 }

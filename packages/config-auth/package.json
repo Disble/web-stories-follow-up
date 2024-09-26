@@ -1,7 +1,6 @@
 {
   "name": "@repo/auth-config",
   "version": "0.0.0",
-  "private": true,
   "exports": {
     "./auth": "./src/auth.ts",
     "./config": "./src/config.ts"

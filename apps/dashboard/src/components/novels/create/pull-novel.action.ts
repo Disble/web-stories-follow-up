@@ -3,10 +3,25 @@ import { db } from "@repo/layer-prisma/db";
 import { ChapterStatus, type Prisma } from "@repo/layer-prisma";
 import { JSDOM } from "jsdom";
 import { z } from "zod";
+import { uniqueSpaceSlug, digits, word } from "space-slug";
 
-export async function createFullNovel(data: Prisma.NovelCreateInput) {
-  await db.novel.create(data);
+export async function createFullNovel(
+  data: Omit<Prisma.NovelCreateInput, "slug">
+) {
+  const slug = await uniqueSpaceSlug([digits(9), data.title], {
+    separator: "-",
+    isUnique: async (slug) => {
+      const count = await db.novel.countBySlug(slug);
+      if (typeof count === "string") return false;
+      return count === 0;
+    },
+  });
+  await db.novel.create({
+    ...data,
+    slug,
+  });
 }
+
 const urlSchema = z.string().url("La URL de la novela no es válida");
 const urlRelativeSchema = z.string().regex(/\/(?:[\w-]+\/)*[\w-]+/);
 

@@ -1,16 +1,8 @@
-"use client";
 import type { PageNumberPaginationMeta } from "@repo/layer-prisma/utils";
 import type { NovelCardListPayload } from "@repo/layer-prisma/model/novel/novel.interface";
-import {
-  Card,
-  CardHeader,
-  CardFooter,
-  Image,
-  Button,
-  Pagination,
-} from "@repo/ui/nextui";
-import { useQueryStates } from "nuqs";
-import { novelSearchParams } from "#components/novels/search-params";
+import { Card, CardHeader, CardFooter, Image, Button } from "@repo/ui/nextui";
+import ListNovelPagination from "./list-novel-pagination";
+import Link from "next/link";
 
 interface BinnaclesTableProps {
   novels: NovelCardListPayload[];
@@ -21,15 +13,6 @@ export default function ListNovel({
   novels,
   pagination,
 }: BinnaclesTableProps): JSX.Element {
-  const [searchParams, setSearchParams] = useQueryStates(novelSearchParams, {
-    history: "push",
-    shallow: false,
-  });
-
-  const handleOnChangePage = (page: number) => {
-    setSearchParams({ page, page_size: searchParams.page_size });
-  };
-
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:p-6 p-3">
       {novels.map((novel) => (
@@ -48,7 +31,8 @@ export default function ListNovel({
           </CardHeader>
           <Image
             removeWrapper
-            alt="Relaxing app background"
+            fallbackSrc="https://cdn.dribbble.com/users/27766/screenshots/3488007/media/ac55b16291e99eb1740c17b4ac793454.png"
+            alt={`${novel.title} - ${novel.authors[0].author.pseudonym}`}
             className="z-0 w-full h-full object-cover"
             src={novel.urlCoverNovel}
           />
@@ -84,23 +68,18 @@ export default function ListNovel({
                 </p>
               </div>
             </div>
-            <Button radius="full" size="sm">
-              Ver novela
+            <Button
+              as={Link}
+              href={`/novel/${novel.slug}`}
+              radius="full"
+              size="sm"
+            >
+              Ver capítulos
             </Button>
           </CardFooter>
         </Card>
       ))}
-      <div className="flex justify-center col-span-full">
-        <Pagination
-          showControls
-          color="primary"
-          variant="bordered"
-          page={pagination.currentPage}
-          total={pagination.pageCount}
-          onChange={handleOnChangePage}
-          isDisabled={pagination.totalCount === 0}
-        />
-      </div>
+      <ListNovelPagination pagination={pagination} />
     </section>
   );
 }

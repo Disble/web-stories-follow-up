@@ -1,7 +1,7 @@
 import { PrismaDB } from "#abstract-factory/prisma-db.abstract";
 import type { Prisma } from "@repo/database";
 import { SessionError } from "@repo/types/utils/errors";
-import { novelCardListSelect } from "./novel.interface";
+import { novelCardListSelect, novelFindBySlugSelect } from "./novel.interface";
 
 export class NovelModel extends PrismaDB {
   public async create(data: Prisma.NovelCreateInput) {
@@ -13,6 +13,35 @@ export class NovelModel extends PrismaDB {
 
     return prisma.novel.create({
       data,
+    });
+  }
+
+  public async findBySlug(slug: string) {
+    const prisma = await this.connect.protected();
+
+    if (prisma instanceof SessionError) {
+      return prisma.message;
+    }
+
+    return prisma.novel.findUnique({
+      where: {
+        slug,
+      },
+      select: novelFindBySlugSelect,
+    });
+  }
+
+  public async countBySlug(slug: string) {
+    const prisma = await this.connect.protected();
+
+    if (prisma instanceof SessionError) {
+      return prisma.message;
+    }
+
+    return prisma.novel.count({
+      where: {
+        slug,
+      },
     });
   }
 

@@ -85,6 +85,7 @@ model Authenticator {
 model Novel {
   id String @id @default(cuid())
   title String
+  slug String @unique
   synopsis String
   note String?
   urlCoverNovel String
