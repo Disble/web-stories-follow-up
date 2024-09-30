@@ -63,8 +63,15 @@ export const novelFindBySlugSelect = {
         select: {
           name: true,
           pseudonym: true,
+          urlProfile: true,
         },
       },
+    },
+  },
+  template: {
+    select: {
+      id: true,
+      text: true,
     },
   },
 } satisfies Prisma.NovelSelect;

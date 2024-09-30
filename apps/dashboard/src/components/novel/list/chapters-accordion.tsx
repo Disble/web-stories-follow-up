@@ -1,6 +1,6 @@
 "use client";
 
-import { Accordion, AccordionItem, Image, Input } from "@repo/ui/nextui";
+import { Accordion, AccordionItem, Image, Input, Link } from "@repo/ui/nextui";
 import { useDateFormatter } from "@react-aria/i18n";
 import type { NovelFindBySlugPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 
@@ -70,9 +70,14 @@ export default function ChaptersAccordion({
               >
                 URL del capítulo
               </label>
-              <p className="p-2 bg-gray-100 rounded-md text-gray-800">
+              <Link
+                id="urlChapter"
+                href={platforms.at(0)?.platform.baseUrl + chapter.urlChapter}
+                isExternal
+                className="break-all"
+              >
                 {platforms.at(0)?.platform.baseUrl + chapter.urlChapter}
-              </p>
+              </Link>
             </div>
             <div className="mb-4">
               <label

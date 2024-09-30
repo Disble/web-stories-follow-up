@@ -133,7 +133,8 @@ model NovelPlatform {
 model Platform {
   id String @id @default(cuid())
   name String
-  baseUrl String
+  baseUrl String @unique
+  code String @unique
   urlCover String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -144,8 +145,8 @@ model Chapter {
   id String @id @default(cuid())
   title String
   urlChapter String
-  urlCoverChapter String
-  publishedAt DateTime
+  urlCoverChapter String?
+  publishedAt DateTime?
   status ChapterStatus
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
