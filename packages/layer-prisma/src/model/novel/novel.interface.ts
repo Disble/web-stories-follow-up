@@ -45,6 +45,10 @@ export const novelFindBySlugSelect = {
       publishedAt: true,
       urlCoverChapter: true,
       urlChapter: true,
+      publication: true,
+    },
+    orderBy: {
+      createdAt: "asc",
     },
   },
   platforms: {

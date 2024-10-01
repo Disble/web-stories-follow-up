@@ -1,6 +1,6 @@
 "use client";
 
-import { Accordion, AccordionItem, Image, Input, Link } from "@repo/ui/nextui";
+import { Accordion, AccordionItem, Image, Button, Link } from "@repo/ui/nextui";
 import { useDateFormatter } from "@react-aria/i18n";
 import type { NovelFindBySlugPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 
@@ -63,7 +63,7 @@ export default function ChaptersAccordion({
           }
         >
           <div className="space-y-3">
-            <div className="mb-4">
+            <div>
               <label
                 htmlFor="urlChapter"
                 className="block text-sm font-medium text-gray-700 mb-1"
@@ -79,7 +79,7 @@ export default function ChaptersAccordion({
                 {platforms.at(0)?.platform.baseUrl + chapter.urlChapter}
               </Link>
             </div>
-            <div className="mb-4">
+            <div>
               <label
                 htmlFor="title"
                 className="block text-sm font-medium text-gray-700 mb-1"
@@ -90,7 +90,7 @@ export default function ChaptersAccordion({
                 {chapter.title}
               </p>
             </div>
-            <div className="mb-4">
+            <div>
               <label
                 htmlFor="urlCoverChapter"
                 className="block text-sm font-medium text-gray-700 mb-1"
@@ -100,6 +100,33 @@ export default function ChaptersAccordion({
               <p className="p-2 bg-gray-100 rounded-md text-gray-800">
                 {chapter.urlCoverChapter || "No disponible"}
               </p>
+            </div>
+            <div>
+              <label
+                htmlFor="urlCoverChapter"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Publicación de Facebook
+              </label>
+              {chapter.publication ? (
+                <Link
+                  href={`/publications/${chapter.publication.id}`}
+                  color="primary"
+                  className="break-all"
+                >
+                  Ver publicación
+                </Link>
+              ) : (
+                <Button
+                  as={Link}
+                  href={`/publications/create?chapterId=${chapter.id}`}
+                  color="primary"
+                  variant="bordered"
+                  fullWidth
+                >
+                  Crear publicación
+                </Button>
+              )}
             </div>
           </div>
         </AccordionItem>

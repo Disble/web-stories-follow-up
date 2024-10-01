@@ -1,14 +1,9 @@
-import { FormSection } from "@repo/ui/form";
+import CreatePublication from "#components/publications/create/create-publication";
 
 export default async function Page(): Promise<JSX.Element> {
   return (
-    <>
-      <FormSection
-        title="URL de la novela"
-        description="Ingresa la URL de la novela que deseas descargar."
-      >
-        lol
-      </FormSection>
-    </>
+    <div className="mx-auto w-full max-w-3xl">
+      <CreatePublication />
+    </div>
   );
 }
