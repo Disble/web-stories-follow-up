@@ -1,0 +1,22 @@
+# Cursor Rules
+
+Always use Typescript, and strong typing. Use functional programing paradigms.
+
+Always use the best practices for the typescript language.
+
+Always use the best practices for the react framework.
+
+Always use the best practices for the next.js framework.
+
+Always use the best practices for the react query library.
+
+# NOTES about the project:
+
+## Create a new model and template.
+
+For methods that will be used to list or read elements, it is better to control the error while the rest should return an error.
+
+GET:  return string or [prisma, null];
+POST: throw Error
+PUT: throw Error
+DELETE: throw Error

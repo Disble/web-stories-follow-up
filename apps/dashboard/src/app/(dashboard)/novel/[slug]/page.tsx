@@ -1,6 +1,7 @@
 import { db } from "@repo/layer-prisma/db";
 import { Image, Link } from "@repo/ui/nextui";
 import ChaptersAccordion from "#components/novel/list/chapters-accordion";
+import TemplateUpsert from "#components/novel/edit/template-upsert";
 
 type PageProps = {
   params: { slug: string };
@@ -57,19 +58,7 @@ export default async function Page({
             </Link>
           </p>
         </article>
-        <article className="flex flex-col gap-4 p-4">
-          <h2 className="text-xl font-bold">Plantilla</h2>
-          {novel.template ? (
-            <div className="flex flex-col gap-2">
-              <h3 className="text-lg font-bold">{novel.template.id}</h3>
-              <p className="text-sm text-gray-500">{novel.template.text}</p>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">
-              No hay plantilla asignada a esta novela.
-            </p>
-          )}
-        </article>
+        <TemplateUpsert novel={novel} />
       </section>
       <article className="flex flex-col gap-4 p-4">
         <h2 className="text-xl font-bold">
