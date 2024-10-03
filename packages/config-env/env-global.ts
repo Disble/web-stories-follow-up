@@ -11,6 +11,10 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: z.string().min(1),
     FB_API_BASE_URL: z.string().min(1),
     FB_ACCESS_TOKEN: z.string().min(1),
+    FB_APP_SECRET: z.string().min(1),
+    FB_PAGE_ID: z.string().min(1),
+    FB_SYSTEM_USER_ID: z.string().min(1),
+    FB_BUSINESS_ID: z.string().min(1),
   },
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
@@ -24,5 +28,9 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     FB_API_BASE_URL: process.env.FB_API_BASE_URL,
     FB_ACCESS_TOKEN: process.env.FB_ACCESS_TOKEN,
+    FB_APP_SECRET: process.env.FB_APP_SECRET,
+    FB_PAGE_ID: process.env.FB_PAGE_ID,
+    FB_SYSTEM_USER_ID: process.env.FB_SYSTEM_USER_ID,
+    FB_BUSINESS_ID: process.env.FB_BUSINESS_ID,
   },
 });

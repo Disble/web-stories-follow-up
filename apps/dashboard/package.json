@@ -41,6 +41,7 @@
   "devDependencies": {
     "@repo/auth-config": "*",
     "@repo/env-config": "*",
+    "@repo/layer-fetch": "*",
     "@repo/layer-prisma": "*",
     "@repo/typescript-config": "*",
     "@repo/ui": "*",

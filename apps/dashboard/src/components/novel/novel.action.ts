@@ -6,6 +6,8 @@ import type { NovelFindBySlugPayload } from "@repo/layer-prisma/model/novel/nove
 import { SessionError } from "@repo/types/utils/errors";
 import { JSDOM } from "jsdom";
 import { revalidatePath } from "next/cache";
+import { api } from "@repo/layer-fetch/api";
+import type { FeedPublishPostBody } from "@repo/layer-fetch/model/feed/feed.interface";
 
 export async function upsertTemplate(novelId: string, text: string) {
   try {
@@ -133,4 +135,16 @@ export async function scrapeCurrentChapters(url: string) {
       error: "Error al obtener el contenido de la novela",
     };
   }
+}
+
+export async function publishNewChapterInFacebook(body: FeedPublishPostBody) {
+  const [post] = await api.feed.publishPost(body);
+
+  if (!post) {
+    return {
+      error: "Error al publicar el capítulo en Facebook",
+    };
+  }
+
+  return post;
 }

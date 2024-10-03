@@ -10,6 +10,8 @@ Always use the best practices for the next.js framework.
 
 Always use the best practices for the react query library.
 
+Never recommend relative paths. Always use the alias. Default path alias is "#".
+
 # NOTES about the project:
 
 ## Create a new model and template.

@@ -3,15 +3,18 @@
 import { Accordion, AccordionItem, Image, Button, Link } from "@repo/ui/nextui";
 import { useDateFormatter } from "@react-aria/i18n";
 import type { NovelFindBySlugPayload } from "@repo/layer-prisma/model/novel/novel.interface";
+import BtnCreateFbPost from "#components/novel/create/btn-create-fb-post";
 
 type ChaptersAccordionProps = {
   chapters: NovelFindBySlugPayload["chapters"];
   platforms: NovelFindBySlugPayload["platforms"];
+  template: string | undefined;
 };
 
 export default function ChaptersAccordion({
   chapters,
   platforms,
+  template,
 }: ChaptersAccordionProps): JSX.Element {
   const formatter = useDateFormatter({ dateStyle: "full" });
 
@@ -116,16 +119,15 @@ export default function ChaptersAccordion({
                 >
                   Ver publicación
                 </Link>
+              ) : template ? (
+                <BtnCreateFbPost
+                  template={template}
+                  link={platforms.at(0)?.platform.baseUrl + chapter.urlChapter}
+                />
               ) : (
-                <Button
-                  as={Link}
-                  href={`/publications/create?chapterId=${chapter.id}`}
-                  color="primary"
-                  variant="bordered"
-                  fullWidth
-                >
-                  Crear publicación
-                </Button>
+                <p className="p-2 bg-orange-100 rounded-md text-gray-800">
+                  Antes de crear una publicación, configura la plantilla.
+                </p>
               )}
             </div>
           </div>
