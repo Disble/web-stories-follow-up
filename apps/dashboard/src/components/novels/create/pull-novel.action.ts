@@ -87,7 +87,12 @@ export async function scrapeNovel(url: string) {
         const urlChapter = story.getAttribute("href");
         const publishedAtStr = story.querySelector(".right-label")?.textContent;
         let publishedAt = null;
-        if (publishedAtStr?.includes("hours ago")) {
+        if (
+          publishedAtStr?.includes("hours ago") ||
+          publishedAtStr?.includes("hour ago") ||
+          publishedAtStr?.includes("minutes ago") ||
+          publishedAtStr?.includes("a few seconds ago")
+        ) {
           publishedAt = new Date().toISOString();
         } else if (publishedAtStr?.includes("a day ago")) {
           publishedAt = new Date(
