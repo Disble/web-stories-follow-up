@@ -2,6 +2,7 @@ import { db } from "@repo/layer-prisma/db";
 import { Image, Link } from "@repo/ui/nextui";
 import ChaptersAccordion from "#components/novel/list/chapters-accordion";
 import TemplateUpsert from "#components/novel/edit/template-upsert";
+import BtnChaptersUpdate from "#components/novel/update/btn-chapters-update";
 
 type PageProps = {
   params: { slug: string };
@@ -61,9 +62,15 @@ export default async function Page({
         <TemplateUpsert novel={novel} />
       </section>
       <article className="flex flex-col gap-4 p-4">
-        <h2 className="text-xl font-bold">
+        <h2 className="text-xl font-bold flex items-center justify-between gap-2">
           {novel.chapters.length}{" "}
           {novel.chapters.length === 1 ? "capítulo" : "capítulos"}
+          <BtnChaptersUpdate
+            slug={novel.slug}
+            novelId={novel.id}
+            novelUrl={novel.urlNovel}
+            chapters={novel.chapters}
+          />
         </h2>
         <ChaptersAccordion
           chapters={novel.chapters}

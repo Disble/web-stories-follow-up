@@ -211,7 +211,7 @@ export default function PullOrCreateNovel({
               publishedAt: chapter.publishedAt
                 ?.toDate(getLocalTimeZone())
                 ?.toISOString(),
-              status: chapter.status,
+              status: ChapterStatus.COMPLETED,
             })),
           },
         },
