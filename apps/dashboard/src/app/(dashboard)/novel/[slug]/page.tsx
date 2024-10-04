@@ -17,10 +17,6 @@ export default async function Page({
     return <div>{novel}</div>;
   }
 
-  const templateWithLink = novel.template?.text
-    ? `${novel.template?.text} \n ${novel.urlNovel}`
-    : undefined;
-
   return (
     <section className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-screen-xl mx-auto">
       <section>
@@ -79,7 +75,8 @@ export default async function Page({
         <ChaptersAccordion
           chapters={novel.chapters}
           platforms={novel.platforms}
-          template={templateWithLink}
+          template={novel.template?.text}
+          slug={novel.slug}
         />
       </article>
     </section>

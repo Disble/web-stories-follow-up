@@ -33,7 +33,7 @@ export default function TemplateUpsert({
 
   const onSubmit = async (values: FormData) => {
     setIsLoading(true);
-    const template = await upsertTemplate(novel.id, values.text);
+    const template = await upsertTemplate(novel.id, values.text, novel.slug);
     setIsLoading(false);
 
     if ("error" in template) {

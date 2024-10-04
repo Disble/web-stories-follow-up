@@ -7,15 +7,23 @@ import {
 
 export class FeedModel extends FetchApi {
   public async publishPost(body: FeedPublishPostBody) {
+    const [pageAccessToken] = await this.api.account.getPageAccessToken();
+
+    if (!pageAccessToken || !pageAccessToken?.data[0].access_token) {
+      return [null, new Error("Page access token not found")] as const;
+    }
+
     const response = await this.fetch(
       `/${env.FB_PAGE_ID}/feed`,
       feedPublishPostResponseSchema,
       {
         method: "POST",
-        body: JSON.stringify({
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
           ...body,
-          // TODO: get the page token middleware
-          access_token: "here-is-the-page-token",
+          access_token: pageAccessToken?.data[0].access_token,
         }),
       }
     );

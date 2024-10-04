@@ -15,6 +15,7 @@ export const PATH_DASHBOARD = {
     create: path(ROOTS_DASHBOARD, "users", "create"),
     update: path(ROOTS_DASHBOARD, "users", "update"),
   },
+  novel: path(ROOTS_DASHBOARD, "novel"),
   novels: {
     list: path(ROOTS_DASHBOARD, "novels"),
     create: path(ROOTS_DASHBOARD, "novels", "create"),

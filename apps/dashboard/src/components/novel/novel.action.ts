@@ -8,8 +8,13 @@ import { JSDOM } from "jsdom";
 import { revalidatePath } from "next/cache";
 import { api } from "@repo/layer-fetch/api";
 import type { FeedPublishPostBody } from "@repo/layer-fetch/model/feed/feed.interface";
+import { PATH_DASHBOARD } from "#routes/index";
 
-export async function upsertTemplate(novelId: string, text: string) {
+export async function upsertTemplate(
+  novelId: string,
+  text: string,
+  slug: string
+) {
   try {
     const template = await db.template.upsert({
       where: { novelId },
@@ -21,6 +26,8 @@ export async function upsertTemplate(novelId: string, text: string) {
         novelId,
       },
     });
+
+    revalidatePath(`${PATH_DASHBOARD.novel}/${slug}`);
 
     return template;
   } catch (error) {
@@ -77,7 +84,7 @@ export async function updateChapters(
     db.chapter.deleteMany(removedChapters.map((chapter) => chapter.id));
   }
 
-  revalidatePath(`/novel/${slug}`);
+  revalidatePath(`${PATH_DASHBOARD.novel}/${slug}`);
 
   return true;
 }
@@ -137,7 +144,10 @@ export async function scrapeCurrentChapters(url: string) {
   }
 }
 
-export async function publishNewChapterInFacebook(body: FeedPublishPostBody) {
+export async function publishNewChapterInFacebook(
+  body: FeedPublishPostBody,
+  slug: string
+) {
   const [post] = await api.feed.publishPost(body);
 
   if (!post) {
@@ -145,6 +155,8 @@ export async function publishNewChapterInFacebook(body: FeedPublishPostBody) {
       error: "Error al publicar el capítulo en Facebook",
     };
   }
+
+  revalidatePath(`${PATH_DASHBOARD.novel}/${slug}`);
 
   return post;
 }

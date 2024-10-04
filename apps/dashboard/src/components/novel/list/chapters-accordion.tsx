@@ -9,12 +9,14 @@ type ChaptersAccordionProps = {
   chapters: NovelFindBySlugPayload["chapters"];
   platforms: NovelFindBySlugPayload["platforms"];
   template: string | undefined;
+  slug: string;
 };
 
 export default function ChaptersAccordion({
   chapters,
   platforms,
   template,
+  slug,
 }: ChaptersAccordionProps): JSX.Element {
   const formatter = useDateFormatter({ dateStyle: "full" });
 
@@ -123,6 +125,7 @@ export default function ChaptersAccordion({
                 <BtnCreateFbPost
                   template={template}
                   link={platforms.at(0)?.platform.baseUrl + chapter.urlChapter}
+                  slug={slug}
                 />
               ) : (
                 <p className="p-2 bg-orange-100 rounded-md text-gray-800">

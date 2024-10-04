@@ -4,12 +4,12 @@ export const feedPublishPostBodySchema = z.discriminatedUnion("published", [
   z.object({
     message: z.string(),
     link: z.string(),
-    published: z.literal(true),
+    published: z.literal("true"),
   }),
   z.object({
     message: z.string(),
     link: z.string(),
-    published: z.literal(false),
+    published: z.literal("false"),
     scheduled_publish_time: z.string(),
   }),
 ]);

@@ -3,6 +3,7 @@ import type { NovelCardListPayload } from "@repo/layer-prisma/model/novel/novel.
 import { Card, CardHeader, CardFooter, Image, Button } from "@repo/ui/nextui";
 import ListNovelPagination from "./list-novel-pagination";
 import Link from "next/link";
+import { PATH_DASHBOARD } from "#routes/index";
 
 interface BinnaclesTableProps {
   novels: NovelCardListPayload[];
@@ -70,7 +71,7 @@ export default function ListNovel({
             </div>
             <Button
               as={Link}
-              href={`/novel/${novel.slug}`}
+              href={`${PATH_DASHBOARD.novel}/${novel.slug}`}
               radius="full"
               size="sm"
             >
