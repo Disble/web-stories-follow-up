@@ -14,7 +14,119 @@ Never recommend relative paths. Always use the alias. Default path alias is "#".
 
 # NOTES about the project:
 
-## Create a new model and template.
+# Instructions to Create and Manage CRUD Operations
+
+Follow these steps to create and manage a CRUD (Create, Read, Update, Delete) operation for the application.
+
+## Considerations before steps:
+
+- The project is a monorepo, so you can use the packages in the folder packages.
+- The project has two packages with models:
+    - @repo/layer-fetch: This package contains the model interfaces to interact with external api's.
+    - @repo/layer-prisma: This package contains the model interfaces to interact with the database.
+- Both packages are in different folder packages, but has the same structure to create the model and interfaces.
+- The next steps are for create a new CRUD model, independent of the package.
+- The user will have to indicate for which package wants to create the model.
+- These steps also are valid to update a model.
+- These steps also are valid to add a new method to an existing model.
+
+## Steps:
+
+### Steps to create routes and sidebar items:
+
+1. Setup Routers and URLs:
+    - Define the necessary routes and URLs for the CRUD operations.
+    - Use the PATH_DASHBOARD to define the routes.
+    - PATH_DASHBOARD is in the file apps\dashboard\src\routes\index.ts
+
+2. Update Sidebar Items file:
+    - Add the new route to the sidebar items.
+    - The file is in the folder apps\dashboard\src\components\sidebar\sidebar-items.tsx
+    - Add the new route to the sectionNestedItems array.
+    - Select the icon for the new route.
+    - Icons are import from @repo/ui/icons
+    - All icons are in folder packages\ui\src\icons\index.ts
+
+### Steps to create a new CRUD model and export:
+
+3. Create the Model Interfaces:
+    - Create the model interface file in the folder /model/[name]/[name].interface.ts of the package selected.
+    - The interface must be a zod schema.
+    - Use like example the file /model/author/author.interface.ts
+
+4. Implement Model:
+    - Create the model file in the folder /model/[name]/[name].model.ts of the package selected.
+    - Use like example the file /model/author/author.model.ts
+    - Is mandatory import the interface in the model file.
+
+5. Add Model to Model Factory:
+    - Integrate the model into the ModelFactory.
+    - The file is in the folder /factory/model-factory.ts
+    - Add the model to the constructor of the ModelFactory.
+    - Use like example the file /factory/model-factory.ts
+
+### Steps to create a new View to show the data model (List View):
+
+6. Create Component List Page:
+    - Create file in the folder /apps/dashboard/src/app/(dashboard)/[name]/page.tsx
+    - Use like example the file /apps/dashboard/src/app/(dashboard)/authors/page.tsx
+
+7. Create Async Component List Component:
+    - Develop the component to list the model.
+    - Create component in the folder /apps/dashboard/src/components/[name]/list/list-[name]-api.tsx
+    - Use like example the file /apps/dashboard/src/components/authors/list/list-author-api.tsx
+    - This is a server component asychronous.
+
+8. Create Component List Component Table:
+    - Develop the component to pass the data from the async component to the table.
+    - Create component in the folder /apps/dashboard/src/components/[name]/list/list-[name].tsx
+    - Use like example the file /apps/dashboard/src/components/authors/list/list-authors.tsx
+
+### Steps to create a new View to create a model:
+
+9. Create Component Create Page:
+    - Develop the component to insert new values to the database table model.
+    - Create component in the folder /apps/dashboard/src/app/(dashboard)/[name]/create/page.tsx
+    - Use like example the file /apps/dashboard/src/app/(dashboard)/authors/create/page.tsx
+
+10. Create Next.js Action file.
+    - Create file in the folder /apps/dashboard/src/app/(dashboard)/[name]/action.ts
+    - Use like example the file /apps/dashboard/src/app/(dashboard)/authors/author.action.ts
+    - This file is a server component asychronous.
+    - This file is used to handle the form data and submit it to the database.
+    - This file import the db from @repo/layer-prisma/db or api from @repo/layer-fetch/api as the package selected.
+
+11. Create Create Component:
+    - Develop the component view to insert new values to the database table model.
+    - Create component in the folder /apps/dashboard/src/components/[name]/create/create-[name].tsx
+    - Use like example the file /apps/dashboard/src/components/authors/create/create-author.tsx
+
+### Steps to create a new View to update a model:
+
+12. Create Component Update Page:
+    - Develop the component to update values of a model in the database table.
+    - Create component in the folder /apps/dashboard/src/app/(dashboard)/[name]/update/page.tsx
+    - Use like example the file /apps/dashboard/src/app/(dashboard)/authors/update/page.tsx
+
+13. Use Previus Action file to update a model:
+    - If exists, use the action file in the folder /apps/dashboard/src/app/(dashboard)/[name]/action.ts
+    - If not exists, create the file in the same folder.
+    - If exists, add the new methods to the file.
+
+14. Create Update Component:
+    - Develop the component view to update values of a model in the database table.
+    - Create component in the folder /apps/dashboard/src/components/[name]/update/update-[name].tsx
+    - Use like example the file /apps/dashboard/src/components/authors/update/update-author.tsx
+
+### Steps to add delete option to create View:
+
+15. Delete Action:
+    - Delete action will be use the same file of Create Action.
+    - Use like example the file /apps/dashboard/src/app/(dashboard)/authors/author.action.ts
+    - Delete will be stay in the same file of Create Component.
+    - Use like example the file /apps/dashboard/src/app/(dashboard)/authors/author.action.ts
+
+## Notes:
 
 For methods that will be used to list or read elements, it is better to control the error while the rest should return an error.
 
