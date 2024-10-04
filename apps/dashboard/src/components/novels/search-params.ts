@@ -1,5 +1,5 @@
 import { parseAsInteger } from "nuqs";
-import { createSearchParamsCache } from "nuqs/parsers";
+import { createSearchParamsCache } from "nuqs/server";
 
 export const novelSearchParams = {
   page: parseAsInteger.withDefault(1),
