@@ -1,27 +1,73 @@
 "use client";
-import { FormSection } from "@repo/ui/form";
-import { Button, TimeInput, type TimeInputValue } from "@repo/ui/nextui";
-import { useState } from "react";
-import { parseAbsoluteToLocal } from "@internationalized/date";
+import { FormSection, FormTimeInput } from "@repo/ui/form";
+import { Button, type TimeInputValue } from "@repo/ui/nextui";
+import {
+  parseAbsoluteToLocal,
+  parseZonedDateTime,
+} from "@internationalized/date";
+import { z } from "zod";
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { ParameterListPayload } from "@repo/layer-prisma/model/parameter/parameter.interface";
+import { updateFbPublicationTime } from "#components/publications/publication.action";
+import { toast } from "react-hot-toast";
 
-export default function PublicationSettings(): JSX.Element {
-  const [date, setDate] = useState<TimeInputValue>(
-    parseAbsoluteToLocal("2021-04-07T18:45:22Z")
-  );
+export const FormSchema = z.object({
+  time: z.custom<TimeInputValue>(),
+});
+
+type FormData = z.infer<typeof FormSchema>;
+
+type PublicationSettingsProps = {
+  fbPublicationTime: ParameterListPayload;
+};
+
+export default function PublicationSettings({
+  fbPublicationTime,
+}: PublicationSettingsProps): JSX.Element {
+  const form = useForm<FormData>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      time: parseAbsoluteToLocal(
+        fbPublicationTime.value
+          ? parseZonedDateTime(fbPublicationTime.value).toAbsoluteString()
+          : new Date().toISOString()
+      ),
+    },
+  });
+
+  const onSubmit = async (data: FormData) => {
+    const fbPublicationTime = await updateFbPublicationTime(
+      data.time.toString()
+    );
+
+    if ("error" in fbPublicationTime) {
+      toast.error(fbPublicationTime.error);
+    } else {
+      toast.success("Hora de publicación actualizada correctamente");
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto">
-      <FormSection
-        title="Hora recurrente de publicación"
-        description="La hora de publicación será la misma para todas las novelas. Esta se realizará una vez al día. Si por algún motivo no se publica, se reintentará automáticamente al día siguiente."
-      >
-        <TimeInput
-          label="Hora de publicación"
-          value={date}
-          onChange={setDate}
-        />
-        <Button color="primary">Guardar</Button>
-      </FormSection>
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <FormSection
+            title="Hora recurrente de publicación"
+            description="La hora de publicación será la misma para todas las novelas. Esta se realizará una vez al día. Si por algún motivo no se publica, se reintentará automáticamente al día siguiente."
+          >
+            <FormTimeInput control={form.control} name="time" />
+            <Button
+              type="submit"
+              color="primary"
+              isLoading={form.formState.isSubmitting}
+              isDisabled={!form.formState.isValid}
+            >
+              Guardar
+            </Button>
+          </FormSection>
+        </form>
+      </FormProvider>
     </div>
   );
 }

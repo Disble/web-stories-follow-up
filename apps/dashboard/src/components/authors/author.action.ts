@@ -6,7 +6,7 @@ import { SessionError } from "@repo/types/utils/errors";
 
 export async function isExistAuthor(pseudonym: string) {
   try {
-    const author = await db.author.getAuthorByPseudonym(pseudonym);
+    const author = await db.author.getByPseudonym(pseudonym);
 
     if (typeof author === "string") {
       throw new Error(author);
@@ -23,7 +23,7 @@ export async function isExistAuthor(pseudonym: string) {
 
 export async function createAuthor(data: Prisma.AuthorCreateInput) {
   try {
-    const author = await db.author.createAuthor(data);
+    const author = await db.author.create(data);
 
     return author;
   } catch (error) {
