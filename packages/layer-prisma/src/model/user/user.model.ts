@@ -1,8 +1,10 @@
 import { PrismaDB } from "#abstract-factory/prisma-db.abstract";
 import { SessionError } from "@repo/types/utils/errors";
+import { userListSelect } from "./user.interface";
+import type { Prisma } from "@repo/database";
 
 export class UserModel extends PrismaDB {
-  public async getUserByEmail(email: string) {
+  public async getByEmail(email: string) {
     const prisma = await this.connect.protected();
 
     if (prisma instanceof SessionError) {
@@ -10,13 +12,14 @@ export class UserModel extends PrismaDB {
     }
 
     return prisma.user.findUnique({
+      select: userListSelect,
       where: {
         email,
       },
     });
   }
 
-  public async getUsers({ page, limit }: { page: number; limit: number }) {
+  public async listPaginated({ page, limit }: { page: number; limit: number }) {
     const prisma = await this.connect.protected();
 
     if (prisma instanceof SessionError) {
@@ -25,10 +28,7 @@ export class UserModel extends PrismaDB {
 
     return prisma.user
       .paginate({
-        select: {
-          id: true,
-          name: true,
-        },
+        select: userListSelect,
       })
       .withPages({
         page,
@@ -37,19 +37,16 @@ export class UserModel extends PrismaDB {
       });
   }
 
-  public async getUsersPublic() {
-    const prisma = await this.connect.public();
-    return prisma.user
-      .paginate({
-        select: {
-          id: true,
-          name: true,
-        },
-      })
-      .withPages({
-        page: 1,
-        limit: 10,
-        includePageCount: true,
-      });
+  public async updateById(id: string, data: Prisma.UserUpdateInput) {
+    const prisma = await this.connect.protected();
+
+    if (prisma instanceof SessionError) {
+      throw prisma;
+    }
+
+    return prisma.user.update({
+      where: { id },
+      data,
+    });
   }
 }

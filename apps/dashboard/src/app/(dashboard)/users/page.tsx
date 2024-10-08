@@ -1,24 +1,12 @@
-import React from "react";
-import UserList from "#components/user/user-list";
-import { db } from "@repo/layer-prisma/db";
-import { SessionError } from "@repo/types/utils/errors";
-import PaginationNext from "#components/commons/pagination-next";
+import ListUsersApi from "#components/user/list/list-users-api";
+import { userSearchParamsCache } from "#components/user/search-params";
 
-export default async function Page(): Promise<JSX.Element> {
-  const [users, pagination] = await db.user.getUsers({ page: 1, limit: 10 });
+export default function Page({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}): JSX.Element {
+  userSearchParamsCache.parse(searchParams);
 
-  if (users instanceof SessionError || pagination === null) {
-    return <div>No users found</div>;
-  }
-
-  return (
-    <div className="p-4">
-      <UserList users={users} />
-      <PaginationNext
-        total={pagination.totalCount}
-        page={pagination.currentPage}
-        isDisabled={false}
-      />
-    </div>
-  );
+  return <ListUsersApi />;
 }
