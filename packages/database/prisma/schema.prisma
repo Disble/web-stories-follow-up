@@ -11,18 +11,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Role{
-  id          String  @id @default(cuid())
-  name        String  @unique 
-  description String?
-  users       User[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-
-}
-
 model User {
   id            String          @id @default(cuid())
   name          String?
@@ -33,8 +21,7 @@ model User {
   sessions      Session[]
   active        Boolean         @default(false)
   // Optional for WebAuthn support
-  rolesId String
-  role Role @relation(fields: [rolesId], references: [id], onDelete: Cascade)
+  role          Role            @default(ADMIN)
   Authenticator Authenticator[]
  
   createdAt DateTime @default(now())
@@ -175,15 +162,13 @@ model Publication {
   idPublishedFacebook String? @unique 
   message String
   link String?
-  status PublicationStatus
   publishedFacebook Boolean @default(false)
   scheduledPublishTime DateTime?
-  datePublishedFacebook DateTime?
+  status PublicationStatus
   chapter Chapter @relation(fields: [chapterId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
 
 
 model Template {
@@ -215,4 +200,9 @@ enum ChapterStatus {
   IN_PROGRESS
   COMPLETED
   FAILED
+}
+
+enum Role {
+  ADMIN
+  SUPER_ADMIN
 }
