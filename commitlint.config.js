@@ -6,19 +6,11 @@ module.exports = {
       "always",
       [
         "root",
-        "web",
-        "config-auth",
-        "config-eslint",
-        "config-tailwind",
-        "config-typescript",
-        "layer-fetch",
-        "layer-prisma",
-        "types",
-        "ui",
-        "components",
-        "actions",
+        "dashboard",
         "app",
-        "api"
+        "components",
+        "api",
+        "packages",
       ]
     ]
   }
