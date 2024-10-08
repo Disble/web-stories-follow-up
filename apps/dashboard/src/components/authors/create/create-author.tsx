@@ -21,8 +21,6 @@ export const FormSchema = z.object({
 type FormData = z.infer<typeof FormSchema>;
 
 export default function CreateAuthor(): JSX.Element {
-  const [isLoading, setIsLoading] = useState(false);
-
   const form = useForm<FormData>({
     defaultValues: {
       name: "",
@@ -50,8 +48,6 @@ export default function CreateAuthor(): JSX.Element {
   );
 
   const onSubmit = async (values: FormData) => {
-    setIsLoading(true);
-
     const response = await createAuthor(values);
 
     if ("error" in response) {
@@ -59,8 +55,6 @@ export default function CreateAuthor(): JSX.Element {
     } else {
       toast.success("Autor agregado con éxito");
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -104,7 +98,7 @@ export default function CreateAuthor(): JSX.Element {
           <Button
             type="submit"
             color="primary"
-            isLoading={isLoading}
+            isLoading={form.formState.isSubmitting}
             isDisabled={!form.formState.isValid}
           >
             Agregar autor

@@ -69,7 +69,6 @@ type PullOrCreateNovelProps = {
 export default function PullOrCreateNovel({
   platforms,
 }: PullOrCreateNovelProps): JSX.Element {
-  const [isLoading, setIsLoading] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [chapterToDelete, setChapterToDelete] = useState<number>();
@@ -185,8 +184,6 @@ export default function PullOrCreateNovel({
 
   const onSubmit = async (values: FormData) => {
     try {
-      setIsLoading(true);
-
       const platformId = platforms.find(
         (platform) => platform.code === values.platform
       )?.id;
@@ -239,8 +236,6 @@ export default function PullOrCreateNovel({
       toast.error(
         "Error de registro. Por favor, revise los datos e intente nuevamente."
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -542,7 +537,7 @@ export default function PullOrCreateNovel({
             <Button
               type="submit"
               color="primary"
-              isLoading={isLoading}
+              isLoading={form.formState.isSubmitting}
               isDisabled={!form.formState.isValid}
             >
               Crear novela

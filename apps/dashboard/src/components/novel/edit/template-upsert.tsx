@@ -23,7 +23,6 @@ type TemplateUpsertProps = {
 export default function TemplateUpsert({
   novel,
 }: TemplateUpsertProps): JSX.Element {
-  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -32,9 +31,7 @@ export default function TemplateUpsert({
   });
 
   const onSubmit = async (values: FormData) => {
-    setIsLoading(true);
     const template = await upsertTemplate(novel.id, values.text, novel.slug);
-    setIsLoading(false);
 
     if ("error" in template) {
       toast.error(template.error);
@@ -66,7 +63,7 @@ export default function TemplateUpsert({
               color="primary"
               variant="bordered"
               isDisabled={!form.formState.isValid}
-              isLoading={isLoading}
+              isLoading={form.formState.isSubmitting}
             >
               Guardar
             </Button>

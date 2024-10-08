@@ -26,8 +26,6 @@ export const FormSchema = z.object({
 type FormData = z.infer<typeof FormSchema>;
 
 export default function CreatePlatform(): JSX.Element {
-  const [isLoading, setIsLoading] = useState(false);
-
   const form = useForm<FormData>({
     defaultValues: {
       name: "",
@@ -64,14 +62,12 @@ export default function CreatePlatform(): JSX.Element {
   }, 500);
 
   const onSubmit = async (data: FormData) => {
-    setIsLoading(true);
     const response = await createPlatform({
       baseUrl: data.baseUrl,
       name: data.name,
       code: data.code,
       urlCover: data.urlCover,
     });
-    setIsLoading(false);
 
     if (typeof response === "object" && "error" in response) {
       toast.error(response.error);
@@ -133,7 +129,7 @@ export default function CreatePlatform(): JSX.Element {
           <Button
             type="submit"
             color="primary"
-            isLoading={isLoading}
+            isLoading={form.formState.isSubmitting}
             isDisabled={!form.formState.isValid}
           >
             Agregar plataforma
