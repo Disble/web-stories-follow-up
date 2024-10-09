@@ -22,8 +22,12 @@ import { useSession } from "next-auth/react";
 import { ElLectorNovato, SolarQuestionCircleLinear } from "@repo/ui/icons";
 import { usePathname } from "next/navigation";
 import { getTitle } from "#routes/index";
+import type { Role } from "@repo/layer-prisma";
 
-export default function Component({ children }: { children: React.ReactNode }) {
+export default function Component({
+  children,
+  sessionRole,
+}: { children: React.ReactNode; sessionRole: Role }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data, status } = useSession();
   const pathname = usePathname();
@@ -70,9 +74,9 @@ export default function Component({ children }: { children: React.ReactNode }) {
       <Spacer y={8} />
 
       <Sidebar
-        defaultSelectedKey="home"
+        defaultSelectedKey="/"
         selectedKeys={[currentPath]}
-        items={sectionNestedItems}
+        items={sectionNestedItems(sessionRole)}
       />
 
       <Spacer y={8} />

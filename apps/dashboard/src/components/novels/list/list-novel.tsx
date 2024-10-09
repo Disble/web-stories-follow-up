@@ -15,7 +15,7 @@ export default function ListNovel({
   pagination,
 }: BinnaclesTableProps): JSX.Element {
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:p-6 p-3">
+    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:p-6 p-3">
       {novels.map((novel) => (
         <Card
           key={novel.id}

@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Accordion,
   AccordionItem,
@@ -11,9 +10,6 @@ import React from "react";
 import { Listbox, Tooltip, ListboxItem, ListboxSection } from "@repo/ui/nextui";
 
 import { cn } from "@repo/ui/utils";
-import { SolarAddCircleBoldDuotone, SolarNotebookBoldDuotone } from "../icons";
-import { SolarVideoFramePlayVerticalLineDuotone } from "../icons/file-upload/solar-video-frame-play-vertical-line-duotone";
-import { SolarDeliveryLineDuotone } from "../icons/file-upload/solar-delivery-line-duotone";
 
 export enum SidebarItemType {
   Nest = "nest",
