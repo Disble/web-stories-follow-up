@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@auth/prisma-adapter": "^2.4.2",
+    "@repo/database": "*",
     "@repo/env-config": "*",
     "@repo/typescript-config": "*",
     "next-auth": "^5.0.0-beta.20",

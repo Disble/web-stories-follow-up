@@ -19,7 +19,7 @@ export default async function Layout({
 
   return (
     <>
-      <Sidebar>{children}</Sidebar>
+      <Sidebar sessionRole={session.user.role}>{children}</Sidebar>
     </>
   );
 }

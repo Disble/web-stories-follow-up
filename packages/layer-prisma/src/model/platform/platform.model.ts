@@ -1,17 +1,23 @@
 import { PrismaDB } from "#abstract-factory/prisma-db.abstract";
-import type { Prisma } from "@repo/database";
+import { Role, type Prisma } from "@repo/database";
 import { SessionError } from "@repo/types/utils/errors";
 import {
   platformListSelect,
   platformGetByNameSelect,
 } from "./platform.interface";
+import { auth } from "@repo/auth-config/auth";
 
 export class PlatformModel extends PrismaDB {
   public async create(data: Prisma.PlatformCreateInput) {
     const prisma = await this.connect.protected();
+    const session = await auth();
 
     if (prisma instanceof SessionError) {
-      return prisma.message;
+      throw prisma;
+    }
+
+    if (session?.user.role !== Role.SUPER_ADMIN) {
+      throw new SessionError("Do not have permissions to perform this action");
     }
 
     return prisma.platform.create({
@@ -52,9 +58,17 @@ export class PlatformModel extends PrismaDB {
     limit: number;
   }) {
     const prisma = await this.connect.protected();
+    const session = await auth();
 
     if (prisma instanceof SessionError) {
       return [prisma, null] as const;
+    }
+
+    if (session?.user.role !== Role.SUPER_ADMIN) {
+      return [
+        new SessionError("Do not have permissions to access this section"),
+        null,
+      ] as const;
     }
 
     return prisma.platform
