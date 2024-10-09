@@ -2,12 +2,7 @@ import { nextui } from "@nextui-org/react";
 import sharedConfig from "@repo/tailwind-config";
 import type { Config } from "tailwindcss";
 
-const config = {
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "../../apps/**/src/**/*.{js,ts,jsx,tsx}",
-    "../../node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}"
-  ],
+const config: Omit<Config, "content"> = {
   presets: [sharedConfig],
   darkMode: "class",
   plugins: [
@@ -40,6 +35,6 @@ const config = {
     require("tailwind-scrollbar"),
     require("@tailwindcss/typography"),
   ],
-} satisfies Config;
+};
 
 export default config;
