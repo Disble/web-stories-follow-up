@@ -1,16 +1,9 @@
-"use client";
 import type { PageNumberPaginationMeta } from "@repo/layer-prisma/utils";
 import type { NovelCardListPayload } from "@repo/layer-prisma/model/novel/novel.interface";
-import {
-  Card,
-  CardHeader,
-  CardFooter,
-  Image,
-  Button,
-  Pagination,
-} from "@repo/ui/nextui";
-import { useQueryStates } from "nuqs";
-import { novelSearchParams } from "#components/novels/search-params";
+import { Card, CardHeader, CardFooter, Image, Button } from "@repo/ui/nextui";
+import ListNovelPagination from "./list-novel-pagination";
+import Link from "next/link";
+import { PATH_DASHBOARD } from "#routes/index";
 
 interface BinnaclesTableProps {
   novels: NovelCardListPayload[];
@@ -21,17 +14,8 @@ export default function ListNovel({
   novels,
   pagination,
 }: BinnaclesTableProps): JSX.Element {
-  const [searchParams, setSearchParams] = useQueryStates(novelSearchParams, {
-    history: "push",
-    shallow: false,
-  });
-
-  const handleOnChangePage = (page: number) => {
-    setSearchParams({ page, page_size: searchParams.page_size });
-  };
-
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:p-6 p-3">
+    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:p-6 p-3">
       {novels.map((novel) => (
         <Card
           key={novel.id}
@@ -48,42 +32,55 @@ export default function ListNovel({
           </CardHeader>
           <Image
             removeWrapper
-            alt="Relaxing app background"
+            fallbackSrc="https://cdn.dribbble.com/users/27766/screenshots/3488007/media/ac55b16291e99eb1740c17b4ac793454.png"
+            alt={`${novel.title} - ${novel.authors[0].author.pseudonym}`}
             className="z-0 w-full h-full object-cover"
             src={novel.urlCoverNovel}
           />
           <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100">
             <div className="flex flex-grow gap-2 items-center">
-              <Image
-                alt="Breathing app icon"
-                className="rounded-full w-10 h-11 bg-black"
-                src="https://nextui.org/images/breathing-app-icon.jpeg"
-              />
+              {novel.authors[0].author.urlCoverProfile ? (
+                <Image
+                  alt="Breathing app icon"
+                  className="rounded-full size-10 bg-black"
+                  src={
+                    novel.authors[0].author.urlCoverProfile ??
+                    novel.authors[0].author.urlProfile
+                  }
+                />
+              ) : (
+                <div className="rounded-full size-10 bg-gray-100 flex items-center justify-center">
+                  <span className="text-black">
+                    {novel.authors[0].author.pseudonym
+                      ?.charAt(0)
+                      .toUpperCase() ?? "?"}
+                  </span>
+                </div>
+              )}
               <div className="flex flex-col">
                 <p className="text-tiny text-white/60">
                   {novel.authors
                     .map((author) => author.author.pseudonym)
                     .join(", ")}
                 </p>
+                <p className="text-tiny text-white/60">
+                  {novel._count.chapters}{" "}
+                  {novel._count.chapters === 1 ? "Capítulo" : "Capítulos"}
+                </p>
               </div>
             </div>
-            <Button radius="full" size="sm">
-              Ver novela
+            <Button
+              as={Link}
+              href={`${PATH_DASHBOARD.novel}/${novel.slug}`}
+              radius="full"
+              size="sm"
+            >
+              Ver capítulos
             </Button>
           </CardFooter>
         </Card>
       ))}
-      <div className="flex justify-center col-span-full">
-        <Pagination
-          showControls
-          color="primary"
-          variant="bordered"
-          page={pagination.currentPage}
-          total={pagination.pageCount}
-          onChange={handleOnChangePage}
-          isDisabled={pagination.totalCount === 0}
-        />
-      </div>
+      <ListNovelPagination pagination={pagination} />
     </section>
   );
 }

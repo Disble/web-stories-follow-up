@@ -21,6 +21,7 @@ model User {
   sessions      Session[]
   active        Boolean         @default(false)
   // Optional for WebAuthn support
+  role          Role            @default(ADMIN)
   Authenticator Authenticator[]
  
   createdAt DateTime @default(now())
@@ -85,6 +86,7 @@ model Authenticator {
 model Novel {
   id String @id @default(cuid())
   title String
+  slug String @unique
   synopsis String
   note String?
   urlCoverNovel String
@@ -93,6 +95,8 @@ model Novel {
   updatedAt DateTime @updatedAt
   chapters Chapter[]
   authors NovelAutor[]
+
+  platforms NovelPlatform[]
   template Template?
 }
 
@@ -111,17 +115,39 @@ model Author {
   name String?
   pseudonym String
   urlProfile String
+  urlCoverProfile String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   novels NovelAutor[]
+}
+
+model NovelPlatform {
+  novel     Novel     @relation(fields: [novelId], references: [id])
+  novelId   String
+  platform    Platform    @relation(fields: [platformId], references: [id])
+  platformId  String
+  assignedAt DateTime @default(now())
+
+  @@id([novelId, platformId])
+}
+
+model Platform {
+  id String @id @default(cuid())
+  name String
+  baseUrl String @unique
+  code String @unique
+  urlCover String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  novels NovelPlatform[]
 }
 
 model Chapter {
   id String @id @default(cuid())
   title String
   urlChapter String
-  urlCoverChapter String
-  publishedAt DateTime
+  urlCoverChapter String?
+  publishedAt DateTime?
   status ChapterStatus
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -132,13 +158,18 @@ model Chapter {
 
 model Publication {
   id String @id @default(cuid())
-  text String
   chapterId String @unique
+  idPublishedFacebook String? @unique 
+  message String
+  link String?
+  publishedFacebook Boolean @default(false)
+  scheduledPublishTime DateTime?
   status PublicationStatus
   chapter Chapter @relation(fields: [chapterId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 
 model Template {
   id String @id @default(cuid())
@@ -152,7 +183,7 @@ model Template {
 // Here web store: cron-job, frecuency, fac-api-key...
 model Parameter {
   id String @id @default(cuid())
-  name String
+  name String @unique
   value String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -169,4 +200,9 @@ enum ChapterStatus {
   IN_PROGRESS
   COMPLETED
   FAILED
+}
+
+enum Role {
+  ADMIN
+  SUPER_ADMIN
 }

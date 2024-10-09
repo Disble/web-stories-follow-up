@@ -6,12 +6,18 @@
     "POSTGRES_URL_NON_POOLING",
     "AUTH_SECRET",
     "DISCORD_CLIENT_ID",
-    "DISCORD_CLIENT_SECRET"
+    "DISCORD_CLIENT_SECRET",
+    "FB_API_BASE_URL",
+    "FB_ACCESS_TOKEN",
+    "FB_APP_SECRET",
+    "FB_PAGE_ID",
+    "FB_SYSTEM_USER_ID",
+    "FB_BUSINESS_ID"
   ],
   "tasks": {
     "build": {
       "env": [],
-      "dependsOn": ["^generate", "^ui:build", "^build"],
+      "dependsOn": ["^generate", "^build"],
       "inputs": ["$TURBO_DEFAULT", ".env*"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
       "cache": false
@@ -32,9 +38,6 @@
       "cache": true
     },
     "generate": {
-      "cache": false
-    },
-    "ui:build": {
       "cache": false
     },
     "//#format-and-lint": {},

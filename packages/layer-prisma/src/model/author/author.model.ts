@@ -4,7 +4,7 @@ import { SessionError } from "@repo/types/utils/errors";
 import { authorListSelect } from "./author.interface";
 
 export class AuthorModel extends PrismaDB {
-  public async getAuthorByName(name: string) {
+  public async getByName(name: string) {
     const prisma = await this.connect.protected();
 
     if (prisma instanceof SessionError) {
@@ -21,7 +21,7 @@ export class AuthorModel extends PrismaDB {
     });
   }
 
-  public async getAuthorByPseudonym(pseudonym: string) {
+  public async getByPseudonym(pseudonym: string) {
     const prisma = await this.connect.protected();
 
     if (prisma instanceof SessionError) {
@@ -38,7 +38,7 @@ export class AuthorModel extends PrismaDB {
     });
   }
 
-  public async createAuthor(data: Prisma.AuthorCreateInput) {
+  public async create(data: Prisma.AuthorCreateInput) {
     const prisma = await this.connect.protected();
 
     if (prisma instanceof SessionError) {

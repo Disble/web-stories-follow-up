@@ -23,22 +23,26 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@codejamboree/replace-tags": "^1.2.2",
     "@custom-react-hooks/use-debounce": "^1.5.1",
     "@hookform/resolvers": "^3.9.0",
     "bcrypt": "^5.1.1",
     "jsdom": "^25.0.0",
-    "next": "^14.1.1",
+    "next": "^14.2.15",
     "next-auth": "^5.0.0-beta.20",
     "next-themes": "0.3.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "nuqs": "^1.19.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-hook-form": "7.53.0",
     "react-hot-toast": "^2.4.1",
+    "space-slug": "^2.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@repo/auth-config": "*",
     "@repo/env-config": "*",
+    "@repo/layer-fetch": "*",
     "@repo/layer-prisma": "*",
     "@repo/typescript-config": "*",
     "@repo/ui": "*",
@@ -47,7 +51,10 @@
     "@types/node": "^20.11.24",
     "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.19",
+    "autoprefixer": "^10.4.20",
     "next-auth": "^5.0.0-beta.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
     "typescript": "^5.5.4"
   }
 }

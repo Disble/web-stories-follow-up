@@ -21,13 +21,19 @@ import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 
-import { FormInput, FormSection, FormTextarea } from "@repo/ui/form";
+import {
+  FormInput,
+  FormSection,
+  FormSelect,
+  FormTextarea,
+} from "@repo/ui/form";
 import { SolarCloudDownloadLinear } from "@repo/ui/icons";
 import { SolarTrashBinTrashOutline } from "#components/icons/index";
 import { useDateFormatter } from "@react-aria/i18n";
 import { getLocalTimeZone, parseDate } from "@internationalized/date";
 import { createFullNovel, scrapeNovel } from "./pull-novel.action";
 import { ChapterStatus } from "@repo/layer-prisma";
+import type { PlatformListPayload } from "@repo/layer-prisma/model/platform/platform.interface";
 
 const urlSchema = z.string().url("La URL de la novela no es válida");
 const urlRelativeSchema = z.string().regex(/\/(?:[\w-]+\/)*[\w-]+/);
@@ -50,24 +56,38 @@ export const FormSchema = z.object({
   authorName: z.string().optional(),
   authorPseudonym: z.string(),
   authorUrlProfile: urlRelativeSchema,
+  authorUrlCoverProfile: urlSchema.optional(),
+  platform: z.string(),
 });
 
 type FormData = z.infer<typeof FormSchema>;
 
-export default function PullOrCreateNovel(): JSX.Element {
-  const [isLoading, setIsLoading] = useState(false);
+type PullOrCreateNovelProps = {
+  platforms: PlatformListPayload[];
+};
+
+export default function PullOrCreateNovel({
+  platforms,
+}: PullOrCreateNovelProps): JSX.Element {
   const [isPulling, setIsPulling] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [chapterToDelete, setChapterToDelete] = useState<number>();
+
+  const platformsOptions = platforms.map((platform) => ({
+    key: platform.code,
+    value: platform.code,
+    label: platform.name,
+  }));
 
   const form = useForm<FormData>({
     defaultValues: {
       urlNovel: "",
       title: "",
       synopsis: "",
-      note: "",
       urlCoverNovel: "",
       chapters: [],
+      authorPseudonym: "",
+      authorUrlProfile: "",
     },
     resolver: zodResolver(FormSchema),
     mode: "onChange",
@@ -85,6 +105,9 @@ export default function PullOrCreateNovel(): JSX.Element {
   const urlCoverNovel = form.watch("urlCoverNovel");
   const urlCoverNovelError = urlSchema.safeParse(urlCoverNovel);
 
+  const authorUrlCoverProfile = form.watch("authorUrlCoverProfile");
+  const authorUrlCoverProfileError = urlSchema.safeParse(authorUrlCoverProfile);
+
   const formatter = useDateFormatter({ dateStyle: "full" });
 
   const handlePullNovel = async () => {
@@ -100,8 +123,21 @@ export default function PullOrCreateNovel(): JSX.Element {
       }
 
       if (fields.length > 0) {
-        // // clean chapters
-        remove();
+        remove(); // clean chapters
+      }
+
+      let platform = "";
+
+      try {
+        platform = new URL(urlNovel).hostname
+          .replace(/^www\./, "")
+          .split(".")
+          .slice(0, -1)
+          .join(".");
+      } catch (error) {
+        toast.error(
+          "Tuvimos un error al obtener la plataforma de la novela. Por favor, seleccionala manualmente."
+        );
       }
 
       form.setValue("title", novelScraped.title);
@@ -122,6 +158,12 @@ export default function PullOrCreateNovel(): JSX.Element {
       form.setValue("authorName", novelScraped.authorName);
       form.setValue("authorPseudonym", novelScraped.authorPseudonym);
       form.setValue("authorUrlProfile", novelScraped.authorUrlProfile);
+      form.setValue(
+        "authorUrlCoverProfile",
+        novelScraped.authorUrlCoverProfile
+      );
+
+      form.setValue("platform", platform);
       toast.success("Datos de la novela descargados correctamente");
     } catch (error) {
       toast.error("Error al descargar los datos de la novela");
@@ -142,7 +184,14 @@ export default function PullOrCreateNovel(): JSX.Element {
 
   const onSubmit = async (values: FormData) => {
     try {
-      setIsLoading(true);
+      const platformId = platforms.find(
+        (platform) => platform.code === values.platform
+      )?.id;
+
+      if (!platformId) {
+        toast.error("Por favor, selecciona una plataforma válida.");
+        return;
+      }
 
       await createFullNovel({
         title: values.title,
@@ -155,12 +204,11 @@ export default function PullOrCreateNovel(): JSX.Element {
             data: values.chapters.map((chapter) => ({
               title: chapter.title,
               urlChapter: chapter.urlChapter,
-              urlCoverChapter: chapter.urlCoverChapter ?? "", // TODO: change in schema
-              publishedAt:
-                chapter.publishedAt
-                  ?.toDate(getLocalTimeZone())
-                  ?.toISOString() ?? new Date(),
-              status: chapter.status,
+              urlCoverChapter: chapter.urlCoverChapter,
+              publishedAt: chapter.publishedAt
+                ?.toDate(getLocalTimeZone())
+                ?.toISOString(),
+              status: ChapterStatus.COMPLETED,
             })),
           },
         },
@@ -171,8 +219,14 @@ export default function PullOrCreateNovel(): JSX.Element {
                 name: values.authorName,
                 pseudonym: values.authorPseudonym,
                 urlProfile: values.authorUrlProfile,
+                urlCoverProfile: values.authorUrlCoverProfile,
               },
             },
+          },
+        },
+        platforms: {
+          create: {
+            platformId,
           },
         },
       });
@@ -182,8 +236,6 @@ export default function PullOrCreateNovel(): JSX.Element {
       toast.error(
         "Error de registro. Por favor, revise los datos e intente nuevamente."
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -447,15 +499,50 @@ export default function PullOrCreateNovel(): JSX.Element {
               variant="bordered"
               color="primary"
             />
+            <FormInput
+              control={form.control}
+              name="authorUrlCoverProfile"
+              id="authorUrlCoverProfile"
+              label="URL de la portada del perfil del autor"
+              placeholder="URL de la portada del perfil del autor"
+              variant="bordered"
+              color="primary"
+            />
+            {authorUrlCoverProfileError.success && (
+              <Image
+                src={authorUrlCoverProfile}
+                alt="Portada del perfil del autor"
+                classNames={{
+                  img: "object-cover w-20 h-20",
+                }}
+              />
+            )}
           </FormSection>
-          <Button
-            type="submit"
-            color="primary"
-            isLoading={isLoading}
-            isDisabled={!form.formState.isValid}
+
+          <FormSection
+            title="Plataforma"
+            description="Selecciona la plataforma donde está publicada la novela."
           >
-            Crear novela
-          </Button>
+            <FormSelect
+              control={form.control}
+              name="platform"
+              id="platform"
+              label="Plataforma"
+              placeholder="Selecciona la plataforma"
+              variant="bordered"
+              color="primary"
+              options={platformsOptions}
+            />
+
+            <Button
+              type="submit"
+              color="primary"
+              isLoading={form.formState.isSubmitting}
+              isDisabled={!form.formState.isValid}
+            >
+              Crear novela
+            </Button>
+          </FormSection>
         </form>
       </FormProvider>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>

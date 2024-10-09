@@ -12,7 +12,7 @@ export default async function ListNovelApi(): Promise<JSX.Element> {
   });
 
   if (novels instanceof SessionError || pagination === null) {
-    return <div>No users found</div>;
+    return <div>No hay novelas registradas</div>;
   }
 
   return (

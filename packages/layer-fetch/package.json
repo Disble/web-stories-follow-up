@@ -1,0 +1,29 @@
+{
+  "name": "@repo/layer-fetch",
+  "version": "0.0.0",
+  "private": true,
+  "imports": {
+    "#builder/*": "./src/builder/*.ts",
+    "#director/*": "./src/director/*.ts",
+    "#model/*": "./src/model/*.ts",
+    "#utils": "./src/utils/index.ts",
+    "#abstract-factory/*": "./src/abstract-factory/*.ts",
+    "#factory/*": "./src/factory/*.ts"
+  },
+  "exports": {
+    "./api": "./src/api.ts",
+    "./model/*": "./src/model/*.ts",
+    "./utils": "./src/utils/index.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@repo/auth-config": "*",
+    "@repo/env-config": "*",
+    "@repo/types": "*",
+    "@repo/typescript-config": "*",
+    "typescript": "^5.5.4",
+    "zod": "^3.23.8"
+  }
+}

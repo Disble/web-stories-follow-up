@@ -19,7 +19,7 @@
     "#data-table": "./src/data-table/index.ts"
   },
   "exports": {
-    "./styles.css": "./dist/index.css",
+    "./styles.css": "./src/styles.css",
     "./tailwind.config.ts": "./tailwind.config.ts",
     "./nextui": "./src/nextui/index.ts",
     "./nextui/framer-utils": "./src/nextui/framer-utils.ts",
@@ -32,8 +32,6 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
-    "dev": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -46,20 +44,18 @@
     "@repo/typescript-config": "*",
     "@tailwindcss/typography": "0.5.13",
     "@types/react": "^18.2.61",
-    "autoprefixer": "^10.4.18",
-    "embla-carousel-react": "8.0.0",
-    "postcss": "^8.4.35",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
     "tailwind-scrollbar": "3.1.0",
-    "tailwindcss": "^3.4.10",
+    "tailwindcss": "^3.4.13",
     "typescript": "^5.5.4",
     "zustand": "4.5.5"
   },
   "dependencies": {
-    "@nextui-org/react": "^2.4.6",
+    "@nextui-org/react": "^2.4.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.29",
-    "lucide-react": "^0.436.0",
     "react-dropzone": "14.2.3",
     "react-hook-form": "7.53.0",
     "tailwind-merge": "^2.5.2",

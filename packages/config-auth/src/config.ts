@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import prisma from "@repo/database";
+import prisma, { type Role } from "@repo/database";
 import discord from "next-auth/providers/discord";
 import type { NextAuthConfig, DefaultSession } from "next-auth";
 
@@ -11,8 +11,9 @@ declare module "next-auth" {
    */
   interface Session {
     user: {
-      /** The user's postal address. */
+      /** Additional user information. */
       active: boolean;
+      role: Role;
       /**
        * By default, TypeScript merges new interface properties and overwrites existing ones.
        * In this case, the default session user properties will be overwritten,

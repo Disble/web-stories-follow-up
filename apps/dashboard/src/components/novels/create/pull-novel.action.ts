@@ -3,10 +3,25 @@ import { db } from "@repo/layer-prisma/db";
 import { ChapterStatus, type Prisma } from "@repo/layer-prisma";
 import { JSDOM } from "jsdom";
 import { z } from "zod";
+import { uniqueSpaceSlug, digits, word } from "space-slug";
 
-export async function createFullNovel(data: Prisma.NovelCreateInput) {
-  await db.novel.create(data);
+export async function createFullNovel(
+  data: Omit<Prisma.NovelCreateInput, "slug">
+) {
+  const slug = await uniqueSpaceSlug([digits(9), data.title], {
+    separator: "-",
+    isUnique: async (slug) => {
+      const count = await db.novel.countBySlug(slug);
+      if (typeof count === "string") return false;
+      return count === 0;
+    },
+  });
+  await db.novel.create({
+    ...data,
+    slug,
+  });
 }
+
 const urlSchema = z.string().url("La URL de la novela no es válida");
 const urlRelativeSchema = z.string().regex(/\/(?:[\w-]+\/)*[\w-]+/);
 
@@ -28,6 +43,7 @@ const dataNovelServer = z.object({
   authorName: z.string(),
   authorPseudonym: z.string(),
   authorUrlProfile: urlRelativeSchema,
+  authorUrlCoverProfile: urlSchema.optional(),
 });
 
 type DataNovelServer = z.infer<typeof dataNovelServer>;
@@ -71,7 +87,12 @@ export async function scrapeNovel(url: string) {
         const urlChapter = story.getAttribute("href");
         const publishedAtStr = story.querySelector(".right-label")?.textContent;
         let publishedAt = null;
-        if (publishedAtStr?.includes("hours ago")) {
+        if (
+          publishedAtStr?.includes("hours ago") ||
+          publishedAtStr?.includes("hour ago") ||
+          publishedAtStr?.includes("minutes ago") ||
+          publishedAtStr?.includes("a few seconds ago")
+        ) {
           publishedAt = new Date().toISOString();
         } else if (publishedAtStr?.includes("a day ago")) {
           publishedAt = new Date(
@@ -106,6 +127,11 @@ export async function scrapeNovel(url: string) {
       throw new Error("Can't get authorPseudonym or authorUrlProfile");
     }
 
+    const authorProfilePhotoEl = document.querySelector(".author-info__badge");
+
+    const authorUrlCoverProfile =
+      authorProfilePhotoEl?.getAttribute("src") ?? undefined;
+
     const formData = {
       urlNovel: url,
       title,
@@ -116,6 +142,7 @@ export async function scrapeNovel(url: string) {
       authorName: "",
       authorPseudonym,
       authorUrlProfile,
+      authorUrlCoverProfile,
     } satisfies DataNovelServer;
     return formData;
   } catch (error) {

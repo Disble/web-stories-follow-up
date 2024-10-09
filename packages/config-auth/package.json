@@ -1,7 +1,6 @@
 {
   "name": "@repo/auth-config",
   "version": "0.0.0",
-  "private": true,
   "exports": {
     "./auth": "./src/auth.ts",
     "./config": "./src/config.ts"
@@ -14,9 +13,9 @@
   },
   "devDependencies": {
     "@auth/prisma-adapter": "^2.4.2",
+    "@repo/database": "*",
     "@repo/env-config": "*",
     "@repo/typescript-config": "*",
-    "next-auth": "^5.0.0-beta.20",
-    "tailwindcss": "^3.4.10"
+    "next-auth": "^5.0.0-beta.20"
   }
 }

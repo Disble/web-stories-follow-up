@@ -1,5 +1,5 @@
 import { db } from "@repo/layer-prisma/db";
-import { authorSearchParamsCache } from "../search-params";
+import { authorSearchParamsCache } from "#components/authors/search-params";
 import ListAuthors from "./list-authors";
 import { SessionError } from "@repo/types/utils/errors";
 

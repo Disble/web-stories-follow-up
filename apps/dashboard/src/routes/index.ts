@@ -15,6 +15,7 @@ export const PATH_DASHBOARD = {
     create: path(ROOTS_DASHBOARD, "users", "create"),
     update: path(ROOTS_DASHBOARD, "users", "update"),
   },
+  novel: path(ROOTS_DASHBOARD, "novel"),
   novels: {
     list: path(ROOTS_DASHBOARD, "novels"),
     create: path(ROOTS_DASHBOARD, "novels", "create"),
@@ -25,10 +26,16 @@ export const PATH_DASHBOARD = {
     create: path(ROOTS_DASHBOARD, "authors", "create"),
     update: path(ROOTS_DASHBOARD, "authors", "update"),
   },
+  platforms: {
+    list: path(ROOTS_DASHBOARD, "platforms"),
+    create: path(ROOTS_DASHBOARD, "platforms", "create"),
+    update: path(ROOTS_DASHBOARD, "platforms", "update"),
+  },
   publications: {
     list: path(ROOTS_DASHBOARD, "publications"),
     create: path(ROOTS_DASHBOARD, "publications", "create"),
     update: path(ROOTS_DASHBOARD, "publications", "update"),
+    settings: path(ROOTS_DASHBOARD, "publications", "settings"),
   },
   settings: {
     list: path(ROOTS_DASHBOARD, "settings"),
@@ -70,6 +77,20 @@ export const enumPathDashboard = {
       title: "Agregar autor",
     },
   },
+  platforms: {
+    list: {
+      path: PATH_DASHBOARD.platforms.list,
+      title: "Lista de plataformas",
+    },
+    create: {
+      path: PATH_DASHBOARD.platforms.create,
+      title: "Agregar plataforma",
+    },
+    update: {
+      path: PATH_DASHBOARD.platforms.update,
+      title: "Actualizar plataforma",
+    },
+  },
   users: {
     list: {
       path: PATH_DASHBOARD.users.list,
@@ -82,6 +103,24 @@ export const enumPathDashboard = {
     update: {
       path: PATH_DASHBOARD.users.update,
       title: "Actualizar usuario",
+    },
+  },
+  publications: {
+    list: {
+      path: PATH_DASHBOARD.publications.list,
+      title: "Lista de publicaciones",
+    },
+    create: {
+      path: PATH_DASHBOARD.publications.create,
+      title: "Agregar publicación",
+    },
+    update: {
+      path: PATH_DASHBOARD.publications.update,
+      title: "Actualizar publicación",
+    },
+    settings: {
+      path: PATH_DASHBOARD.publications.settings,
+      title: "Configuración de publicación",
     },
   },
 } as const;

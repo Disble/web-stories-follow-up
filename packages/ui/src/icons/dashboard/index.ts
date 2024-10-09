@@ -8,3 +8,5 @@ export * from "./solar-users-group-two-rounded-linear";
 export * from "./solar-calendar-linear";
 export * from "./el-lector-novato";
 export * from "./solar-checklist-minimalistic-linear";
+export * from "./solar-settings-linear";
+export * from "./solar-building-3-linear";

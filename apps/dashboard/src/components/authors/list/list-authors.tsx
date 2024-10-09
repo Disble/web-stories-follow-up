@@ -14,13 +14,15 @@ const columns: DataTableColumns<AuthorListPayload> = [
   { key: "urlProfile", label: "URL del libro" },
 ];
 
+type ListAuthorsProps = {
+  authors: AuthorListPayload[];
+  pagination: PageNumberPaginationMeta<true>;
+};
+
 export default function ListAuthors({
   authors,
   pagination,
-}: {
-  authors: AuthorListPayload[];
-  pagination: PageNumberPaginationMeta<true>;
-}): JSX.Element {
+}: ListAuthorsProps): JSX.Element {
   const [searchParams] = useQueryStates(authorSearchParams);
   const renderCell: DataTableRenderCell<AuthorListPayload> = (
     author,
