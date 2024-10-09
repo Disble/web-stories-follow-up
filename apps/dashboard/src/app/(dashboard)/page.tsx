@@ -12,7 +12,7 @@ export default async function Page(): Promise<JSX.Element> {
       <h1 className="text-3xl font-bold text-primary">
         Dashboard de Publicidad Automatizada
       </h1>
-      <Card className="w-full">
+      <Card fullWidth shadow="none">
         <CardHeader className="flex gap-3">
           <div className="flex flex-col">
             <p className="text-md">
@@ -26,7 +26,7 @@ export default async function Page(): Promise<JSX.Element> {
         <Divider />
         <CardBody>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card>
+            <Card shadow="none">
               <CardBody>
                 <CircularProgress
                   classNames={{
@@ -42,13 +42,13 @@ export default async function Page(): Promise<JSX.Element> {
                 <p className="text-center mt-2">Rendimiento de Campañas</p>
               </CardBody>
             </Card>
-            <Card>
+            <Card shadow="none">
               <CardBody>
                 <h2 className="text-2xl font-bold">15</h2>
                 <p>Novelas en Promoción</p>
               </CardBody>
             </Card>
-            <Card>
+            <Card shadow="none">
               <CardBody>
                 <h2 className="text-2xl font-bold">5,234</h2>
                 <p>Clics en Anuncios</p>
