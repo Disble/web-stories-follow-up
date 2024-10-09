@@ -1,8 +1,8 @@
+import sharedConfig from "@repo/ui/tailwind.config.ts";
 import type { Config } from "tailwindcss";
 
-// We want each package to be responsible for its own content.
 const config: Omit<Config, "content"> = {
-  theme: {},
-  plugins: [],
+  presets: [sharedConfig],
 };
+
 export default config;
