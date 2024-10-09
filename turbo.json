@@ -17,7 +17,7 @@
   "tasks": {
     "build": {
       "env": [],
-      "dependsOn": ["^generate", "^ui:build", "^build"],
+      "dependsOn": ["^generate", "^build"],
       "inputs": ["$TURBO_DEFAULT", ".env*"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
       "cache": false
@@ -38,9 +38,6 @@
       "cache": true
     },
     "generate": {
-      "cache": false
-    },
-    "ui:build": {
       "cache": false
     },
     "//#format-and-lint": {},

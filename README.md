@@ -16,10 +16,16 @@ This turborepo includes the following packages/apps:
 
 ### Apps and Packages
 
-- `web`: a [Next.js](https://nextjs.org/) app
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `dashboard`: a [Next.js](https://nextjs.org/) app
+- `@repo/config-auth`: authentication configuration
+- `@repo/config-env`: environment configuration
+- `@repo/config-tailwind`: tailwind configuration
+- `@repo/config-typescript`: typescript configuration
 - `@repo/database`: [Prisma](https://prisma.io/) ORM wrapper to manage & access your database
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `@repo/layer-fetch`: a layer to fetch data from the external api
+- `@repo/layer-prisma`: a layer to store and retrieve data from the database
+- `@repo/types`: a shared types library
+- `@repo/ui`: a [NextUI](https://nextui.org/) wrapper
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
@@ -28,8 +34,7 @@ Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 This turborepo has some additional tools already setup for you:
 
 - [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- [Biome](https://biomejs.dev/) for code formatting and linting
 - [Prisma](https://prisma.io/) for database ORM
 - [Docker Compose](https://docs.docker.com/compose/) for local database
 
@@ -40,7 +45,6 @@ We use [Prisma](https://prisma.io/) to manage & access our database. As such you
 To make this process easier, we offer a [`docker-compose.yml`](https://docs.docker.com/compose/) file to deploy a MySQL server locally with a new database named `turborepo` (To change this update the `MYSQL_DATABASE` environment variable in the `docker-compose.yml` file):
 
 ```bash {"id":"01J8GDVGP4A5QRXC5MB09XF0QR"}
-cd my-turborepo
 docker-compose up -d
 ```
 
@@ -125,7 +129,7 @@ bun run dev
 And for the dashboard app:
 
 ```bash {"id":"01J8GDVGP4A5QRXC5MBDZVBCMS"}
-bun dev --filter=@repo/ui --filter=@repo/database --filter=dashboard
+bun dev --filter=dashboard
 ```
 
 ## Sync packages with Sherif
