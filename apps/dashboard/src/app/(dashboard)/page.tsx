@@ -26,7 +26,7 @@ export default async function Page(): Promise<JSX.Element> {
         <Divider />
         <CardBody>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card shadow="none">
+            <Card shadow="sm">
               <CardBody>
                 <CircularProgress
                   classNames={{
@@ -42,13 +42,13 @@ export default async function Page(): Promise<JSX.Element> {
                 <p className="text-center mt-2">Rendimiento de Campañas</p>
               </CardBody>
             </Card>
-            <Card shadow="none">
+            <Card shadow="sm">
               <CardBody>
                 <h2 className="text-2xl font-bold">15</h2>
                 <p>Novelas en Promoción</p>
               </CardBody>
             </Card>
-            <Card shadow="none">
+            <Card shadow="sm">
               <CardBody>
                 <h2 className="text-2xl font-bold">5,234</h2>
                 <p>Clics en Anuncios</p>
