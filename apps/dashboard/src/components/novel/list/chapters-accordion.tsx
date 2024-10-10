@@ -126,6 +126,7 @@ export default function ChaptersAccordion({
                   template={template}
                   link={platforms.at(0)?.platform.baseUrl + chapter.urlChapter}
                   slug={slug}
+                  chapterId={chapter.id}
                 />
               ) : (
                 <p className="p-2 bg-orange-100 rounded-md text-gray-800">
