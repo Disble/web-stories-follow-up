@@ -1,33 +1,12 @@
-"use client";
+import ListPublicationsApi from "#components/publications/list/list-publications-api";
+import { publicationSearchParamsCache } from "#components/publications/search-params";
 
-import { scrapeNovel } from "#actions/scrape-novel";
-import { Button, Input } from "@repo/ui/nextui";
-import { useState } from "react";
+export default function Page({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}): JSX.Element {
+  publicationSearchParamsCache.parse(searchParams);
 
-export default function Publications(): JSX.Element {
-  const [search, setSearch] = useState<string>("");
-  const [dataNovel, setDataNovel] = useState<Array<string | null>>();
-
-  const getNovelLink = async () => {
-    const response = await scrapeNovel(search);
-
-    if (typeof response === "object" && "error" in response) {
-      alert(response.error);
-      return;
-    }
-
-    setDataNovel(response);
-  };
-
-  return (
-    <>
-      <Input label="Buscar" value={search} onValueChange={setSearch} />
-      <Button onClick={getNovelLink}>Buscar</Button>
-      {dataNovel?.map((novel) => (
-        <div key={novel}>
-          <h1>{novel}</h1>
-        </div>
-      ))}
-    </>
-  );
+  return <ListPublicationsApi />;
 }

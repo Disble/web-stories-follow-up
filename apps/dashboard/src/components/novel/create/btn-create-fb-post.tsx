@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Link } from "@repo/ui/nextui";
-import { publishNewChapterInFacebook } from "../novel.action";
+import { publishNewChapterInFacebook } from "#components/novel/novel.action";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
 
@@ -9,12 +9,14 @@ type BtnCreateFbPostProps = {
   template: string;
   link: string;
   slug: string;
+  chapterId: string;
 };
 
 export default function BtnCreateFbPost({
   template,
   link,
   slug,
+  chapterId,
 }: BtnCreateFbPostProps): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,7 +30,8 @@ export default function BtnCreateFbPost({
         link,
         published: "true",
       },
-      slug
+      slug,
+      chapterId
     );
 
     if ("error" in result) {

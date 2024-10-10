@@ -149,6 +149,7 @@ export default function PullOrCreateNovel({
         append({
           title: chapter.title,
           urlChapter: chapter.urlChapter,
+          // @ts-expect-error: Types are compatibles, but CalendarDate is not assignable because is private
           publishedAt: chapter.publishedAt
             ? parseDate(chapter.publishedAt.split("T")[0])
             : null,

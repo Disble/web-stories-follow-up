@@ -24,6 +24,7 @@
     "./nextui": "./src/nextui/index.ts",
     "./nextui/framer-utils": "./src/nextui/framer-utils.ts",
     "./commons": "./src/commons/index.ts",
+    "./simple-components": "./src/commons/simple-components.tsx",
     "./utils": "./src/utils/index.ts",
     "./icons": "./src/icons/index.ts",
     "./form": "./src/form/index.ts",
@@ -52,7 +53,10 @@
     "zustand": "4.5.5"
   },
   "dependencies": {
+    "@formkit/tempo": "^0.1.2",
+    "@internationalized/date": "^3.5.6",
     "@nextui-org/react": "^2.4.8",
+    "@react-aria/i18n": "^3.12.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.29",

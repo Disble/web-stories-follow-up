@@ -59,7 +59,9 @@ export default function useCDTRenderTopContent<
       if (!dateGte || !dateLte) return;
 
       setDate({
+        // @ts-expect-error: Types are compatibles, but CalendarDate is not assignable to DateValue because is private
         start: parseDate(dateGte),
+        // @ts-expect-error: Types are compatibles, but CalendarDate is not assignable to DateValue because is private
         end: parseDate(dateLte),
       });
     }
