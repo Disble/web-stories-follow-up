@@ -6,7 +6,7 @@ import { PlatformModel } from "#model/platform/platform.model";
 import { PrismaAuthMiddleware } from "./prisma-auth-middleware";
 import { TemplateModel } from "#model/template/template.model";
 import { ParameterModel } from "#model/parameter/parameter.model";
-
+import { PublicationModel } from "#model/publication/publication.model";
 export class ModelFactory extends PrismaAuthMiddleware {
   public readonly user: UserModel;
   public readonly novel: NovelModel;
@@ -15,7 +15,7 @@ export class ModelFactory extends PrismaAuthMiddleware {
   public readonly platform: PlatformModel;
   public readonly template: TemplateModel;
   public readonly parameter: ParameterModel;
-
+  public readonly publication: PublicationModel;
   public constructor() {
     super();
 
@@ -26,5 +26,6 @@ export class ModelFactory extends PrismaAuthMiddleware {
     this.platform = new PlatformModel(this.connect, this);
     this.template = new TemplateModel(this.connect, this);
     this.parameter = new ParameterModel(this.connect, this);
+    this.publication = new PublicationModel(this.connect, this);
   }
 }

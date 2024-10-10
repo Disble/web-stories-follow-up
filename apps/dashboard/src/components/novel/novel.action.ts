@@ -1,6 +1,6 @@
 "use server";
 
-import { ChapterStatus } from "@repo/layer-prisma";
+import { ChapterStatus, PublicationStatus } from "@repo/layer-prisma";
 import { db } from "@repo/layer-prisma/db";
 import type { NovelFindBySlugPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 import { SessionError } from "@repo/types/utils/errors";
@@ -146,7 +146,8 @@ export async function scrapeCurrentChapters(url: string) {
 
 export async function publishNewChapterInFacebook(
   body: FeedPublishPostBody,
-  slug: string
+  slug: string,
+  chapterId: string
 ) {
   const [post] = await api.feed.publishPost(body);
 
@@ -156,7 +157,27 @@ export async function publishNewChapterInFacebook(
     };
   }
 
+  const publication = await db.publication.create({
+    idPublishedFacebook: post.id,
+    message: body.message,
+    link: body.link,
+    publishedFacebook: true,
+    status: PublicationStatus.PUBLISHED,
+    chapter: {
+      connect: {
+        id: chapterId,
+      },
+    },
+  });
+
   revalidatePath(`${PATH_DASHBOARD.novel}/${slug}`);
+
+  if (!publication) {
+    return {
+      error:
+        "Publicación creada en Facebook, pero no se pudo guardar en la base de datos",
+    };
+  }
 
   return post;
 }
