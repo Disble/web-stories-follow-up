@@ -8,5 +8,7 @@ export function GET(request: NextRequest) {
     });
   }
 
+  console.info("👋 Hello from cron job follow-up");
+
   return Response.json({ success: true });
 }
