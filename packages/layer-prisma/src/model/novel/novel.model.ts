@@ -1,7 +1,11 @@
 import { PrismaDB } from "#abstract-factory/prisma-db.abstract";
 import type { Prisma } from "@repo/database";
 import { SessionError } from "@repo/types/utils/errors";
-import { novelCardListSelect, novelFindBySlugSelect } from "./novel.interface";
+import {
+  novelCardListSelect,
+  novelFindBySlugSelect,
+  novelListSelect,
+} from "./novel.interface";
 
 export class NovelModel extends PrismaDB {
   public async create(data: Prisma.NovelCreateInput) {
@@ -64,5 +68,13 @@ export class NovelModel extends PrismaDB {
         limit,
         includePageCount: true,
       });
+  }
+
+  public async list() {
+    const prisma = await this.connect.public();
+
+    return prisma.novel.findMany({
+      select: novelListSelect,
+    });
   }
 }

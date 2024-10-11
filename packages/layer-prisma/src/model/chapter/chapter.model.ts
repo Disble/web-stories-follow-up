@@ -58,4 +58,30 @@ export class ChapterModel extends PrismaDB {
       }
     );
   }
+
+  public async findLastChapterEnabledToPublish(novelId: string) {
+    const prisma = await this.connect.protected();
+
+    if (prisma instanceof SessionError) {
+      throw prisma; // NOTE: exclusive used in cron
+    }
+
+    const lastChapter = await prisma.chapter.findFirst({
+      where: {
+        novelId,
+        createdAt: {
+          gte: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (!lastChapter) {
+      throw new Error("Error finding last chapter in range 1 hour");
+    }
+
+    return lastChapter;
+  }
 }

@@ -83,3 +83,37 @@ export const novelFindBySlugSelect = {
 export type NovelFindBySlugPayload = Prisma.NovelGetPayload<{
   select: typeof novelFindBySlugSelect;
 }>;
+
+export const novelListSelect = {
+  id: true,
+  title: true,
+  urlNovel: true,
+  chapters: {
+    select: {
+      id: true,
+      title: true,
+      publishedAt: true,
+      urlCoverChapter: true,
+      urlChapter: true,
+      publication: true,
+    },
+  },
+  template: {
+    select: {
+      text: true,
+    },
+  },
+  platforms: {
+    select: {
+      platform: {
+        select: {
+          baseUrl: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.NovelSelect;
+
+export type NovelListPayload = Prisma.NovelGetPayload<{
+  select: typeof novelListSelect;
+}>;
