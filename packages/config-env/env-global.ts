@@ -15,6 +15,7 @@ export const env = createEnv({
     FB_PAGE_ID: z.string().min(1),
     FB_SYSTEM_USER_ID: z.string().min(1),
     FB_BUSINESS_ID: z.string().min(1),
+    CRON_SECRET: z.string().min(1),
   },
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
@@ -32,5 +33,6 @@ export const env = createEnv({
     FB_PAGE_ID: process.env.FB_PAGE_ID,
     FB_SYSTEM_USER_ID: process.env.FB_SYSTEM_USER_ID,
     FB_BUSINESS_ID: process.env.FB_BUSINESS_ID,
+    CRON_SECRET: process.env.CRON_SECRET,
   },
 });
