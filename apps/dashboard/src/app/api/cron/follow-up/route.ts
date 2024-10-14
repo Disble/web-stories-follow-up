@@ -1,19 +1,10 @@
 import { dailyScrap } from "#crons/daily-scrap";
-import { env } from "@repo/env-config/env-global";
-import type { NextRequest } from "next/server";
 
 export const revalidate = 0;
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
-    return new Response("Unauthorized", {
-      status: 401,
-    });
-  }
-
+export async function GET() {
   try {
     console.info("🔄 Starting daily scrap");
     console.time("🔄 Daily scrap");
