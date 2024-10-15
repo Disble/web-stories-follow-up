@@ -45,7 +45,9 @@ export abstract class FetchApiMiddleware {
     config: RequestInit = {},
     options: {
       isPublic?: boolean;
-    } = {}
+    } = {
+      isPublic: false,
+    }
   ): Promise<FetchResponse<TValues>> {
     let contextError: Record<string, unknown> | string = {};
     try {

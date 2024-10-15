@@ -4,7 +4,11 @@ import { getPageAccessTokenResponseSchema } from "./account.interface";
 import { queryParse } from "#utils";
 
 export class AccountModel extends FetchApi {
-  public async getPageAccessToken() {
+  public async getPageAccessToken({
+    isPublic = false,
+  }: {
+    isPublic?: boolean;
+  } = {}) {
     const response = await this.fetch(
       `/me/accounts${queryParse({
         access_token: env.FB_ACCESS_TOKEN,
@@ -12,6 +16,9 @@ export class AccountModel extends FetchApi {
       getPageAccessTokenResponseSchema,
       {
         method: "GET",
+      },
+      {
+        isPublic,
       }
     );
 

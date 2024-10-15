@@ -12,7 +12,9 @@ export class FeedModel extends FetchApi {
       isPublic?: boolean;
     } = {}
   ) {
-    const [pageAccessToken] = await this.api.account.getPageAccessToken();
+    const [pageAccessToken] = await this.api.account.getPageAccessToken({
+      isPublic: options.isPublic,
+    });
 
     if (!pageAccessToken || !pageAccessToken?.data[0].access_token) {
       return [null, new Error("Page access token not found")] as const;
