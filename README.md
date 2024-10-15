@@ -106,7 +106,7 @@ For further more information on migrations, seeding & more, we recommend reading
 
 To start the Prisma Studio GUI for your database, run the following command:
 
-```bash
+```bash {"id":"01JA6CGAS2FK4NMY1XBMNE2DKS"}
 bun prisma studio
 ```
 
@@ -139,6 +139,12 @@ To sync packages with Sherif, run the following command:
 ```bash {"id":"01J8GDVGP4A5QRXC5MBHSKKE3B"}
 bunx sherif@latest --fix
 ```
+
+## Cron Jobs
+
+The cron jobs are defined in the `vercel.json` file.
+
+You can create the schedule time is in [Crontab format](https://crontab.guru/). Vercel will run the cron job on the Vercel serverless environment. The timezone of the schedule is UTC.
 
 ## Useful Links
 

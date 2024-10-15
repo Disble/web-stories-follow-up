@@ -6,8 +6,15 @@ import {
 } from "./feed.interface";
 
 export class FeedModel extends FetchApi {
-  public async publishPost(body: FeedPublishPostBody) {
-    const [pageAccessToken] = await this.api.account.getPageAccessToken();
+  public async publishPost(
+    body: FeedPublishPostBody,
+    options: {
+      isPublic?: boolean;
+    } = {}
+  ) {
+    const [pageAccessToken] = await this.api.account.getPageAccessToken({
+      isPublic: options.isPublic,
+    });
 
     if (!pageAccessToken || !pageAccessToken?.data[0].access_token) {
       return [null, new Error("Page access token not found")] as const;
@@ -25,6 +32,9 @@ export class FeedModel extends FetchApi {
           ...body,
           access_token: pageAccessToken?.data[0].access_token,
         }),
+      },
+      {
+        isPublic: options.isPublic,
       }
     );
     return response;
