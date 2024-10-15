@@ -6,7 +6,12 @@ import {
 } from "./feed.interface";
 
 export class FeedModel extends FetchApi {
-  public async publishPost(body: FeedPublishPostBody) {
+  public async publishPost(
+    body: FeedPublishPostBody,
+    options: {
+      isPublic?: boolean;
+    } = {}
+  ) {
     const [pageAccessToken] = await this.api.account.getPageAccessToken();
 
     if (!pageAccessToken || !pageAccessToken?.data[0].access_token) {
@@ -25,6 +30,9 @@ export class FeedModel extends FetchApi {
           ...body,
           access_token: pageAccessToken?.data[0].access_token,
         }),
+      },
+      {
+        isPublic: options.isPublic,
       }
     );
     return response;

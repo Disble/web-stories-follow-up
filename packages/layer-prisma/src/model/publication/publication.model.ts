@@ -16,6 +16,14 @@ export class PublicationModel extends PrismaDB {
     });
   }
 
+  public async cronCreate(data: Prisma.PublicationCreateInput) {
+    const prisma = await this.connect.public();
+
+    return prisma.publication.create({
+      data,
+    });
+  }
+
   public async listPaginated({ page, limit }: { page: number; limit: number }) {
     const prisma = await this.connect.protected();
 

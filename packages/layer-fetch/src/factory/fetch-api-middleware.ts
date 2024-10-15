@@ -42,12 +42,15 @@ export abstract class FetchApiMiddleware {
   protected async fetch<TValues>(
     url: string,
     schema: z.Schema<TValues>,
-    config: RequestInit = {}
+    config: RequestInit = {},
+    options: {
+      isPublic?: boolean;
+    } = {}
   ): Promise<FetchResponse<TValues>> {
     let contextError: Record<string, unknown> | string = {};
     try {
       const session = await auth();
-      if (!session) {
+      if (!options.isPublic && !session) {
         throw new SessionError("No session found");
       }
 

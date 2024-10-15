@@ -4,7 +4,9 @@ export type FetchType = <TValues>(
   url: string,
   schema: z.Schema<TValues>,
   config: RequestInit,
-  isLoggedIn?: boolean
+  options?: {
+    isPublic?: boolean;
+  }
 ) => Promise<FetchResponse<TValues>>;
 
 export type FetchResponse<TValues> = Prettify<

@@ -18,12 +18,31 @@ export class ChapterModel extends PrismaDB {
     });
   }
 
+  public async cronCreateMany(chapters: Prisma.ChapterCreateManyInput[]) {
+    const prisma = await this.connect.public();
+
+    return prisma.chapter.createMany({
+      data: chapters,
+      skipDuplicates: true,
+    });
+  }
+
   public async deleteMany(chaptersIds: Array<string>) {
     const prisma = await this.connect.protected();
 
     if (prisma instanceof SessionError) {
       return prisma.message;
     }
+
+    return prisma.chapter.deleteMany({
+      where: {
+        id: { in: chaptersIds },
+      },
+    });
+  }
+
+  public async cronDeleteMany(chaptersIds: Array<string>) {
+    const prisma = await this.connect.public();
 
     return prisma.chapter.deleteMany({
       where: {
@@ -59,12 +78,8 @@ export class ChapterModel extends PrismaDB {
     );
   }
 
-  public async findLastChapterEnabledToPublish(novelId: string) {
-    const prisma = await this.connect.protected();
-
-    if (prisma instanceof SessionError) {
-      throw prisma; // NOTE: exclusive used in cron
-    }
+  public async cronFindLastChapterEnabledToPublish(novelId: string) {
+    const prisma = await this.connect.public();
 
     const lastChapter = await prisma.chapter.findFirst({
       where: {

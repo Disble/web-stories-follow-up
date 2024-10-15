@@ -10,7 +10,7 @@ export async function dailyScrap() {
 
   const promises = novels.map(async (novel) => {
     await updateChapters(novel.urlNovel, novel.chapters, novel.id);
-    const lastChapter = await db.chapter.findLastChapterEnabledToPublish(
+    const lastChapter = await db.chapter.cronFindLastChapterEnabledToPublish(
       novel.id
     );
 
@@ -62,7 +62,7 @@ export async function updateChapters(
   );
 
   if (newChaptersOnly.length > 0 || removedChapters.length > 0) {
-    db.chapter.createMany(
+    db.chapter.cronCreateMany(
       newChaptersOnly.map((chapter) => ({
         title: chapter.title,
         urlChapter: chapter.urlChapter,
@@ -72,7 +72,7 @@ export async function updateChapters(
       }))
     );
 
-    db.chapter.deleteMany(removedChapters.map((chapter) => chapter.id));
+    db.chapter.cronDeleteMany(removedChapters.map((chapter) => chapter.id));
   }
 }
 
@@ -129,13 +129,15 @@ export async function publishNewChapterInFacebook(
   body: FeedPublishPostBody,
   chapterId: string
 ) {
-  const [post] = await api.feed.publishPost(body);
+  const [post] = await api.feed.publishPost(body, {
+    isPublic: true,
+  });
 
   if (!post) {
     throw new Error("Error publishing chapter in Facebook");
   }
 
-  const publication = await db.publication.create({
+  const publication = await db.publication.cronCreate({
     idPublishedFacebook: post.id,
     message: body.message,
     link: body.link,
