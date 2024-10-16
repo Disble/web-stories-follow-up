@@ -5,6 +5,13 @@ import type { Config } from "tailwindcss";
 const config: Omit<Config, "content"> = {
   presets: [sharedConfig],
   darkMode: "class",
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ["Pacifico", "sans-serif"],
+      },
+    },
+  },
   plugins: [
     nextui({
       themes: {
