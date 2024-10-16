@@ -31,7 +31,11 @@ export default function ListAuthors({
     const authorKey = columnKey as keyof AuthorListPayload;
 
     switch (authorKey) {
-      case "name" || "pseudonym" || "urlProfile":
+      case "name":
+        return <span>{author[authorKey]}</span>;
+      case "pseudonym":
+        return <span>{author[authorKey]}</span>;
+      case "urlProfile":
         return <span>{author[authorKey]}</span>;
       default:
         return <span>{author[authorKey]}</span>;

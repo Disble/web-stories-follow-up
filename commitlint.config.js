@@ -7,6 +7,7 @@ module.exports = {
       [
         "root",
         "dashboard",
+        "landing",
         "app",
         "components",
         "api",
