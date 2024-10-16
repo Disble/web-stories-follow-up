@@ -1,4 +1,12 @@
 ls:
+  apps/landing/src/{layouts,components}:
+    .dir: kebab-case
+    .astro: PascalCase
+    .md: kebab-case
+  apps/landing/src/pages/*:
+    .dir: kebab-case
+    .astro: kebab-case
+    .md: kebab-case
   '{apps,packages}/*':
     .dir: kebab-case
   '{apps,packages}/*/src':
