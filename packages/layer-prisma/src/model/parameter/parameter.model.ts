@@ -19,6 +19,17 @@ export class ParameterModel extends PrismaDB {
     });
   }
 
+  public async cronGetByName(name: string) {
+    const prisma = await this.connect.public();
+
+    return prisma.parameter.findUnique({
+      select: parameterListSelect,
+      where: {
+        name,
+      },
+    });
+  }
+
   public async create(data: Prisma.ParameterCreateInput) {
     const prisma = await this.connect.protected();
 

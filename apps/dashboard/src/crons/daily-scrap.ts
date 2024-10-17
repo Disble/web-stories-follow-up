@@ -1,12 +1,28 @@
+import { parameters } from "#lib/consts";
 import { api } from "@repo/layer-fetch/api";
 import type { FeedPublishPostBody } from "@repo/layer-fetch/model/feed/feed.interface";
 import { ChapterStatus, PublicationStatus } from "@repo/layer-prisma";
 import { db } from "@repo/layer-prisma/db";
 import type { NovelListPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 import { JSDOM } from "jsdom";
+import {
+  parseZonedDateTime,
+  now,
+  getLocalTimeZone,
+} from "@internationalized/date";
+import type { ParameterListPayload } from "@repo/layer-prisma/model/parameter/parameter.interface";
 
 export async function dailyScrap() {
   const novels = await db.novel.list();
+  const paramPublicationTime = await db.parameter.cronGetByName(
+    parameters.FB_PUBLICATION_TIME
+  );
+
+  if (!paramPublicationTime) {
+    throw new Error("No publication time found");
+  }
+
+  const fbPublicationTimeStamp = getPublicationTime(paramPublicationTime);
 
   const promises = novels.map(async (novel) => {
     await updateChapters(novel.urlNovel, novel.chapters, novel.id);
@@ -26,7 +42,8 @@ export async function dailyScrap() {
       {
         message: templateWithLink,
         link: url,
-        published: "true",
+        published: "false",
+        scheduled_publish_time: fbPublicationTimeStamp.toString(),
       },
       lastChapter.id
     );
@@ -157,4 +174,22 @@ export async function publishNewChapterInFacebook(
   }
 
   return publication;
+}
+
+function getPublicationTime(paramPublicationTime: ParameterListPayload) {
+  const fbPublicationZonedDateTime = parseZonedDateTime(
+    paramPublicationTime.value
+  );
+  const today = now(getLocalTimeZone());
+
+  fbPublicationZonedDateTime.set({
+    year: today.year,
+    month: today.month,
+    day: today.day,
+  });
+
+  const offsetInMiliseconds = fbPublicationZonedDateTime.offset;
+  const offsetInSeconds = Math.floor(offsetInMiliseconds / 1000);
+
+  return offsetInSeconds;
 }
