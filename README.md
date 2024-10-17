@@ -132,6 +132,12 @@ And for the dashboard app:
 bun dev --filter=dashboard
 ```
 
+Landing app (Astro):
+
+```bash
+bun dev --filter=landing
+```
+
 ## Sync packages with Sherif
 
 To sync packages with Sherif, run the following command:
