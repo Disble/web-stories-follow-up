@@ -8,7 +8,8 @@ const config: Omit<Config, "content"> = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Pacifico", "sans-serif"],
+        sans: ["Quicksand", "sans-serif"],
+        heading: ["Pacifico", "sans-serif"],
       },
     },
   },
