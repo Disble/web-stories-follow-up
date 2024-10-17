@@ -5,7 +5,12 @@ import { ChapterStatus, PublicationStatus } from "@repo/layer-prisma";
 import { db } from "@repo/layer-prisma/db";
 import type { NovelListPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 import { JSDOM } from "jsdom";
-import { parseZonedDateTime } from "@internationalized/date";
+import {
+  parseZonedDateTime,
+  now,
+  getLocalTimeZone,
+} from "@internationalized/date";
+import type { ParameterListPayload } from "@repo/layer-prisma/model/parameter/parameter.interface";
 
 export async function dailyScrap() {
   const novels = await db.novel.list();
@@ -17,10 +22,7 @@ export async function dailyScrap() {
     throw new Error("No publication time found");
   }
 
-  // NOTE: we need restart the time in the server every day
-  const fbPublicationTimeStamp = parseZonedDateTime(
-    paramPublicationTime.value
-  ).second;
+  const fbPublicationTimeStamp = getPublicationTime(paramPublicationTime);
 
   const promises = novels.map(async (novel) => {
     await updateChapters(novel.urlNovel, novel.chapters, novel.id);
@@ -172,4 +174,22 @@ export async function publishNewChapterInFacebook(
   }
 
   return publication;
+}
+
+function getPublicationTime(paramPublicationTime: ParameterListPayload) {
+  const fbPublicationZonedDateTime = parseZonedDateTime(
+    paramPublicationTime.value
+  );
+  const today = now(getLocalTimeZone());
+
+  fbPublicationZonedDateTime.set({
+    year: today.year,
+    month: today.month,
+    day: today.day,
+  });
+
+  const offsetInMiliseconds = fbPublicationZonedDateTime.offset;
+  const offsetInSeconds = Math.floor(offsetInMiliseconds / 1000);
+
+  return offsetInSeconds;
 }
