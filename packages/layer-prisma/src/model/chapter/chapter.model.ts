@@ -81,11 +81,15 @@ export class ChapterModel extends PrismaDB {
   public async cronFindLastChapterEnabledToPublish(novelId: string) {
     const prisma = await this.connect.public();
 
+    const yesterday = new Date();
+    yesterday.setHours(yesterday.getHours() - 24);
+    yesterday.setMinutes(yesterday.getMinutes() - 1);
+
     const lastChapter = await prisma.chapter.findFirst({
       where: {
         novelId,
         createdAt: {
-          gte: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+          gte: yesterday,
         },
       },
       orderBy: {
