@@ -1,7 +1,6 @@
 ---
-// src/layouts/Layout.astro
 interface Props {
-  title: string;
+	title: string;
 }
 
 const { title } = Astro.props;
@@ -18,13 +17,10 @@ const { title } = Astro.props;
 	</head>
 	<body>
 		<main>
-			<!-- El contenido dinámico se inserta aquí -->
 			<slot />
 		</main>
 	</body>
 </html>
-
-<!-- Estilos Globales -->
 <style is:global>
 	:root {
 		--accent: 136, 58, 234;
@@ -57,6 +53,21 @@ const { title } = Astro.props;
 		text-align: center;
 		margin-bottom: 1em;
 	}
+
+	p {
+		margin-bottom: 1em;
+		text-align: justify;
+	}
+	li {
+		margin-bottom: 0.5em;
+	}
+
+	ul {
+		padding-left: 2em;
+		margin-bottom: 1em;
+		list-style-type: disc;
+	}
+
 	.text-gradient {
 		background-image: var(--accent-gradient);
 		-webkit-background-clip: text;
