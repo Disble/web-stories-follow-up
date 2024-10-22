@@ -151,3 +151,21 @@ export async function scrapeNovel(url: string) {
     };
   }
 }
+
+export async function findNovelByUrlNovel(urlNovel: string) {
+  const novel = await db.novel.findByUrlNovel(urlNovel);
+
+  if (typeof novel === "string") {
+    return {
+      error: novel,
+    } as const;
+  }
+
+  if (!novel) {
+    return {
+      error: "Novela no encontrada",
+    } as const;
+  }
+
+  return novel;
+}

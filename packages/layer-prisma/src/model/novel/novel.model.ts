@@ -49,6 +49,20 @@ export class NovelModel extends PrismaDB {
     });
   }
 
+  public async findByUrlNovel(urlNovel: string) {
+    const prisma = await this.connect.protected();
+
+    if (prisma instanceof SessionError) {
+      return prisma.message;
+    }
+
+    return prisma.novel.findFirst({
+      where: {
+        urlNovel,
+      },
+    });
+  }
+
   public async cardsList({ page, limit }: { page: number; limit: number }) {
     const prisma = await this.connect.protected();
 

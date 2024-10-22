@@ -38,3 +38,4 @@ export * from "./dashboard";
 export * from "./auth";
 export * from "./novels";
 export * from "./tables";
+export * from "./toast";
