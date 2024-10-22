@@ -1,25 +1,18 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Accordion,
   AccordionItem,
   Button,
   DatePicker,
   Image,
-  Input,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
   Tooltip,
-  useDisclosure,
-  type CalendarDate,
 } from "@repo/ui/nextui";
-import { useState } from "react";
-import { FormProvider, useFieldArray, useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { z } from "zod";
+import { FormProvider } from "react-hook-form";
 
 import {
   FormInput,
@@ -29,38 +22,9 @@ import {
 } from "@repo/ui/form";
 import { SolarCloudDownloadLinear } from "@repo/ui/icons";
 import { SolarTrashBinTrashOutline } from "#components/icons/index";
-import { useDateFormatter } from "@react-aria/i18n";
-import { getLocalTimeZone, parseDate } from "@internationalized/date";
-import { createFullNovel, scrapeNovel } from "./pull-novel.action";
-import { ChapterStatus } from "@repo/layer-prisma";
+import { getLocalTimeZone } from "@internationalized/date";
 import type { PlatformListPayload } from "@repo/layer-prisma/model/platform/platform.interface";
-
-const urlSchema = z.string().url("La URL de la novela no es válida");
-const urlRelativeSchema = z.string().regex(/\/(?:[\w-]+\/)*[\w-]+/);
-
-export const FormSchema = z.object({
-  urlNovel: urlSchema,
-  title: z.string(),
-  synopsis: z.string(),
-  note: z.string().optional(),
-  urlCoverNovel: urlSchema,
-  chapters: z.array(
-    z.object({
-      title: z.string(),
-      urlChapter: urlRelativeSchema,
-      urlCoverChapter: urlSchema.optional(),
-      publishedAt: z.custom<CalendarDate>().nullable(),
-      status: z.nativeEnum(ChapterStatus),
-    })
-  ),
-  authorName: z.string().optional(),
-  authorPseudonym: z.string(),
-  authorUrlProfile: urlRelativeSchema,
-  authorUrlCoverProfile: urlSchema.optional(),
-  platform: z.string(),
-});
-
-type FormData = z.infer<typeof FormSchema>;
+import usePullNovel, { urlSchema } from "./pull-novel-hook";
 
 type PullOrCreateNovelProps = {
   platforms: PlatformListPayload[];
@@ -69,176 +33,25 @@ type PullOrCreateNovelProps = {
 export default function PullOrCreateNovel({
   platforms,
 }: PullOrCreateNovelProps): JSX.Element {
-  const [isPulling, setIsPulling] = useState(false);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [chapterToDelete, setChapterToDelete] = useState<number>();
-
-  const platformsOptions = platforms.map((platform) => ({
-    key: platform.code,
-    value: platform.code,
-    label: platform.name,
-  }));
-
-  const form = useForm<FormData>({
-    defaultValues: {
-      urlNovel: "",
-      title: "",
-      synopsis: "",
-      urlCoverNovel: "",
-      chapters: [],
-      authorPseudonym: "",
-      authorUrlProfile: "",
-    },
-    resolver: zodResolver(FormSchema),
-    mode: "onChange",
-    criteriaMode: "all",
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "chapters",
-  });
-
-  const urlNovel = form.watch("urlNovel");
-  const urlNovelError = urlSchema.safeParse(urlNovel);
-
-  const urlCoverNovel = form.watch("urlCoverNovel");
-  const urlCoverNovelError = urlSchema.safeParse(urlCoverNovel);
-
-  const authorUrlCoverProfile = form.watch("authorUrlCoverProfile");
-  const authorUrlCoverProfileError = urlSchema.safeParse(authorUrlCoverProfile);
-
-  const formatter = useDateFormatter({ dateStyle: "full" });
-
-  const handlePullNovel = async () => {
-    try {
-      setIsPulling(true);
-      toast.success("Descargando datos de la novela...");
-
-      const novelScraped = await scrapeNovel(urlNovel);
-
-      if ("error" in novelScraped) {
-        toast.error(novelScraped.error);
-        return;
-      }
-
-      if (fields.length > 0) {
-        remove(); // clean chapters
-      }
-
-      let platform = "";
-
-      try {
-        platform = new URL(urlNovel).hostname
-          .replace(/^www\./, "")
-          .split(".")
-          .slice(0, -1)
-          .join(".");
-      } catch (error) {
-        toast.error(
-          "Tuvimos un error al obtener la plataforma de la novela. Por favor, seleccionala manualmente."
-        );
-      }
-
-      form.setValue("title", novelScraped.title);
-      form.setValue("synopsis", novelScraped.synopsis);
-      form.setValue("note", novelScraped.note);
-      form.setValue("urlCoverNovel", novelScraped.urlCoverNovel);
-
-      for (const chapter of novelScraped.chapters) {
-        append({
-          title: chapter.title,
-          urlChapter: chapter.urlChapter,
-          // @ts-expect-error: Types are compatibles, but CalendarDate is not assignable because is private
-          publishedAt: chapter.publishedAt
-            ? parseDate(chapter.publishedAt.split("T")[0])
-            : null,
-          status: chapter.status,
-        });
-      }
-      form.setValue("authorName", novelScraped.authorName);
-      form.setValue("authorPseudonym", novelScraped.authorPseudonym);
-      form.setValue("authorUrlProfile", novelScraped.authorUrlProfile);
-      form.setValue(
-        "authorUrlCoverProfile",
-        novelScraped.authorUrlCoverProfile
-      );
-
-      form.setValue("platform", platform);
-      toast.success("Datos de la novela descargados correctamente");
-    } catch (error) {
-      toast.error("Error al descargar los datos de la novela");
-    } finally {
-      setIsPulling(false);
-    }
-  };
-
-  const handleWarningDeleteChapter = (index: number) => {
-    setChapterToDelete(index);
-    onOpen();
-  };
-
-  const handleDeleteChapter = () => {
-    if (chapterToDelete !== undefined) remove(chapterToDelete);
-    onOpenChange();
-  };
-
-  const onSubmit = async (values: FormData) => {
-    try {
-      const platformId = platforms.find(
-        (platform) => platform.code === values.platform
-      )?.id;
-
-      if (!platformId) {
-        toast.error("Por favor, selecciona una plataforma válida.");
-        return;
-      }
-
-      await createFullNovel({
-        title: values.title,
-        synopsis: values.synopsis,
-        note: values.note,
-        urlNovel: values.urlNovel,
-        urlCoverNovel: values.urlCoverNovel,
-        chapters: {
-          createMany: {
-            data: values.chapters.map((chapter) => ({
-              title: chapter.title,
-              urlChapter: chapter.urlChapter,
-              urlCoverChapter: chapter.urlCoverChapter,
-              publishedAt: chapter.publishedAt
-                ?.toDate(getLocalTimeZone())
-                ?.toISOString(),
-              status: ChapterStatus.COMPLETED,
-            })),
-          },
-        },
-        authors: {
-          create: {
-            author: {
-              create: {
-                name: values.authorName,
-                pseudonym: values.authorPseudonym,
-                urlProfile: values.authorUrlProfile,
-                urlCoverProfile: values.authorUrlCoverProfile,
-              },
-            },
-          },
-        },
-        platforms: {
-          create: {
-            platformId,
-          },
-        },
-      });
-
-      toast.success("Novela creada correctamente");
-    } catch (error) {
-      toast.error(
-        "Error de registro. Por favor, revise los datos e intente nuevamente."
-      );
-    }
-  };
+  const {
+    form,
+    isPulling,
+    urlNovelError,
+    urlCoverNovel,
+    authorUrlCoverProfile,
+    urlCoverNovelError,
+    authorUrlCoverProfileError,
+    formatter,
+    handleAppendChapter,
+    handlePullNovel,
+    handleWarningDeleteChapter,
+    handleDeleteChapter,
+    onSubmit,
+    fields,
+    platformsOptions,
+    isOpen,
+    onOpenChange,
+  } = usePullNovel({ platforms });
 
   return (
     <>
@@ -354,16 +167,13 @@ export default function PullOrCreateNovel({
                   }}
                 >
                   {fields.map((field, index) => {
-                    const chapterTitle = form.watch(`chapters.${index}.title`);
-                    const urlCoverChapter = form.watch(
-                      `chapters.${index}.urlCoverChapter`
-                    );
+                    const chapterWatched = form.watch(`chapters.${index}`);
+
+                    const chapterTitle = chapterWatched.title;
+                    const urlCoverChapter = chapterWatched.urlCoverChapter;
                     const isValidUrlCoverChapter =
                       urlSchema.safeParse(urlCoverChapter);
-
-                    const publishedAt = form.watch(
-                      `chapters.${index}.publishedAt`
-                    );
+                    const publishedAt = chapterWatched.publishedAt;
 
                     return (
                       <AccordionItem
@@ -405,33 +215,34 @@ export default function PullOrCreateNovel({
                             : "Capítulo de la novela"
                         }
                       >
-                        <div className="space-y-3" key={field.id}>
-                          <Input
-                            {...form.register(
-                              `chapters.${index}.urlChapter` as const
-                            )}
-                            placeholder="URL del capítulo"
-                            label="URL del capítulo"
-                          />
-                          <Input
-                            {...form.register(
-                              `chapters.${index}.title` as const
-                            )}
-                            placeholder="Título del capítulo"
+                        <div className="space-y-3">
+                          <FormInput
+                            control={form.control}
+                            name={`chapters.${index}.title` as const}
                             label="Título del capítulo"
+                            placeholder="Título del capítulo"
                           />
-                          <Input
-                            {...form.register(
-                              `chapters.${index}.urlCoverChapter` as const
-                            )}
-                            placeholder="URL de la portada del capítulo"
+
+                          <FormInput
+                            control={form.control}
+                            name={`chapters.${index}.urlChapter` as const}
+                            label="URL del capítulo"
+                            placeholder="URL del capítulo"
+                          />
+
+                          <FormInput
+                            control={form.control}
+                            name={`chapters.${index}.urlCoverChapter` as const}
                             label="URL de la portada del capítulo"
+                            placeholder="URL de la portada del capítulo"
                           />
+
                           <DatePicker
+                            key={field.id}
                             value={publishedAt}
                             onChange={(value) => {
                               form.setValue(
-                                `chapters.${index}.publishedAt`,
+                                `chapters.${index}.publishedAt` as const,
                                 value
                               );
                             }}
@@ -441,7 +252,7 @@ export default function PullOrCreateNovel({
                             isIconOnly
                             onClick={() => handleWarningDeleteChapter(index)}
                             color="danger"
-                            variant="ghost"
+                            variant="bordered"
                             className="w-full"
                           >
                             <SolarTrashBinTrashOutline className="size-5" />
@@ -453,18 +264,7 @@ export default function PullOrCreateNovel({
                 </Accordion>
               </>
             )}
-            <Button
-              fullWidth
-              onClick={() =>
-                append({
-                  title: "",
-                  urlChapter: "",
-                  urlCoverChapter: "",
-                  publishedAt: null,
-                  status: ChapterStatus.PENDING,
-                })
-              }
-            >
+            <Button fullWidth onClick={handleAppendChapter}>
               Agregar capítulo
             </Button>
           </FormSection>
