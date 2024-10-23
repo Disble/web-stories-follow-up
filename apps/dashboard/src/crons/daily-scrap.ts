@@ -1,7 +1,7 @@
 import { parameters } from "#lib/consts";
 import { api } from "@repo/layer-fetch/api";
 import type { FeedPublishPostBody } from "@repo/layer-fetch/model/feed/feed.interface";
-import { ChapterStatus, PublicationStatus } from "@repo/layer-prisma";
+import { PublicationStatus } from "@repo/layer-prisma";
 import { db } from "@repo/layer-prisma/db";
 import type { NovelListPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 import { JSDOM } from "jsdom";
@@ -84,7 +84,6 @@ export async function updateChapters(
         title: chapter.title,
         urlChapter: chapter.urlChapter,
         publishedAt: chapter.publishedAt,
-        status: ChapterStatus.COMPLETED,
         novelId,
       }))
     );
@@ -133,7 +132,6 @@ export async function scrapeCurrentChapters(url: string) {
         title,
         urlChapter,
         publishedAt,
-        status: ChapterStatus.PENDING,
       };
     })
     .filter((chapter, index, self) => self.indexOf(chapter) === index)
@@ -143,7 +141,7 @@ export async function scrapeCurrentChapters(url: string) {
 }
 
 export async function publishNewChapterInFacebook(
-  body: FeedPublishPostBody,
+  body: Extract<FeedPublishPostBody, { published: "false" }>,
   chapterId: string
 ) {
   const [post] = await api.feed.publishPost(body, {
@@ -158,8 +156,9 @@ export async function publishNewChapterInFacebook(
     idPublishedFacebook: post.id,
     message: body.message,
     link: body.link,
-    publishedFacebook: true,
+    publishedFacebook: false,
     status: PublicationStatus.PUBLISHED,
+    scheduledPublishTime: Number.parseInt(body.scheduled_publish_time),
     chapter: {
       connect: {
         id: chapterId,

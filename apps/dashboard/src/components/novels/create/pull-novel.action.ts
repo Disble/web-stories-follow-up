@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@repo/layer-prisma/db";
-import { ChapterStatus, type Prisma } from "@repo/layer-prisma";
+import type { Prisma } from "@repo/layer-prisma";
 import { JSDOM } from "jsdom";
 import { z } from "zod";
 import { uniqueSpaceSlug, digits, word } from "space-slug";
@@ -37,7 +37,6 @@ const dataNovelServer = z.object({
       urlChapter: urlRelativeSchema,
       urlCoverChapter: urlSchema.optional(),
       publishedAt: z.string().nullable(),
-      status: z.nativeEnum(ChapterStatus),
     })
   ),
   authorName: z.string(),
@@ -110,7 +109,6 @@ export async function scrapeNovel(url: string) {
           title,
           urlChapter,
           publishedAt,
-          status: ChapterStatus.PENDING,
         };
       })
       .filter((chapter, index, self) => self.indexOf(chapter) === index)
