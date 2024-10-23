@@ -19,7 +19,6 @@ import {
   findNovelByUrlNovel,
   scrapeNovel,
 } from "./pull-novel.action";
-import { ChapterStatus } from "@repo/layer-prisma";
 import type { PlatformListPayload } from "@repo/layer-prisma/model/platform/platform.interface";
 import { PATH_DASHBOARD } from "#routes/index";
 import { SolarShieldWarningBoldDuotone } from "@repo/ui/icons";
@@ -41,7 +40,6 @@ export const FormSchema = z.object({
       urlChapter: urlRelativeSchema,
       urlCoverChapter: urlSchema.optional(),
       publishedAt: z.custom<CalendarDate>().nullable(),
-      status: z.nativeEnum(ChapterStatus),
     })
   ),
   authorName: z.string().optional(),
@@ -185,7 +183,6 @@ export default function usePullNovel({ platforms }: PullOrCreateNovelProps) {
           publishedAt: chapter.publishedAt
             ? parseDate(chapter.publishedAt.split("T")[0])
             : null,
-          status: chapter.status,
         });
       }
       form.setValue("authorName", novelScraped.authorName);
@@ -210,7 +207,6 @@ export default function usePullNovel({ platforms }: PullOrCreateNovelProps) {
       title: "",
       urlChapter: "",
       publishedAt: null,
-      status: ChapterStatus.PENDING,
     });
   };
 
@@ -250,7 +246,6 @@ export default function usePullNovel({ platforms }: PullOrCreateNovelProps) {
               publishedAt: chapter.publishedAt
                 ?.toDate(getLocalTimeZone())
                 ?.toISOString(),
-              status: ChapterStatus.COMPLETED,
             })),
           },
         },

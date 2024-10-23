@@ -115,7 +115,8 @@ export default function ChaptersAccordion({
               </label>
               {chapter.publication ? (
                 <Link
-                  href={`/publications/${chapter.publication.id}`}
+                  href={`https://www.facebook.com/permalink.php?story_fbid=${chapter.publication.idPublishedFacebook}`}
+                  isExternal
                   color="primary"
                   className="break-all"
                 >

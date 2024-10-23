@@ -1,6 +1,6 @@
 "use server";
 
-import { ChapterStatus, PublicationStatus } from "@repo/layer-prisma";
+import { PublicationStatus } from "@repo/layer-prisma";
 import { db } from "@repo/layer-prisma/db";
 import type { NovelFindBySlugPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 import { SessionError } from "@repo/types/utils/errors";
@@ -76,7 +76,6 @@ export async function updateChapters(
         title: chapter.title,
         urlChapter: chapter.urlChapter,
         publishedAt: chapter.publishedAt,
-        status: ChapterStatus.COMPLETED,
         novelId,
       }))
     );
@@ -130,7 +129,6 @@ export async function scrapeCurrentChapters(url: string) {
           title,
           urlChapter,
           publishedAt,
-          status: ChapterStatus.PENDING,
         };
       })
       .filter((chapter, index, self) => self.indexOf(chapter) === index)
