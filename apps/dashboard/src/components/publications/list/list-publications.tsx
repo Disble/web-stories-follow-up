@@ -91,7 +91,11 @@ export default function ListPublications({
           return <span>N/A</span>;
         }
 
-        return <SimpleDateFormatCell date={publication[publicationKey]} />;
+        return (
+          <SimpleDateFormatCell
+            date={new Date(publication[publicationKey] * 1000)}
+          />
+        );
       }
       case "status": {
         return <SimpleTextCell text={publication[publicationKey]} />;
