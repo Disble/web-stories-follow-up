@@ -264,6 +264,7 @@ export default function usePullNovel({ platforms }: PullOrCreateNovelProps) {
         platforms: {
           create: {
             platformId,
+            isPreferred: true,
           },
         },
       });

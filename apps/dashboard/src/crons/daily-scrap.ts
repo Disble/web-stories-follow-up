@@ -26,7 +26,7 @@ export async function dailyScrap() {
 
   const promises = novels.map(async (novel) => {
     await updateChapters(novel.urlNovel, novel.chapters, novel.id);
-    const lastChapter = await db.chapter.cronFindLastChapterEnabledToPublish(
+    const lastChapters = await db.chapter.cronFindLastChaptersEnabledToPublish(
       novel.id
     );
 
@@ -34,19 +34,28 @@ export async function dailyScrap() {
       throw new Error("Novel template is null");
     }
 
-    const url = `${novel.platforms[0].platform.baseUrl}${lastChapter.urlChapter}`;
-
-    const templateWithLink = `${novel.template.text} \n ${url}`;
-
-    return publishNewChapterInFacebook(
-      {
-        message: templateWithLink,
-        link: url,
-        published: "false",
-        scheduled_publish_time: fbPublicationTimeStamp.toString(),
-      },
-      lastChapter.id
+    const preferredPlatform = novel.platforms.find(
+      (platform) => platform.isPreferred
     );
+
+    if (!preferredPlatform) {
+      throw new Error("No preferred platform found");
+    }
+
+    for (const chapter of lastChapters) {
+      const url = `${preferredPlatform.platform.baseUrl}${chapter.urlChapter}`;
+      const templateWithLink = `${novel.template.text} \n ${url}`;
+
+      await publishNewChapterInFacebook(
+        {
+          message: templateWithLink,
+          link: url,
+          published: "false",
+          scheduled_publish_time: fbPublicationTimeStamp.toString(),
+        },
+        chapter.id
+      );
+    }
   });
 
   return Promise.allSettled(promises);
@@ -171,8 +180,6 @@ export async function publishNewChapterInFacebook(
       "Publication created in Facebook, but could not save to database"
     );
   }
-
-  return publication;
 }
 
 function getPublicationTime(paramPublicationTime: ParameterListPayload) {
@@ -187,7 +194,7 @@ function getPublicationTime(paramPublicationTime: ParameterListPayload) {
     day: today.day,
   });
 
-  const offsetInMiliseconds = fbPublicationZonedDateTime.offset;
+  const offsetInMiliseconds = fbPublicationZonedDateTime.toDate().getTime();
   const offsetInSeconds = Math.floor(offsetInMiliseconds / 1000);
 
   return offsetInSeconds;
