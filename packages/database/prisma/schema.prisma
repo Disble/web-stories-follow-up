@@ -131,8 +131,10 @@ model NovelPlatform {
   platform    Platform    @relation(fields: [platformId], references: [id])
   platformId  String
   assignedAt DateTime @default(now())
+  isPreferred Boolean @default(false)
 
   @@id([novelId, platformId])
+  @@unique([novelId, isPreferred], name: "uniquePreferredPlatform")
 }
 
 model Platform {
