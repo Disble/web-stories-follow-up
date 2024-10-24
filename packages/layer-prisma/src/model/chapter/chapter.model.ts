@@ -94,6 +94,9 @@ export class ChapterModel extends PrismaDB {
         novel: {
           status: NovelStatus.ONGOING,
         },
+        publication: {
+          is: null,
+        },
       },
       orderBy: {
         createdAt: "desc",
