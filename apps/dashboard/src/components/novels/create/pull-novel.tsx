@@ -5,6 +5,7 @@ import {
   Button,
   DatePicker,
   Image,
+  Link,
   Modal,
   ModalBody,
   ModalContent,
@@ -25,13 +26,16 @@ import { SolarTrashBinTrashOutline } from "#components/icons/index";
 import { getLocalTimeZone } from "@internationalized/date";
 import type { PlatformListPayload } from "@repo/layer-prisma/model/platform/platform.interface";
 import usePullNovel, { urlSchema } from "./pull-novel-hook";
+import type { AuthorListPayload } from "@repo/layer-prisma/model/author/author.interface";
 
 type PullOrCreateNovelProps = {
   platforms: PlatformListPayload[];
+  authors: AuthorListPayload[];
 };
 
 export default function PullOrCreateNovel({
   platforms,
+  authors,
 }: PullOrCreateNovelProps): JSX.Element {
   const {
     form,
@@ -51,7 +55,10 @@ export default function PullOrCreateNovel({
     platformsOptions,
     isOpen,
     onOpenChange,
-  } = usePullNovel({ platforms });
+    isNewAuthor,
+    setIsNewAuthor,
+    authorsOptions,
+  } = usePullNovel({ platforms, authors });
 
   return (
     <>
@@ -273,50 +280,88 @@ export default function PullOrCreateNovel({
             title="Datos del autor"
             description="Ingresa los datos del autor de la novela."
           >
-            <FormInput
-              control={form.control}
-              name="authorName"
-              id="authorName"
-              label="Nombre del autor"
-              placeholder="Nombre"
-              variant="bordered"
-              color="primary"
-            />
-            <FormInput
-              control={form.control}
-              name="authorPseudonym"
-              id="authorPseudonym"
-              label="Pseudónimo"
-              placeholder="Pseudónimo"
-              variant="bordered"
-              color="primary"
-            />
-            <FormInput
-              control={form.control}
-              name="authorUrlProfile"
-              id="authorUrlProfile"
-              label="URL del perfil del autor"
-              placeholder="URL del perfil del autor"
-              variant="bordered"
-              color="primary"
-            />
-            <FormInput
-              control={form.control}
-              name="authorUrlCoverProfile"
-              id="authorUrlCoverProfile"
-              label="URL de la portada del perfil del autor"
-              placeholder="URL de la portada del perfil del autor"
-              variant="bordered"
-              color="primary"
-            />
-            {authorUrlCoverProfileError.success && (
-              <Image
-                src={authorUrlCoverProfile}
-                alt="Portada del perfil del autor"
-                classNames={{
-                  img: "object-cover w-20 h-20",
-                }}
-              />
+            {isNewAuthor && authors.length > 0 ? (
+              <>
+                <FormInput
+                  control={form.control}
+                  name="authorName"
+                  id="authorName"
+                  label="Nombre del autor"
+                  placeholder="Nombre"
+                  variant="bordered"
+                  color="primary"
+                />
+                <FormInput
+                  control={form.control}
+                  name="authorPseudonym"
+                  id="authorPseudonym"
+                  label="Pseudónimo"
+                  placeholder="Pseudónimo"
+                  variant="bordered"
+                  color="primary"
+                />
+                <FormInput
+                  control={form.control}
+                  name="authorUrlProfile"
+                  id="authorUrlProfile"
+                  label="URL del perfil del autor"
+                  placeholder="URL del perfil del autor"
+                  variant="bordered"
+                  color="primary"
+                />
+                <FormInput
+                  control={form.control}
+                  name="authorUrlCoverProfile"
+                  id="authorUrlCoverProfile"
+                  label="URL de la portada del perfil del autor"
+                  placeholder="URL de la portada del perfil del autor"
+                  variant="bordered"
+                  color="primary"
+                />
+                {authorUrlCoverProfileError.success && (
+                  <Image
+                    src={authorUrlCoverProfile}
+                    alt="Portada del perfil del autor"
+                    classNames={{
+                      img: "object-cover w-20 h-20",
+                    }}
+                  />
+                )}
+                <p className="text-xs text-gray-500">
+                  ¿Tu autor ya está registrado? Seleccionalo{" "}
+                  <Link
+                    onPress={() => setIsNewAuthor(false)}
+                    className="text-primary text-xs cursor-pointer mt-1"
+                  >
+                    aquí
+                  </Link>
+                  .
+                </p>
+              </>
+            ) : (
+              <div>
+                <FormSelect
+                  control={form.control}
+                  name="authorId"
+                  id="authorId"
+                  label="Autor"
+                  placeholder="Selecciona el autor"
+                  variant="bordered"
+                  color="primary"
+                  options={authorsOptions}
+                  autoFocus
+                />
+                <p className="text-xs text-gray-500">
+                  ¿No encuentras el autor que buscas? Crea uno nuevo{" "}
+                  <Link
+                    onPress={() => setIsNewAuthor(true)}
+                    className="text-primary text-xs cursor-pointer mt-1"
+                  >
+                    aquí
+                  </Link>
+                  .
+                </p>
+              </div>
             )}
           </FormSection>
 

@@ -67,4 +67,16 @@ export class AuthorModel extends PrismaDB {
         includePageCount: true,
       });
   }
+
+  public async list() {
+    const prisma = await this.connect.protected();
+
+    if (prisma instanceof SessionError) {
+      return prisma.message;
+    }
+
+    return prisma.author.findMany({
+      select: authorListSelect,
+    });
+  }
 }
