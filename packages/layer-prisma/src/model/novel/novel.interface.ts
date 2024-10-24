@@ -104,7 +104,11 @@ export const novelListSelect = {
     },
   },
   platforms: {
+    where: {
+      isPreferred: true,
+    },
     select: {
+      isPreferred: true,
       platform: {
         select: {
           baseUrl: true,
