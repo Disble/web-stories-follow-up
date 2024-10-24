@@ -16,19 +16,21 @@ import { useDateFormatter } from "@react-aria/i18n";
 import { getLocalTimeZone, parseDate } from "@internationalized/date";
 import {
   createFullNovel,
+  findAuthorByPseudonym,
   findNovelByUrlNovel,
   scrapeNovel,
 } from "./pull-novel.action";
 import type { PlatformListPayload } from "@repo/layer-prisma/model/platform/platform.interface";
 import { PATH_DASHBOARD } from "#routes/index";
 import { SolarShieldWarningBoldDuotone } from "@repo/ui/icons";
+import type { AuthorListPayload } from "@repo/layer-prisma/model/author/author.interface";
 
 export const urlSchema = z.string().url("La URL no es válida");
 export const urlRelativeSchema = z
   .string()
   .regex(/\/(?:[\w-]+\/)*[\w-]+/, "La URL no es válida");
 
-export const FormSchema = z.object({
+const basicNovelSchema = z.object({
   urlNovel: urlSchema,
   title: z.string(),
   synopsis: z.string(),
@@ -42,28 +44,48 @@ export const FormSchema = z.object({
       publishedAt: z.custom<CalendarDate>().nullable(),
     })
   ),
-  authorName: z.string().optional(),
-  authorPseudonym: z.string(),
-  authorUrlProfile: urlRelativeSchema,
-  authorUrlCoverProfile: urlSchema.optional(),
   platform: z.string(),
 });
+
+export const FormSchema = basicNovelSchema
+  .extend({
+    authorName: z.string().optional(),
+    authorPseudonym: z.string(),
+    authorUrlProfile: urlRelativeSchema,
+    authorUrlCoverProfile: urlSchema.optional(),
+  })
+  .or(
+    basicNovelSchema.extend({
+      authorId: z.string(),
+    })
+  );
 
 type FormData = z.infer<typeof FormSchema>;
 
 type PullOrCreateNovelProps = {
   platforms: PlatformListPayload[];
+  authors: AuthorListPayload[];
 };
 
-export default function usePullNovel({ platforms }: PullOrCreateNovelProps) {
+export default function usePullNovel({
+  platforms,
+  authors,
+}: PullOrCreateNovelProps) {
   const [isPulling, setIsPulling] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [chapterToDelete, setChapterToDelete] = useState<number>();
+  const [isNewAuthor, setIsNewAuthor] = useState(false);
 
   const platformsOptions = platforms.map((platform) => ({
     key: platform.code,
     value: platform.code,
     label: platform.name,
+  }));
+
+  const authorsOptions = authors.map((author) => ({
+    key: author.id,
+    value: author.id,
+    label: author.pseudonym,
   }));
 
   const form = useForm<FormData>({
@@ -185,15 +207,26 @@ export default function usePullNovel({ platforms }: PullOrCreateNovelProps) {
             : null,
         });
       }
-      form.setValue("authorName", novelScraped.authorName);
-      form.setValue("authorPseudonym", novelScraped.authorPseudonym);
-      form.setValue("authorUrlProfile", novelScraped.authorUrlProfile);
-      form.setValue(
-        "authorUrlCoverProfile",
-        novelScraped.authorUrlCoverProfile
-      );
+
+      const author = await findAuthorByPseudonym(novelScraped.authorPseudonym);
+
+      if (!author || "error" in author) {
+        setIsNewAuthor(true);
+        form.setValue("authorName", novelScraped.authorName);
+        form.setValue("authorPseudonym", novelScraped.authorPseudonym);
+        form.setValue("authorUrlProfile", novelScraped.authorUrlProfile);
+        form.setValue(
+          "authorUrlCoverProfile",
+          novelScraped.authorUrlCoverProfile
+        );
+      } else {
+        setIsNewAuthor(false);
+        form.setValue("authorId", author.id);
+      }
 
       form.setValue("platform", platform);
+
+      form.trigger(); // revalidate form to trigger errors
       toast.success("Datos de la novela descargados correctamente");
     } catch (error) {
       toast.error("Error al descargar los datos de la novela");
@@ -231,6 +264,32 @@ export default function usePullNovel({ platforms }: PullOrCreateNovelProps) {
         return;
       }
 
+      let authorConnectOrCreate = {};
+
+      if (!isNewAuthor && "authorId" in values) {
+        authorConnectOrCreate = {
+          connect: {
+            id: values.authorId,
+          },
+        };
+      } else if (isNewAuthor && "authorName" in values) {
+        authorConnectOrCreate = {
+          create: {
+            name: values.authorName,
+            pseudonym: values.authorPseudonym,
+            urlProfile: values.authorUrlProfile,
+            urlCoverProfile: values.authorUrlCoverProfile,
+          },
+        };
+      } else {
+        toast.error(
+          isNewAuthor
+            ? "Error al crear el autor de la novela. Por favor, revisa los datos del autor."
+            : "Selecciona un autor de la lista"
+        );
+        return;
+      }
+
       await createFullNovel({
         title: values.title,
         synopsis: values.synopsis,
@@ -251,14 +310,7 @@ export default function usePullNovel({ platforms }: PullOrCreateNovelProps) {
         },
         authors: {
           create: {
-            author: {
-              create: {
-                name: values.authorName,
-                pseudonym: values.authorPseudonym,
-                urlProfile: values.authorUrlProfile,
-                urlCoverProfile: values.authorUrlCoverProfile,
-              },
-            },
+            author: authorConnectOrCreate,
           },
         },
         platforms: {
@@ -295,5 +347,8 @@ export default function usePullNovel({ platforms }: PullOrCreateNovelProps) {
     platformsOptions,
     isOpen,
     onOpenChange,
+    isNewAuthor,
+    setIsNewAuthor,
+    authorsOptions,
   };
 }
