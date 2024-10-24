@@ -3,7 +3,7 @@ import { db } from "@repo/layer-prisma/db";
 import type { Prisma } from "@repo/layer-prisma";
 import { JSDOM } from "jsdom";
 import { z } from "zod";
-import { uniqueSpaceSlug, digits, word } from "space-slug";
+import { uniqueSpaceSlug, digits } from "space-slug";
 
 export async function createFullNovel(
   data: Omit<Prisma.NovelCreateInput, "slug">
@@ -166,4 +166,16 @@ export async function findNovelByUrlNovel(urlNovel: string) {
   }
 
   return novel;
+}
+
+export async function findAuthorByPseudonym(pseudonym: string) {
+  const author = await db.author.getByPseudonym(pseudonym);
+
+  if (typeof author === "string") {
+    return {
+      error: author,
+    } as const;
+  }
+
+  return author;
 }
