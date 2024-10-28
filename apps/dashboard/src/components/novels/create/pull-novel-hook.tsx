@@ -30,7 +30,7 @@ export const urlRelativeSchema = z
   .string()
   .regex(/\/(?:[\w-]+\/)*[\w-]+/, "La URL no es válida");
 
-const basicNovelSchema = z.object({
+export const FormSchema = z.object({
   urlNovel: urlSchema,
   title: z.string(),
   synopsis: z.string(),
@@ -45,20 +45,12 @@ const basicNovelSchema = z.object({
     })
   ),
   platform: z.string(),
+  authorUrlProfile: urlRelativeSchema,
+  authorId: z.string().optional(),
+  authorName: z.string().optional(),
+  authorPseudonym: z.string(),
+  authorUrlCoverProfile: urlSchema.optional(),
 });
-
-export const FormSchema = basicNovelSchema
-  .extend({
-    authorName: z.string().optional(),
-    authorPseudonym: z.string(),
-    authorUrlProfile: urlRelativeSchema,
-    authorUrlCoverProfile: urlSchema.optional(),
-  })
-  .or(
-    basicNovelSchema.extend({
-      authorId: z.string(),
-    })
-  );
 
 type FormData = z.infer<typeof FormSchema>;
 
@@ -97,6 +89,7 @@ export default function usePullNovel({
       chapters: [],
       authorPseudonym: "",
       authorUrlProfile: "",
+      authorId: "",
     },
     resolver: zodResolver(FormSchema),
     mode: "onChange",
@@ -154,7 +147,9 @@ export default function usePullNovel({
                 <SolarShieldWarningBoldDuotone className="size-6 text-warning" />
                 <p>
                   Esta novela ya existe, puedes editarla{" "}
-                  <Link href={`${PATH_DASHBOARD.novel}/${novelExists.slug}`}>
+                  <Link
+                    href={`${PATH_DASHBOARD.novel}/${novelExists.novel.slug}`}
+                  >
                     aquí
                   </Link>
                 </p>
@@ -214,7 +209,6 @@ export default function usePullNovel({
         setIsNewAuthor(true);
         form.setValue("authorName", novelScraped.authorName);
         form.setValue("authorPseudonym", novelScraped.authorPseudonym);
-        form.setValue("authorUrlProfile", novelScraped.authorUrlProfile);
         form.setValue(
           "authorUrlCoverProfile",
           novelScraped.authorUrlCoverProfile
@@ -223,6 +217,8 @@ export default function usePullNovel({
         setIsNewAuthor(false);
         form.setValue("authorId", author.id);
       }
+
+      form.setValue("authorUrlProfile", novelScraped.authorUrlProfile);
 
       form.setValue("platform", platform);
 
@@ -255,33 +251,19 @@ export default function usePullNovel({
 
   const onSubmit = async (values: FormData) => {
     try {
-      const platformId = platforms.find(
+      const platform = platforms.find(
         (platform) => platform.code === values.platform
-      )?.id;
+      );
 
-      if (!platformId) {
+      if (!platform) {
         toast.error("Por favor, selecciona una plataforma válida.");
         return;
       }
 
-      let authorConnectOrCreate = {};
-
-      if (!isNewAuthor && "authorId" in values) {
-        authorConnectOrCreate = {
-          connect: {
-            id: values.authorId,
-          },
-        };
-      } else if (isNewAuthor && "authorName" in values) {
-        authorConnectOrCreate = {
-          create: {
-            name: values.authorName,
-            pseudonym: values.authorPseudonym,
-            urlProfile: values.authorUrlProfile,
-            urlCoverProfile: values.authorUrlCoverProfile,
-          },
-        };
-      } else {
+      if (
+        (!("authorId" in values) || values.authorId === "") &&
+        (!("authorPseudonym" in values) || values.authorPseudonym === "")
+      ) {
         toast.error(
           isNewAuthor
             ? "Error al crear el autor de la novela. Por favor, revisa los datos del autor."
@@ -291,34 +273,37 @@ export default function usePullNovel({
       }
 
       await createFullNovel({
-        title: values.title,
-        synopsis: values.synopsis,
-        note: values.note,
-        urlNovel: values.urlNovel,
-        urlCoverNovel: values.urlCoverNovel,
-        chapters: {
-          createMany: {
-            data: values.chapters.map((chapter) => ({
-              title: chapter.title,
-              urlChapter: chapter.urlChapter,
-              urlCoverChapter: chapter.urlCoverChapter,
-              publishedAt: chapter.publishedAt
-                ?.toDate(getLocalTimeZone())
-                ?.toISOString(),
-            })),
-          },
+        novelPlatform: {
+          urlCoverNovel: values.urlCoverNovel,
+          urlNovel: values.urlNovel,
+          urlAuthorProfile: `${platform.baseUrl}${values.authorUrlProfile}`,
         },
-        authors: {
-          create: {
-            author: authorConnectOrCreate,
-          },
+        novel: {
+          title: values.title,
+          synopsis: values.synopsis,
+          note: values.note,
         },
-        platforms: {
-          create: {
-            platformId,
-            isPreferred: true,
-          },
+        authorCreate: {
+          name: "authorName" in values ? values.authorName : undefined,
+          pseudonym: "authorPseudonym" in values ? values.authorPseudonym : "",
+          urlCoverProfile:
+            "authorUrlCoverProfile" in values
+              ? values.authorUrlCoverProfile
+              : undefined,
         },
+        authorConnect: {
+          id: "authorId" in values ? values.authorId : "",
+        },
+        chapters: values.chapters.map((chapter) => ({
+          title: chapter.title,
+          urlChapter: `${platform.baseUrl}${chapter.urlChapter}`,
+          urlCoverChapter: chapter.urlCoverChapter,
+          publishedAt: chapter.publishedAt
+            ?.toDate(getLocalTimeZone())
+            ?.toISOString(),
+          isTracking: false,
+        })),
+        platformId: platform.id,
       });
 
       toast.success("Novela creada correctamente");

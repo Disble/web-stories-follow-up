@@ -17,7 +17,7 @@ import {
 } from "@repo/ui/simple-components";
 
 const columns: DataTableColumns<PublicationListPayload> = [
-  { key: "chapter.novel.slug", label: "Novela" },
+  { key: "chapter.novelPlatform.novel.slug", label: "Novela" },
   { key: "publishedFacebook", label: "Estado" },
   { key: "idPublishedFacebook", label: "ID Publicación" },
   { key: "scheduledPublishTime", label: "Fecha de publicación programada" },
@@ -59,17 +59,20 @@ export default function ListPublications({
 
         return (
           <Link href={publication[publicationKey]} isExternal>
-            Abrir en {publication.chapter.novel.platforms[0].platform.name}
+            Abrir en {publication.chapter.novelPlatform.platform.name}
           </Link>
         );
       }
-      case "chapter.novel.slug": {
-        if (publication.chapter.novel.slug === null) {
+      case "chapter.novelPlatform.novel.slug": {
+        if (publication.chapter.novelPlatform.novel.slug === null) {
           return <span>N/A</span>;
         }
 
         return (
-          <Link href={`/novel/${publication.chapter.novel.slug}`} isExternal>
+          <Link
+            href={`/novel/${publication.chapter.novelPlatform.novel.slug}`}
+            isExternal
+          >
             Abrir novela
           </Link>
         );

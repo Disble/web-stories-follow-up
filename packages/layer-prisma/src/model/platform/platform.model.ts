@@ -50,6 +50,26 @@ export class PlatformModel extends PrismaDB {
     });
   }
 
+  public async listBySlug(slug: string) {
+    const prisma = await this.connect.protected();
+
+    if (prisma instanceof SessionError) {
+      return prisma.message;
+    }
+
+    return prisma.platform.findMany({
+      where: {
+        novelPlatforms: {
+          some: {
+            novel: {
+              slug,
+            },
+          },
+        },
+      },
+    });
+  }
+
   public async listPaginated({
     page,
     limit,

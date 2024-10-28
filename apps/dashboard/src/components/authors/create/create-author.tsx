@@ -1,8 +1,7 @@
 "use client";
 import { useDebounce } from "@custom-react-hooks/use-debounce";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@repo/ui/nextui";
-import { useState } from "react";
+import { Button, Image } from "@repo/ui/nextui";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -15,7 +14,7 @@ const urlRelativeSchema = z.string().regex(/\/(?:[\w-]+\/)*[\w-]+/);
 export const FormSchema = z.object({
   name: z.string().optional(),
   pseudonym: z.string().min(1),
-  urlProfile: urlRelativeSchema,
+  urlCoverProfile: urlRelativeSchema,
 });
 
 type FormData = z.infer<typeof FormSchema>;
@@ -25,7 +24,7 @@ export default function CreateAuthor(): JSX.Element {
     defaultValues: {
       name: "",
       pseudonym: "",
-      urlProfile: "",
+      urlCoverProfile: "",
     },
     resolver: zodResolver(FormSchema),
     mode: "onChange",
@@ -45,6 +44,11 @@ export default function CreateAuthor(): JSX.Element {
     {
       leading: true,
     }
+  );
+
+  const authorUrlCoverProfile = form.watch("urlCoverProfile");
+  const authorUrlCoverProfileError = urlRelativeSchema.safeParse(
+    authorUrlCoverProfile
   );
 
   const onSubmit = async (values: FormData) => {
@@ -88,13 +92,22 @@ export default function CreateAuthor(): JSX.Element {
           />
           <FormInput
             control={form.control}
-            name="urlProfile"
-            id="urlProfile"
+            name="urlCoverProfile"
+            id="urlCoverProfile"
             label="URL del perfil"
             placeholder="URL del perfil"
             variant="bordered"
             color="primary"
           />
+          {authorUrlCoverProfileError.success && (
+            <Image
+              src={authorUrlCoverProfile}
+              alt="Portada del perfil del autor"
+              classNames={{
+                img: "object-cover w-20 h-20",
+              }}
+            />
+          )}
           <Button
             type="submit"
             color="primary"
