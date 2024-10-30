@@ -4,11 +4,25 @@ import type { Prisma } from "@repo/layer-prisma";
 import { JSDOM } from "jsdom";
 import { z } from "zod";
 import { uniqueSpaceSlug, digits } from "space-slug";
+import { now, getLocalTimeZone } from "@internationalized/date";
 
-export async function createFullNovel(
-  data: Omit<Prisma.NovelCreateInput, "slug">
-) {
-  const slug = await uniqueSpaceSlug([digits(9), data.title], {
+type CreateFullNovelData = {
+  novelPlatform: Pick<
+    Prisma.NovelPlatformCreateInput,
+    "urlNovel" | "urlCoverNovel" | "urlAuthorProfile"
+  >;
+  novel: Pick<Prisma.NovelCreateInput, "title" | "synopsis" | "note">;
+  authorCreate: Pick<
+    Prisma.AuthorCreateInput,
+    "name" | "pseudonym" | "urlCoverProfile"
+  >;
+  authorConnect: Pick<Prisma.AuthorCreateInput, "id">;
+  chapters: Prisma.ChapterCreateManyNovelPlatformInput[];
+  platformId: string;
+};
+
+export async function createFullNovel(data: CreateFullNovelData) {
+  const slug = await uniqueSpaceSlug([digits(9), data.novel.title], {
     separator: "-",
     isUnique: async (slug) => {
       const count = await db.novel.countBySlug(slug);
@@ -16,9 +30,34 @@ export async function createFullNovel(
       return count === 0;
     },
   });
+
   await db.novel.create({
-    ...data,
-    slug,
+    isPreferred: true,
+    urlNovel: data.novelPlatform.urlNovel,
+    urlCoverNovel: data.novelPlatform.urlCoverNovel,
+    urlAuthorProfile: data.novelPlatform.urlAuthorProfile,
+    novel: {
+      create: {
+        title: data.novel.title,
+        slug,
+        synopsis: data.novel.synopsis,
+        note: data.novel.note,
+        author: {
+          connectOrCreate: {
+            where: { id: data.authorConnect.id },
+            create: data.authorCreate,
+          },
+        },
+      },
+    },
+    platform: {
+      connect: { id: data.platformId },
+    },
+    chapters: {
+      createMany: {
+        data: data.chapters,
+      },
+    },
   });
 }
 
@@ -49,13 +88,17 @@ type DataNovelServer = z.infer<typeof dataNovelServer>;
 
 export async function scrapeNovel(url: string) {
   try {
+    const originUrl = new URL(url).origin;
+
     const response = await fetch(url);
     const html = await response.text();
 
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
-    const title = document.querySelector("div.story-info__title")?.textContent;
+    const title = document.querySelector(
+      "div.story-info>span.sr-only"
+    )?.textContent;
     const synopsisElement = document.querySelector(
       "pre.description-text.collapsed"
     );
@@ -84,6 +127,7 @@ export async function scrapeNovel(url: string) {
       .map((story) => {
         const title = story.querySelector(".part-title")?.textContent;
         const urlChapter = story.getAttribute("href");
+        const fullUrlChapter = `${originUrl}${urlChapter}`;
         const publishedAtStr = story.querySelector(".right-label")?.textContent;
         let publishedAt = null;
         if (
@@ -92,11 +136,12 @@ export async function scrapeNovel(url: string) {
           publishedAtStr?.includes("minutes ago") ||
           publishedAtStr?.includes("a few seconds ago")
         ) {
-          publishedAt = new Date().toISOString();
+          const today = now(getLocalTimeZone());
+          publishedAt = today.toDate().toISOString();
         } else if (publishedAtStr?.includes("a day ago")) {
-          publishedAt = new Date(
-            new Date().setDate(new Date().getDate() - 1)
-          ).toISOString();
+          const today = now(getLocalTimeZone());
+          today.subtract({ days: 1 });
+          publishedAt = today.toDate().toISOString();
         } else if (publishedAtStr) {
           publishedAt = new Date(publishedAtStr).toISOString();
         }
@@ -107,7 +152,7 @@ export async function scrapeNovel(url: string) {
 
         return {
           title,
-          urlChapter,
+          urlChapter: fullUrlChapter,
           publishedAt,
         };
       })

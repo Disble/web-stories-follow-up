@@ -13,7 +13,7 @@ import {
 import type { ParameterListPayload } from "@repo/layer-prisma/model/parameter/parameter.interface";
 
 export async function dailyScrap() {
-  const novels = await db.novel.list();
+  const novels = await db.novel.listActivePreferents();
   const paramPublicationTime = await db.parameter.cronGetByName(
     parameters.FB_PUBLICATION_TIME
   );
@@ -25,7 +25,18 @@ export async function dailyScrap() {
   const fbPublicationTimeStamp = getPublicationTime(paramPublicationTime);
 
   const promises = novels.map(async (novel) => {
-    await updateChapters(novel.urlNovel, novel.chapters, novel.id);
+    const novelPlatformPreferred = novel.novelPlatforms[0];
+
+    if (!novelPlatformPreferred) {
+      throw new Error("No preferred novel platform found");
+    }
+
+    await updateChapters(
+      novelPlatformPreferred.urlNovel,
+      novelPlatformPreferred.chapters,
+      novelPlatformPreferred.id
+    );
+
     const lastChapters = await db.chapter.cronFindLastChaptersEnabledToPublish(
       novel.id
     );
@@ -34,22 +45,13 @@ export async function dailyScrap() {
       throw new Error("Novel template is null");
     }
 
-    const preferredPlatform = novel.platforms.find(
-      (platform) => platform.isPreferred
-    );
-
-    if (!preferredPlatform) {
-      throw new Error("No preferred platform found");
-    }
-
     for (const chapter of lastChapters) {
-      const url = `${preferredPlatform.platform.baseUrl}${chapter.urlChapter}`;
-      const templateWithLink = `${novel.template.text} \n ${url}`;
+      const templateWithLink = `${novel.template.text} \n ${chapter.urlChapter}`;
 
       await publishNewChapterInFacebook(
         {
           message: templateWithLink,
-          link: url,
+          link: chapter.urlChapter,
           published: "false",
           scheduled_publish_time: fbPublicationTimeStamp.toString(),
         },
@@ -63,8 +65,8 @@ export async function dailyScrap() {
 
 export async function updateChapters(
   url: string,
-  chapters: NovelListPayload["chapters"],
-  novelId: string
+  chapters: NovelListPayload["novelPlatforms"][0]["chapters"],
+  novelPlatformId: string
 ) {
   const currentChapters = await scrapeCurrentChapters(url);
 
@@ -93,7 +95,8 @@ export async function updateChapters(
         title: chapter.title,
         urlChapter: chapter.urlChapter,
         publishedAt: chapter.publishedAt,
-        novelId,
+        novelPlatformId,
+        isTracking: true,
       }))
     );
 
@@ -102,6 +105,8 @@ export async function updateChapters(
 }
 
 export async function scrapeCurrentChapters(url: string) {
+  const originUrl = new URL(url).origin;
+
   const response = await fetch(url);
   const html = await response.text();
 
@@ -116,6 +121,7 @@ export async function scrapeCurrentChapters(url: string) {
     .map((story) => {
       const title = story.querySelector(".part-title")?.textContent;
       const urlChapter = story.getAttribute("href");
+      const fullUrlChapter = `${originUrl}${urlChapter}`;
       const publishedAtStr = story.querySelector(".right-label")?.textContent;
       let publishedAt = null;
       if (
@@ -124,11 +130,12 @@ export async function scrapeCurrentChapters(url: string) {
         publishedAtStr?.includes("minutes ago") ||
         publishedAtStr?.includes("a few seconds ago")
       ) {
-        publishedAt = new Date().toISOString();
+        const today = now(getLocalTimeZone());
+        publishedAt = today.toDate().toISOString();
       } else if (publishedAtStr?.includes("a day ago")) {
-        publishedAt = new Date(
-          new Date().setDate(new Date().getDate() - 1)
-        ).toISOString();
+        const today = now(getLocalTimeZone());
+        today.subtract({ days: 1 });
+        publishedAt = today.toDate().toISOString();
       } else if (publishedAtStr) {
         publishedAt = new Date(publishedAtStr).toISOString();
       }
@@ -139,7 +146,7 @@ export async function scrapeCurrentChapters(url: string) {
 
       return {
         title,
-        urlChapter,
+        urlChapter: fullUrlChapter,
         publishedAt,
       };
     })

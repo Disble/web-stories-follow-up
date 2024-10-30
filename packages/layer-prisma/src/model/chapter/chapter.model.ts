@@ -87,12 +87,15 @@ export class ChapterModel extends PrismaDB {
 
     const lastChapter = await prisma.chapter.findMany({
       where: {
-        novelId,
+        isTracking: true,
+        novelPlatform: {
+          novel: {
+            id: novelId,
+            status: NovelStatus.ONGOING,
+          },
+        },
         createdAt: {
           gte: yesterday,
-        },
-        novel: {
-          status: NovelStatus.ONGOING,
         },
         publication: {
           is: null,

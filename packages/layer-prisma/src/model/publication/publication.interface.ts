@@ -11,16 +11,16 @@ export const publicationListSelect = {
   createdAt: true,
   chapter: {
     select: {
-      novel: {
+      novelPlatform: {
         select: {
-          slug: true,
-          platforms: {
+          platform: {
             select: {
-              platform: {
-                select: {
-                  name: true,
-                },
-              },
+              name: true,
+            },
+          },
+          novel: {
+            select: {
+              slug: true,
             },
           },
         },

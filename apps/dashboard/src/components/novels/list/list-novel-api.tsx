@@ -18,7 +18,7 @@ export default async function ListNovelApi(): Promise<JSX.Element> {
   return (
     <>
       {novels.length > 0 ? (
-        <ListNovel novels={novels} pagination={pagination} />
+        <ListNovel novelCards={novels} pagination={pagination} />
       ) : (
         <NotFoundDataTable />
       )}

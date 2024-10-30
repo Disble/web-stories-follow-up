@@ -280,7 +280,7 @@ export default function PullOrCreateNovel({
             title="Datos del autor"
             description="Ingresa los datos del autor de la novela."
           >
-            {isNewAuthor && authors.length > 0 ? (
+            {isNewAuthor ? (
               <>
                 <FormInput
                   control={form.control}
@@ -297,15 +297,6 @@ export default function PullOrCreateNovel({
                   id="authorPseudonym"
                   label="Pseudónimo"
                   placeholder="Pseudónimo"
-                  variant="bordered"
-                  color="primary"
-                />
-                <FormInput
-                  control={form.control}
-                  name="authorUrlProfile"
-                  id="authorUrlProfile"
-                  label="URL del perfil del autor"
-                  placeholder="URL del perfil del autor"
                   variant="bordered"
                   color="primary"
                 />
@@ -367,7 +358,7 @@ export default function PullOrCreateNovel({
 
           <FormSection
             title="Plataforma"
-            description="Selecciona la plataforma donde está publicada la novela."
+            description="Selecciona la plataforma donde está publicada la novela y el perfil del autor."
           >
             <FormSelect
               control={form.control}
@@ -378,6 +369,15 @@ export default function PullOrCreateNovel({
               variant="bordered"
               color="primary"
               options={platformsOptions}
+            />
+            <FormInput
+              control={form.control}
+              name="authorUrlProfile"
+              id="authorUrlProfile"
+              label="URL del perfil del autor"
+              placeholder="URL del perfil del autor"
+              variant="bordered"
+              color="primary"
             />
 
             <Button
