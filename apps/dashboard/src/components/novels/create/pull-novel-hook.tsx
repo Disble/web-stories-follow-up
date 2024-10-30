@@ -296,7 +296,7 @@ export default function usePullNovel({
         },
         chapters: values.chapters.map((chapter) => ({
           title: chapter.title,
-          urlChapter: `${platform.baseUrl}${chapter.urlChapter}`,
+          urlChapter: chapter.urlChapter,
           urlCoverChapter: chapter.urlCoverChapter,
           publishedAt: chapter.publishedAt
             ?.toDate(getLocalTimeZone())
