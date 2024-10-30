@@ -1,6 +1,8 @@
+import { PATH_LANDING } from "#routes";
+
 export const privacyPolicyCards = [
   {
-    href: "/termsandconditions",
+    href: PATH_LANDING.termsAndConditions,
     title: "Terms & Conditions",
     body: "Our Terms & Conditions",
   },
