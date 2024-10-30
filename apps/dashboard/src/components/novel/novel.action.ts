@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { api } from "@repo/layer-fetch/api";
 import type { FeedPublishPostBody } from "@repo/layer-fetch/model/feed/feed.interface";
 import { PATH_DASHBOARD } from "#routes/index";
+import { getLocalTimeZone, now } from "@internationalized/date";
 
 export async function upsertTemplate(
   novelId: string,
@@ -47,7 +48,7 @@ export async function updateChapters(
   slug: string,
   url: string,
   chapters: NovelFindBySlugPayload["chapters"],
-  novelId: string
+  novelPlatformId: string
 ) {
   const currentChapters = await scrapeCurrentChapters(url);
 
@@ -76,7 +77,8 @@ export async function updateChapters(
         title: chapter.title,
         urlChapter: chapter.urlChapter,
         publishedAt: chapter.publishedAt,
-        novelId,
+        novelPlatformId,
+        isTracking: true,
       }))
     );
 
@@ -90,6 +92,8 @@ export async function updateChapters(
 
 export async function scrapeCurrentChapters(url: string) {
   try {
+    const originUrl = new URL(url).origin;
+
     const response = await fetch(url);
     const html = await response.text();
 
@@ -104,6 +108,7 @@ export async function scrapeCurrentChapters(url: string) {
       .map((story) => {
         const title = story.querySelector(".part-title")?.textContent;
         const urlChapter = story.getAttribute("href");
+        const fullUrlChapter = `${originUrl}${urlChapter}`;
         const publishedAtStr = story.querySelector(".right-label")?.textContent;
         let publishedAt = null;
         if (
@@ -112,11 +117,12 @@ export async function scrapeCurrentChapters(url: string) {
           publishedAtStr?.includes("minutes ago") ||
           publishedAtStr?.includes("a few seconds ago")
         ) {
-          publishedAt = new Date().toISOString();
+          const today = now(getLocalTimeZone());
+          publishedAt = today.toDate().toISOString();
         } else if (publishedAtStr?.includes("a day ago")) {
-          publishedAt = new Date(
-            new Date().setDate(new Date().getDate() - 1)
-          ).toISOString();
+          const today = now(getLocalTimeZone());
+          today.subtract({ days: 1 });
+          publishedAt = today.toDate().toISOString();
         } else if (publishedAtStr) {
           publishedAt = new Date(publishedAtStr).toISOString();
         }
@@ -127,7 +133,7 @@ export async function scrapeCurrentChapters(url: string) {
 
         return {
           title,
-          urlChapter,
+          urlChapter: fullUrlChapter,
           publishedAt,
         };
       })

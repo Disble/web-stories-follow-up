@@ -5,24 +5,28 @@ export const novelCardListSelect = {
   title: true,
   slug: true,
   synopsis: true,
-  urlCoverNovel: true,
-  urlNovel: true,
-  authors: {
+  author: {
     select: {
-      author: {
-        select: {
-          id: true,
-          name: true,
-          urlProfile: true,
-          pseudonym: true,
-          urlCoverProfile: true,
-        },
-      },
+      name: true,
+      pseudonym: true,
+      urlCoverProfile: true,
     },
   },
-  _count: {
+  novelPlatforms: {
     select: {
-      chapters: true,
+      id: true,
+      urlCoverNovel: true,
+      urlNovel: true,
+      platform: {
+        select: {
+          code: true,
+        },
+      },
+      _count: {
+        select: {
+          chapters: true,
+        },
+      },
     },
   },
 } satisfies Prisma.NovelSelect;
@@ -33,87 +37,80 @@ export type NovelCardListPayload = Prisma.NovelGetPayload<{
 
 export const novelFindBySlugSelect = {
   id: true,
-  title: true,
-  slug: true,
-  synopsis: true,
-  urlCoverNovel: true,
   urlNovel: true,
-  chapters: {
+  urlCoverNovel: true,
+  urlAuthorProfile: true,
+  novel: {
     select: {
       id: true,
+      slug: true,
       title: true,
-      publishedAt: true,
-      urlCoverChapter: true,
-      urlChapter: true,
-      publication: true,
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-  },
-  platforms: {
-    select: {
-      platform: {
-        select: {
-          name: true,
-          baseUrl: true,
-        },
-      },
-    },
-  },
-  authors: {
-    select: {
+      synopsis: true,
+      note: true,
+      status: true,
       author: {
         select: {
           name: true,
           pseudonym: true,
-          urlProfile: true,
+          urlCoverProfile: true,
+        },
+      },
+      template: {
+        select: {
+          text: true,
         },
       },
     },
   },
-  template: {
+  chapters: {
     select: {
       id: true,
-      text: true,
+      title: true,
+      urlChapter: true,
+      isTracking: true,
+      urlCoverChapter: true,
+      publishedAt: true,
+      publication: {
+        select: {
+          status: true,
+          idPublishedFacebook: true,
+        },
+      },
     },
   },
-} satisfies Prisma.NovelSelect;
+  platform: {
+    select: {
+      name: true,
+    },
+  },
+} satisfies Prisma.NovelPlatformSelect;
 
-export type NovelFindBySlugPayload = Prisma.NovelGetPayload<{
+export type NovelFindBySlugPayload = Prisma.NovelPlatformGetPayload<{
   select: typeof novelFindBySlugSelect;
 }>;
 
 export const novelListSelect = {
   id: true,
   title: true,
-  urlNovel: true,
-  chapters: {
+  novelPlatforms: {
     select: {
       id: true,
-      title: true,
-      publishedAt: true,
-      urlCoverChapter: true,
-      urlChapter: true,
-      publication: true,
+      urlNovel: true,
+      chapters: {
+        select: {
+          id: true,
+          title: true,
+          publishedAt: true,
+          urlCoverChapter: true,
+          urlChapter: true,
+          publication: true,
+        },
+      },
     },
   },
   template: {
     select: {
       text: true,
-    },
-  },
-  platforms: {
-    where: {
-      isPreferred: true,
-    },
-    select: {
-      isPreferred: true,
-      platform: {
-        select: {
-          baseUrl: true,
-        },
-      },
     },
   },
 } satisfies Prisma.NovelSelect;

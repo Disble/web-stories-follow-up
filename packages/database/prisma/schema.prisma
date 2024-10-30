@@ -89,52 +89,47 @@ model Novel {
   slug String @unique
   synopsis String
   note String?
-  urlCoverNovel String
-  urlNovel String
   status NovelStatus @default(ONGOING)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  chapters Chapter[]
-  authors NovelAutor[]
-  platforms NovelPlatform[]
+  novelPlatforms NovelPlatform[]
   template Template?
-}
-
-model NovelAutor {
-  novel     Novel     @relation(fields: [novelId], references: [id], onDelete: Cascade)
-  novelId   String
-  author    Author    @relation(fields: [authorId], references: [id])
-  authorId  String
-  assignedAt DateTime @default(now())
-
-  @@id([novelId, authorId])
+  author Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
 }
 
 model Author {
   id String @id @default(cuid())
   name String?
   pseudonym String
-  urlProfile String
   urlCoverProfile String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  novels NovelAutor[]
+  novels Novel[]
+
+  @@index([pseudonym], name: "idx_pseudonym_author")
 }
 
 model NovelPlatform {
+  id String @id @default(cuid())
+  assignedAt DateTime @default(now())
+  isPreferred Boolean @default(false)
+  urlNovel String
+  urlCoverNovel String
+  chapters Chapter[]
+  urlAuthorProfile String
+  
   novel     Novel     @relation(fields: [novelId], references: [id], onDelete: Cascade)
   novelId   String
   platform    Platform    @relation(fields: [platformId], references: [id])
   platformId  String
-  assignedAt DateTime @default(now())
-  isPreferred Boolean @default(false)
 
-  @@id([novelId, platformId])
-  @@unique([novelId, isPreferred], name: "uniquePreferredPlatform")
+  @@unique([novelId, platformId])
+  @@unique([novelId, isPreferred])
 }
 
 model Platform {
@@ -147,7 +142,7 @@ model Platform {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  novels NovelPlatform[]
+  novelPlatforms NovelPlatform[]
 }
 
 model Chapter {
@@ -156,18 +151,20 @@ model Chapter {
   urlChapter String
   urlCoverChapter String?
   publishedAt DateTime?
+  isTracking Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  novelId String
-  novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  novelPlatform NovelPlatform @relation(fields: [novelPlatformId], references: [id], onDelete: Cascade)
+  novelPlatformId String
   publication Publication?
+
+  @@index([isTracking], name: "idx_isTracking_chapter")
 }
 
 model Publication {
   id String @id @default(cuid())
-  chapterId String @unique
   idPublishedFacebook String? @unique 
   message String
   link String?
@@ -181,6 +178,9 @@ model Publication {
   updatedAt DateTime @updatedAt
 
   chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId String @unique
+
+  @@index([status], name: "idx_status_publication")
 }
 
 
@@ -191,8 +191,8 @@ model Template {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  novelId String @unique
   novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
+  novelId String @unique
 }
 
 // Here web store: cron-job, frecuency, fac-api-key...

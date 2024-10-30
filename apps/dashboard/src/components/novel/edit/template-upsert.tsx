@@ -1,13 +1,10 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { NovelFindBySlugPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 import { FormTextarea } from "@repo/ui/form";
 import { Button } from "@repo/ui/nextui";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
-import { upsertTemplate } from "../novel.action";
-import { useState } from "react";
+import { upsertTemplate } from "#components/novel/novel.action";
 import toast from "react-hot-toast";
 
 export const FormSchema = z.object({
@@ -17,21 +14,25 @@ export const FormSchema = z.object({
 type FormData = z.infer<typeof FormSchema>;
 
 type TemplateUpsertProps = {
-  novel: NovelFindBySlugPayload;
+  template: string;
+  novelId: string;
+  slug: string;
 };
 
 export default function TemplateUpsert({
-  novel,
+  template,
+  novelId,
+  slug,
 }: TemplateUpsertProps): JSX.Element {
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      text: novel.template?.text ?? "",
+      text: template,
     },
   });
 
   const onSubmit = async (values: FormData) => {
-    const template = await upsertTemplate(novel.id, values.text, novel.slug);
+    const template = await upsertTemplate(novelId, values.text, slug);
 
     if ("error" in template) {
       toast.error(template.error);
