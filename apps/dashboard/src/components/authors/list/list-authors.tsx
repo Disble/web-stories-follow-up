@@ -7,11 +7,12 @@ import DataTable, {
 import { useQueryStates } from "nuqs";
 import { authorSearchParams } from "#components/authors/search-params";
 import type { PageNumberPaginationMeta } from "@repo/layer-prisma/utils";
+import { Image } from "@repo/ui/nextui";
 
 const columns: DataTableColumns<AuthorListPayload> = [
-  { key: "name", label: "Sinopsis" },
-  { key: "pseudonym", label: "URL de la portada" },
-  { key: "urlProfile", label: "URL del libro" },
+  { key: "name", label: "Nombre" },
+  { key: "pseudonym", label: "Pseudónimo" },
+  { key: "urlCoverProfile", label: "URL de la imagen de perfil" },
 ];
 
 type ListAuthorsProps = {
@@ -35,8 +36,8 @@ export default function ListAuthors({
         return <span>{author[authorKey]}</span>;
       case "pseudonym":
         return <span>{author[authorKey]}</span>;
-      case "urlProfile":
-        return <span>{author[authorKey]}</span>;
+      case "urlCoverProfile":
+        return <Image src={author[authorKey] ?? ""} alt="Imagen de perfil" />;
       default:
         return <span>{author[authorKey]}</span>;
     }

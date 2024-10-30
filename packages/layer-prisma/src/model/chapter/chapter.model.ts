@@ -1,5 +1,5 @@
 import { PrismaDB } from "#abstract-factory/prisma-db.abstract";
-import type { Prisma } from "@repo/database";
+import { NovelStatus, type Prisma } from "@repo/database";
 import { SessionError } from "@repo/types/utils/errors";
 
 const TRANSACTION_TIMEOUT = 40 * 1000;
@@ -78,14 +78,27 @@ export class ChapterModel extends PrismaDB {
     );
   }
 
-  public async cronFindLastChapterEnabledToPublish(novelId: string) {
+  public async cronFindLastChaptersEnabledToPublish(novelId: string) {
     const prisma = await this.connect.public();
 
-    const lastChapter = await prisma.chapter.findFirst({
+    const yesterday = new Date();
+    yesterday.setHours(yesterday.getHours() - 24);
+    yesterday.setMinutes(yesterday.getMinutes() - 1);
+
+    const lastChapter = await prisma.chapter.findMany({
       where: {
-        novelId,
+        isTracking: true,
+        novelPlatform: {
+          novel: {
+            id: novelId,
+            status: NovelStatus.ONGOING,
+          },
+        },
         createdAt: {
-          gte: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+          gte: yesterday,
+        },
+        publication: {
+          is: null,
         },
       },
       orderBy: {

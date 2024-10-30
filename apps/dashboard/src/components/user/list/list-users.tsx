@@ -22,7 +22,8 @@ import {
 import { SolarTrashBinTrashOutline } from "@repo/ui/icons";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import { desactivateUser } from "#components/user/user.action";
+import { toggleUserActivation } from "#components/user/user.action";
+import { useSession } from "next-auth/react";
 
 const RoleEnum = {
   ADMIN: "Administrador",
@@ -55,9 +56,11 @@ export default function ListUsers({
 }: ListUsersProps): JSX.Element {
   const [searchParams] = useQueryStates(authorSearchParams);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [userToDesactivate, setUserToDesactivate] = useState<string | null>(
-    null
-  );
+  const [userToggle, setUserToggle] = useState<{
+    id: string;
+    active: boolean;
+  } | null>(null);
+  const { data: session } = useSession();
 
   const usersWithSettings = users.map((user) => ({
     ...user,
@@ -87,18 +90,25 @@ export default function ListUsers({
         );
       case "active":
         return (
-          <Switch
-            size="sm"
-            isSelected={user[userKey]}
-            onValueChange={(value) => {
-              if (!value) {
-                setUserToDesactivate(user.id);
-                onOpen();
-              }
-            }}
+          <Tooltip
+            color="warning"
+            content="No puedes desactivar tu propio usuario"
+            isDisabled={user.email !== session?.user.email}
           >
-            {user[userKey] ? "Activo" : "Inactivo"}
-          </Switch>
+            <div>
+              <Switch
+                size="sm"
+                isSelected={user[userKey]}
+                onValueChange={(value) => {
+                  setUserToggle({ id: user.id, active: value });
+                  onOpen();
+                }}
+                isDisabled={user.email === session?.user.email}
+              >
+                {user[userKey] ? "Activo" : "Inactivo"}
+              </Switch>
+            </div>
+          </Tooltip>
         );
       case "actions":
         return (
@@ -115,20 +125,22 @@ export default function ListUsers({
     }
   };
 
-  const handleDesactivateUser = async (onClose: () => void) => {
-    if (!userToDesactivate) {
+  const handleToggleUser = async (onClose: () => void) => {
+    if (!userToggle) {
       toast.error("No se seleccionó ningún usuario");
       return;
     }
 
-    const res = await desactivateUser(userToDesactivate);
+    const res = await toggleUserActivation(userToggle.id, userToggle.active);
 
     if ("error" in res) {
       toast.error(res.error);
       return;
     }
 
-    toast.success("Usuario desactivado correctamente");
+    toast.success(
+      `Usuario ${userToggle.active ? "activado" : "desactivado"} correctamente`
+    );
 
     onClose();
   };
@@ -148,12 +160,15 @@ export default function ListUsers({
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                ¿Desactivar usuario?
+                {userToggle?.active
+                  ? "¿Activar usuario?"
+                  : "¿Desactivar usuario?"}
               </ModalHeader>
               <ModalBody>
                 <p>
-                  Una vez desactivado, el usuario no podrá acceder a la
-                  plataforma.
+                  {userToggle?.active
+                    ? "Una vez activado, el usuario podrá acceder a la plataforma."
+                    : "Una vez desactivado, el usuario no podrá acceder a la plataforma."}
                 </p>
               </ModalBody>
               <ModalFooter>
@@ -162,9 +177,9 @@ export default function ListUsers({
                 </Button>
                 <Button
                   color="primary"
-                  onPress={() => handleDesactivateUser(onClose)}
+                  onPress={() => handleToggleUser(onClose)}
                 >
-                  Sí, desactivar
+                  {userToggle?.active ? "Sí, activar" : "Sí, desactivar"}
                 </Button>
               </ModalFooter>
             </>

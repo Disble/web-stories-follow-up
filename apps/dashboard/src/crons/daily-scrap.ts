@@ -1,7 +1,7 @@
 import { parameters } from "#lib/consts";
 import { api } from "@repo/layer-fetch/api";
 import type { FeedPublishPostBody } from "@repo/layer-fetch/model/feed/feed.interface";
-import { ChapterStatus, PublicationStatus } from "@repo/layer-prisma";
+import { PublicationStatus } from "@repo/layer-prisma";
 import { db } from "@repo/layer-prisma/db";
 import type { NovelListPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 import { JSDOM } from "jsdom";
@@ -13,7 +13,7 @@ import {
 import type { ParameterListPayload } from "@repo/layer-prisma/model/parameter/parameter.interface";
 
 export async function dailyScrap() {
-  const novels = await db.novel.list();
+  const novels = await db.novel.listActivePreferents();
   const paramPublicationTime = await db.parameter.cronGetByName(
     parameters.FB_PUBLICATION_TIME
   );
@@ -25,8 +25,19 @@ export async function dailyScrap() {
   const fbPublicationTimeStamp = getPublicationTime(paramPublicationTime);
 
   const promises = novels.map(async (novel) => {
-    await updateChapters(novel.urlNovel, novel.chapters, novel.id);
-    const lastChapter = await db.chapter.cronFindLastChapterEnabledToPublish(
+    const novelPlatformPreferred = novel.novelPlatforms[0];
+
+    if (!novelPlatformPreferred) {
+      throw new Error("No preferred novel platform found");
+    }
+
+    await updateChapters(
+      novelPlatformPreferred.urlNovel,
+      novelPlatformPreferred.chapters,
+      novelPlatformPreferred.id
+    );
+
+    const lastChapters = await db.chapter.cronFindLastChaptersEnabledToPublish(
       novel.id
     );
 
@@ -34,19 +45,19 @@ export async function dailyScrap() {
       throw new Error("Novel template is null");
     }
 
-    const url = `${novel.platforms[0].platform.baseUrl}${lastChapter.urlChapter}`;
+    for (const chapter of lastChapters) {
+      const templateWithLink = `${novel.template.text} \n ${chapter.urlChapter}`;
 
-    const templateWithLink = `${novel.template.text} \n ${url}`;
-
-    return publishNewChapterInFacebook(
-      {
-        message: templateWithLink,
-        link: url,
-        published: "false",
-        scheduled_publish_time: fbPublicationTimeStamp.toString(),
-      },
-      lastChapter.id
-    );
+      await publishNewChapterInFacebook(
+        {
+          message: templateWithLink,
+          link: chapter.urlChapter,
+          published: "false",
+          scheduled_publish_time: fbPublicationTimeStamp.toString(),
+        },
+        chapter.id
+      );
+    }
   });
 
   return Promise.allSettled(promises);
@@ -54,8 +65,8 @@ export async function dailyScrap() {
 
 export async function updateChapters(
   url: string,
-  chapters: NovelListPayload["chapters"],
-  novelId: string
+  chapters: NovelListPayload["novelPlatforms"][0]["chapters"],
+  novelPlatformId: string
 ) {
   const currentChapters = await scrapeCurrentChapters(url);
 
@@ -84,8 +95,8 @@ export async function updateChapters(
         title: chapter.title,
         urlChapter: chapter.urlChapter,
         publishedAt: chapter.publishedAt,
-        status: ChapterStatus.COMPLETED,
-        novelId,
+        novelPlatformId,
+        isTracking: true,
       }))
     );
 
@@ -94,6 +105,8 @@ export async function updateChapters(
 }
 
 export async function scrapeCurrentChapters(url: string) {
+  const originUrl = new URL(url).origin;
+
   const response = await fetch(url);
   const html = await response.text();
 
@@ -108,6 +121,7 @@ export async function scrapeCurrentChapters(url: string) {
     .map((story) => {
       const title = story.querySelector(".part-title")?.textContent;
       const urlChapter = story.getAttribute("href");
+      const fullUrlChapter = `${originUrl}${urlChapter}`;
       const publishedAtStr = story.querySelector(".right-label")?.textContent;
       let publishedAt = null;
       if (
@@ -116,11 +130,12 @@ export async function scrapeCurrentChapters(url: string) {
         publishedAtStr?.includes("minutes ago") ||
         publishedAtStr?.includes("a few seconds ago")
       ) {
-        publishedAt = new Date().toISOString();
+        const today = now(getLocalTimeZone());
+        publishedAt = today.toDate().toISOString();
       } else if (publishedAtStr?.includes("a day ago")) {
-        publishedAt = new Date(
-          new Date().setDate(new Date().getDate() - 1)
-        ).toISOString();
+        const today = now(getLocalTimeZone());
+        today.subtract({ days: 1 });
+        publishedAt = today.toDate().toISOString();
       } else if (publishedAtStr) {
         publishedAt = new Date(publishedAtStr).toISOString();
       }
@@ -131,9 +146,8 @@ export async function scrapeCurrentChapters(url: string) {
 
       return {
         title,
-        urlChapter,
+        urlChapter: fullUrlChapter,
         publishedAt,
-        status: ChapterStatus.PENDING,
       };
     })
     .filter((chapter, index, self) => self.indexOf(chapter) === index)
@@ -143,7 +157,7 @@ export async function scrapeCurrentChapters(url: string) {
 }
 
 export async function publishNewChapterInFacebook(
-  body: FeedPublishPostBody,
+  body: Extract<FeedPublishPostBody, { published: "false" }>,
   chapterId: string
 ) {
   const [post] = await api.feed.publishPost(body, {
@@ -158,8 +172,9 @@ export async function publishNewChapterInFacebook(
     idPublishedFacebook: post.id,
     message: body.message,
     link: body.link,
-    publishedFacebook: true,
+    publishedFacebook: false,
     status: PublicationStatus.PUBLISHED,
+    scheduledPublishTime: Number.parseInt(body.scheduled_publish_time),
     chapter: {
       connect: {
         id: chapterId,
@@ -172,8 +187,6 @@ export async function publishNewChapterInFacebook(
       "Publication created in Facebook, but could not save to database"
     );
   }
-
-  return publication;
 }
 
 function getPublicationTime(paramPublicationTime: ParameterListPayload) {
@@ -188,7 +201,7 @@ function getPublicationTime(paramPublicationTime: ParameterListPayload) {
     day: today.day,
   });
 
-  const offsetInMiliseconds = fbPublicationZonedDateTime.offset;
+  const offsetInMiliseconds = fbPublicationZonedDateTime.toDate().getTime();
   const offsetInSeconds = Math.floor(offsetInMiliseconds / 1000);
 
   return offsetInSeconds;

@@ -1,20 +1,18 @@
 "use client";
 
-import { Accordion, AccordionItem, Image, Button, Link } from "@repo/ui/nextui";
+import { Accordion, AccordionItem, Image, Link } from "@repo/ui/nextui";
 import { useDateFormatter } from "@react-aria/i18n";
 import type { NovelFindBySlugPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 import BtnCreateFbPost from "#components/novel/create/btn-create-fb-post";
 
 type ChaptersAccordionProps = {
   chapters: NovelFindBySlugPayload["chapters"];
-  platforms: NovelFindBySlugPayload["platforms"];
   template: string | undefined;
   slug: string;
 };
 
 export default function ChaptersAccordion({
   chapters,
-  platforms,
   template,
   slug,
 }: ChaptersAccordionProps): JSX.Element {
@@ -77,11 +75,11 @@ export default function ChaptersAccordion({
               </label>
               <Link
                 id="urlChapter"
-                href={platforms.at(0)?.platform.baseUrl + chapter.urlChapter}
+                href={chapter.urlChapter}
                 isExternal
                 className="break-all"
               >
-                {platforms.at(0)?.platform.baseUrl + chapter.urlChapter}
+                {chapter.urlChapter}
               </Link>
             </div>
             <div>
@@ -115,7 +113,8 @@ export default function ChaptersAccordion({
               </label>
               {chapter.publication ? (
                 <Link
-                  href={`/publications/${chapter.publication.id}`}
+                  href={`https://www.facebook.com/permalink.php?story_fbid=${chapter.publication.idPublishedFacebook}`}
+                  isExternal
                   color="primary"
                   className="break-all"
                 >
@@ -124,7 +123,7 @@ export default function ChaptersAccordion({
               ) : template ? (
                 <BtnCreateFbPost
                   template={template}
-                  link={platforms.at(0)?.platform.baseUrl + chapter.urlChapter}
+                  link={chapter.urlChapter}
                   slug={slug}
                   chapterId={chapter.id}
                 />

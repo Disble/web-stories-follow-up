@@ -3,6 +3,7 @@ import PullOrCreateNovel from "./pull-novel";
 
 export default async function PullNovelApi(): Promise<JSX.Element> {
   const platforms = await db.platform.list();
+  const authors = await db.author.list();
 
   if (typeof platforms === "string") {
     return (
@@ -13,5 +14,12 @@ export default async function PullNovelApi(): Promise<JSX.Element> {
     );
   }
 
-  return <PullOrCreateNovel platforms={platforms} />;
+  return (
+    <PullOrCreateNovel
+      platforms={platforms}
+      // we use an empty array instead type guard because the workflow
+      // can't be blocked by the authors list
+      authors={typeof authors === "string" ? [] : authors}
+    />
+  );
 }

@@ -1,9 +1,7 @@
 "use client";
-
 import { useDebounce } from "@custom-react-hooks/use-debounce";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/nextui";
-import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -62,8 +60,11 @@ export default function CreatePlatform(): JSX.Element {
   }, 500);
 
   const onSubmit = async (data: FormData) => {
+    const fullURL = new URL(data.baseUrl);
+    const originUrl = fullURL.origin;
+
     const response = await createPlatform({
-      baseUrl: data.baseUrl,
+      baseUrl: originUrl,
       name: data.name,
       code: data.code,
       urlCover: data.urlCover,

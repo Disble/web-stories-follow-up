@@ -1,5 +1,5 @@
 import { PrismaDB } from "#abstract-factory/prisma-db.abstract";
-import type { Prisma } from "@repo/database";
+import { NovelStatus, type Prisma } from "@repo/database";
 import { SessionError } from "@repo/types/utils/errors";
 import {
   novelCardListSelect,
@@ -8,28 +8,33 @@ import {
 } from "./novel.interface";
 
 export class NovelModel extends PrismaDB {
-  public async create(data: Prisma.NovelCreateInput) {
+  public async create(data: Prisma.NovelPlatformCreateArgs["data"]) {
     const prisma = await this.connect.protected();
 
     if (prisma instanceof SessionError) {
       return prisma.message;
     }
 
-    return prisma.novel.create({
+    return prisma.novelPlatform.create({
       data,
     });
   }
 
-  public async findBySlug(slug: string) {
+  public async findBySlugAndPlatform(slug: string, platformCode: string) {
     const prisma = await this.connect.protected();
 
     if (prisma instanceof SessionError) {
       return prisma.message;
     }
 
-    return prisma.novel.findUnique({
+    return prisma.novelPlatform.findFirst({
       where: {
-        slug,
+        AND: [
+          {
+            novel: { slug },
+          },
+          { platform: { code: platformCode } },
+        ],
       },
       select: novelFindBySlugSelect,
     });
@@ -49,6 +54,27 @@ export class NovelModel extends PrismaDB {
     });
   }
 
+  public async findByUrlNovel(urlNovel: string) {
+    const prisma = await this.connect.protected();
+
+    if (prisma instanceof SessionError) {
+      return prisma.message;
+    }
+
+    return prisma.novelPlatform.findFirst({
+      select: {
+        novel: {
+          select: {
+            slug: true,
+          },
+        },
+      },
+      where: {
+        urlNovel,
+      },
+    });
+  }
+
   public async cardsList({ page, limit }: { page: number; limit: number }) {
     const prisma = await this.connect.protected();
 
@@ -60,7 +86,7 @@ export class NovelModel extends PrismaDB {
       .paginate({
         select: novelCardListSelect,
         orderBy: {
-          updatedAt: "desc",
+          createdAt: "desc",
         },
       })
       .withPages({
@@ -70,10 +96,18 @@ export class NovelModel extends PrismaDB {
       });
   }
 
-  public async list() {
+  public async listActivePreferents() {
     const prisma = await this.connect.public();
 
     return prisma.novel.findMany({
+      where: {
+        status: NovelStatus.ONGOING,
+        novelPlatforms: {
+          some: {
+            isPreferred: true,
+          },
+        },
+      },
       select: novelListSelect,
     });
   }

@@ -89,46 +89,47 @@ model Novel {
   slug String @unique
   synopsis String
   note String?
-  urlCoverNovel String
-  urlNovel String
+  status NovelStatus @default(ONGOING)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  chapters Chapter[]
-  authors NovelAutor[]
 
-  platforms NovelPlatform[]
+  novelPlatforms NovelPlatform[]
   template Template?
-}
-
-model NovelAutor {
-  novel     Novel     @relation(fields: [novelId], references: [id])
-  novelId   String
-  author    Author    @relation(fields: [authorId], references: [id])
-  authorId  String
-  assignedAt DateTime @default(now())
-
-  @@id([novelId, authorId])
+  author Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
 }
 
 model Author {
   id String @id @default(cuid())
   name String?
   pseudonym String
-  urlProfile String
   urlCoverProfile String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  novels NovelAutor[]
+
+  novels Novel[]
+
+  @@index([pseudonym], name: "idx_pseudonym_author")
 }
 
 model NovelPlatform {
-  novel     Novel     @relation(fields: [novelId], references: [id])
+  id String @id @default(cuid())
+  assignedAt DateTime @default(now())
+  isPreferred Boolean @default(false)
+  urlNovel String
+  urlCoverNovel String
+  chapters Chapter[]
+  urlAuthorProfile String
+  
+  novel     Novel     @relation(fields: [novelId], references: [id], onDelete: Cascade)
   novelId   String
   platform    Platform    @relation(fields: [platformId], references: [id])
   platformId  String
-  assignedAt DateTime @default(now())
 
-  @@id([novelId, platformId])
+  @@unique([novelId, platformId])
+  @@unique([novelId, isPreferred])
 }
 
 model Platform {
@@ -137,9 +138,11 @@ model Platform {
   baseUrl String @unique
   code String @unique
   urlCover String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  novels NovelPlatform[]
+
+  novelPlatforms NovelPlatform[]
 }
 
 model Chapter {
@@ -148,36 +151,48 @@ model Chapter {
   urlChapter String
   urlCoverChapter String?
   publishedAt DateTime?
-  status ChapterStatus
+  isTracking Boolean @default(true)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  novelId String
-  novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
+
+  novelPlatform NovelPlatform @relation(fields: [novelPlatformId], references: [id], onDelete: Cascade)
+  novelPlatformId String
   publication Publication?
+
+  @@index([isTracking], name: "idx_isTracking_chapter")
 }
 
 model Publication {
   id String @id @default(cuid())
-  chapterId String @unique
   idPublishedFacebook String? @unique 
   message String
   link String?
+  // if the publication was published immediately in Facebook
   publishedFacebook Boolean @default(false)
-  scheduledPublishTime DateTime?
+  // scheduled publish datetime in seconds
+  scheduledPublishTime Int?
   status PublicationStatus
-  chapter Chapter @relation(fields: [chapterId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId String @unique
+
+  @@index([status], name: "idx_status_publication")
 }
 
 
 model Template {
   id String @id @default(cuid())
   text String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  novel Novel @relation(fields: [novelId], references: [id], onDelete: Cascade)
   novelId String @unique
-  novel Novel @relation(fields: [novelId], references: [id])
 }
 
 // Here web store: cron-job, frecuency, fac-api-key...
@@ -185,24 +200,34 @@ model Parameter {
   id String @id @default(cuid())
   name String @unique
   value String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 enum PublicationStatus {
   DRAFT
+  HIDDEN
   PUBLISHED
-  REJECTED
-}
-
-enum ChapterStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  FAILED
+  DELETED
 }
 
 enum Role {
   ADMIN
   SUPER_ADMIN
+}
+
+enum NovelStatus {
+  // The novel is ongoing (default)
+  ONGOING
+  // The novel has been completed
+  COMPLETE
+  // The novel has been cancelled
+  CANCELLED
+  // The novel has announced that it will not publish new chapters in a long time
+  HIATUS
+  // The novel is not published new chapters in a long time
+  DISCONTINUED 
+  // The administration has decided to hide the novel
+  AUTHOR_ISSUES
 }
