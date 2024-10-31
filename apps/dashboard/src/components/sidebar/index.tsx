@@ -23,6 +23,7 @@ import { ElLectorNovato, SolarQuestionCircleLinear } from "@repo/ui/icons";
 import { usePathname } from "next/navigation";
 import { getTitle } from "#routes/index";
 import type { Role } from "@repo/layer-prisma";
+import { useUIStore } from "#store/ui.store";
 
 export default function Component({
   children,
@@ -30,8 +31,8 @@ export default function Component({
 }: { children: React.ReactNode; sessionRole: Role }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { data, status } = useSession();
-  const pathname = usePathname();
-  const currentPath = pathname;
+  const currentPath = usePathname();
+  const customTitle = useUIStore((state) => state.customTitle);
 
   const content = (
     <div className="relative flex h-full w-72 flex-1 flex-col p-6">
@@ -58,7 +59,7 @@ export default function Component({
               src={
                 status === "authenticated" && data?.user?.image
                   ? data.user.image
-                  : "https://i.pravatar.cc/150?u=a04258114e29026708c"
+                  : "/images/not_photo_profile.webp"
               }
             />
             <div className="flex flex-col">
@@ -125,8 +126,8 @@ export default function Component({
           >
             <SolarHamburgerMenuLineDuotone className="text-default-500 size-6" />
           </Button>
-          <h2 className="text-medium font-medium text-default-700">
-            {getTitle(currentPath)}
+          <h2 className="text-medium font-semibold text-default-700">
+            {getTitle(currentPath) === "" ? customTitle : getTitle(currentPath)}
           </h2>
         </header>
         <main className="mt-4 min-h-[calc(100%-5rem)] w-full">
