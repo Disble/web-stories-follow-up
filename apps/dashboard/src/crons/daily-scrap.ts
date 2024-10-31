@@ -195,13 +195,15 @@ function getPublicationTime(paramPublicationTime: ParameterListPayload) {
   );
   const today = now(getLocalTimeZone());
 
-  fbPublicationZonedDateTime.set({
+  const fbPublicationZonedDateTimeUpdated = fbPublicationZonedDateTime.set({
     year: today.year,
     month: today.month,
     day: today.day,
   });
 
-  const offsetInMiliseconds = fbPublicationZonedDateTime.toDate().getTime();
+  const offsetInMiliseconds = fbPublicationZonedDateTimeUpdated
+    .toDate()
+    .getTime();
   const offsetInSeconds = Math.floor(offsetInMiliseconds / 1000);
 
   return offsetInSeconds;
