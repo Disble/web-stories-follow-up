@@ -11,17 +11,45 @@ export class PublicationModel extends PrismaDB {
       throw prisma;
     }
 
-    return prisma.publication.create({
-      data,
-    });
+    if (!data.chapter.connect?.id) {
+      throw new Error("Chapter ID is required");
+    }
+
+    return prisma.$transaction([
+      prisma.publication.create({
+        data,
+      }),
+      prisma.chapter.update({
+        where: {
+          id: data.chapter.connect.id,
+        },
+        data: {
+          isTracking: false,
+        },
+      }),
+    ]);
   }
 
   public async cronCreate(data: Prisma.PublicationCreateInput) {
     const prisma = await this.connect.public();
 
-    return prisma.publication.create({
-      data,
-    });
+    if (!data.chapter.connect?.id) {
+      throw new Error("Chapter ID is required");
+    }
+
+    return prisma.$transaction([
+      prisma.publication.create({
+        data,
+      }),
+      prisma.chapter.update({
+        where: {
+          id: data.chapter.connect.id,
+        },
+        data: {
+          isTracking: false,
+        },
+      }),
+    ]);
   }
 
   public async listPaginated({ page, limit }: { page: number; limit: number }) {

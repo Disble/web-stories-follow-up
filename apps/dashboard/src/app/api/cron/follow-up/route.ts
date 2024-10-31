@@ -20,10 +20,14 @@ export async function GET(request: NextRequest) {
     console.time("🔄 Daily scrap");
 
     const resp = await dailyScrap();
+    let countRejected = 0;
+    const causes = [];
 
     for (const res of resp) {
       if (res.status === "rejected") {
         console.error(res.reason);
+        countRejected++;
+        causes.push(res.reason.message);
       }
     }
 
@@ -32,9 +36,25 @@ export async function GET(request: NextRequest) {
     ).length;
 
     console.timeEnd("🔄 Daily scrap");
-    console.info(`✅ Daily scrap completed with ${countFulfilled} fulfilled`);
+    const message = `✅ Daily scrap completed with ${countFulfilled} fulfilled and ${countRejected} rejected`;
+    console.info(message);
 
-    return Response.json({ success: true });
+    if (resp.length > 0 && resp.every((res) => res.status === "rejected")) {
+      return Response.json(
+        {
+          status: "error",
+          error: "Error running daily scrap",
+          cause: causes,
+        },
+        { status: 500 }
+      );
+    }
+
+    return Response.json({
+      status: "success",
+      message: message,
+      cause: causes,
+    });
   } catch (error) {
     if (error instanceof Error) {
       return Response.json({ error: error.message }, { status: 500 });

@@ -37,9 +37,11 @@ export default function PublicationSettings({
   });
 
   const onSubmit = async (data: FormData) => {
-    const fbPublicationTime = await updateFbPublicationTime(
-      data.time.toString()
-    );
+    const time = data.time.set({
+      second: 0,
+      millisecond: 0,
+    });
+    const fbPublicationTime = await updateFbPublicationTime(time.toString());
 
     if ("error" in fbPublicationTime) {
       toast.error(fbPublicationTime.error);
