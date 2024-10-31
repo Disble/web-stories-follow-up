@@ -151,10 +151,12 @@ export const getTitle = (pathname: string): string => {
 
   if (title) return title;
 
+  return "";
+
   // Fallback: extract the last part of the path
-  const parts = pathname.split("/");
-  return (
-    parts[parts.length - 1].charAt(0).toUpperCase() +
-    parts[parts.length - 1].slice(1)
-  );
+  // const parts = pathname.split("/");
+  // return (
+  //   parts[parts.length - 1].charAt(0).toUpperCase() +
+  //   parts[parts.length - 1].slice(1)
+  // );
 };
