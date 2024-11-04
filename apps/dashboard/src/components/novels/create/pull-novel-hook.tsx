@@ -213,6 +213,7 @@ export default function usePullNovel({
           "authorUrlCoverProfile",
           novelScraped.authorUrlCoverProfile
         );
+        form.setValue("authorId", "");
       } else {
         setIsNewAuthor(false);
         form.setValue("authorId", author.id);
