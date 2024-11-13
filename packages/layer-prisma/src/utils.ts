@@ -1,1 +1,1 @@
-export { type PageNumberPaginationMeta } from "prisma-extension-pagination";
+export type { PageNumberPaginationMeta } from "prisma-extension-pagination";
