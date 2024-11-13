@@ -4,7 +4,7 @@ import DataTable, {
   type DataTableRenderCell,
 } from "@repo/ui/data-table";
 import { useQueryStates } from "nuqs";
-import { authorSearchParams } from "#components/authors/search-params";
+import { userSearchParams } from "#components/user/search-params";
 import type { PageNumberPaginationMeta } from "@repo/layer-prisma/utils";
 import type { UserListPayload } from "@repo/layer-prisma/model/user/user.interface";
 import {
@@ -54,7 +54,7 @@ export default function ListUsers({
   users,
   pagination,
 }: ListUsersProps): JSX.Element {
-  const [searchParams] = useQueryStates(authorSearchParams);
+  const [searchParams] = useQueryStates(userSearchParams);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [userToggle, setUserToggle] = useState<{
     id: string;
