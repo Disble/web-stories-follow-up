@@ -29,6 +29,7 @@ export const novelCardListSelect = {
       },
     },
   },
+  template: true,
 } satisfies Prisma.NovelSelect;
 
 export type NovelCardListPayload = Prisma.NovelGetPayload<{
