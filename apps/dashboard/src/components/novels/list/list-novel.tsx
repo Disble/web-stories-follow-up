@@ -1,9 +1,20 @@
 import type { PageNumberPaginationMeta } from "@repo/layer-prisma/utils";
 import type { NovelCardListPayload } from "@repo/layer-prisma/model/novel/novel.interface";
-import { Card, CardHeader, CardFooter, Image, Button } from "@repo/ui/nextui";
+import {
+  Card,
+  CardHeader,
+  CardFooter,
+  Image,
+  Button,
+  Tooltip,
+} from "@repo/ui/nextui";
 import ListNovelPagination from "./list-novel-pagination";
 import Link from "next/link";
 import { PATH_DASHBOARD } from "#routes/index";
+import {
+  SolarInfoCircleBoldDuotone,
+  SolarShieldWarningBold,
+} from "@repo/ui/icons";
 
 interface BinnaclesTableProps {
   novelCards: NovelCardListPayload[];
@@ -21,15 +32,21 @@ export default function ListNovel({
           <Card
             key={novelPlatform.id}
             isFooterBlurred
-            className="h-[300px]"
+            className="h-[300px] relative"
             shadow="none"
           >
             <CardHeader className="absolute z-10 top-1 flex-col items-start">
-              <p className="text-tiny text-white/60 uppercase font-bold">
-                {novelPlatform._count.chapters}{" "}
-                {novelPlatform._count.chapters === 1 ? "Capítulo" : "Capítulos"}
-              </p>
-              <h4 className="text-white/90 font-medium text-xl">
+              {!novel.template && (
+                <Tooltip
+                  content="Novela sin plantilla. No se publicarán nuevos capítulos automáticamente."
+                  color="warning"
+                >
+                  <div className="absolute top-2 right-2">
+                    <SolarShieldWarningBold className="size-8 text-amber-500 fill-rose-500 drop-shadow-lg" />
+                  </div>
+                </Tooltip>
+              )}
+              <h4 className="text-slate-50/90 font-medium text-xl [text-shadow:0px_0px_3px_rgb(3,3,3)]">
                 {novel.title}
               </h4>
             </CardHeader>
