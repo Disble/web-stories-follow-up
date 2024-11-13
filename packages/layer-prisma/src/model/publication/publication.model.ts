@@ -37,7 +37,7 @@ export class PublicationModel extends PrismaDB {
       throw new Error("Chapter ID is required");
     }
 
-    return prisma.$transaction([
+    const [publication] = await prisma.$transaction([
       prisma.publication.create({
         data,
       }),
@@ -50,6 +50,8 @@ export class PublicationModel extends PrismaDB {
         },
       }),
     ]);
+
+    return publication;
   }
 
   public async listPaginated({ page, limit }: { page: number; limit: number }) {

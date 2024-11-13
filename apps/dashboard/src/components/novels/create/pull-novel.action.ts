@@ -1,10 +1,16 @@
 "use server";
 import { db } from "@repo/layer-prisma/db";
 import type { Prisma } from "@repo/layer-prisma";
-import { JSDOM } from "jsdom";
 import { z } from "zod";
 import { uniqueSpaceSlug, digits } from "space-slug";
-import { now, getLocalTimeZone } from "@internationalized/date";
+import {
+  extractAllChapters,
+  extractSynopsis,
+  extractTitle,
+  extractUrlCoverNovel,
+  fetchPageDocument,
+  extractAuthorProfile,
+} from "#scrapers/wattpad-scraper";
 
 type CreateFullNovelData = {
   novelPlatform: Pick<
@@ -88,99 +94,27 @@ type DataNovelServer = z.infer<typeof dataNovelServer>;
 
 export async function scrapeNovel(url: string) {
   try {
-    const originUrl = new URL(url).origin;
+    const { document, dom } = await fetchPageDocument(url);
 
-    const response = await fetch(url);
-    const html = await response.text();
-
-    const dom = new JSDOM(html);
-    const document = dom.window.document;
-
-    const title = document.querySelector(
-      "div.story-info>span.sr-only"
-    )?.textContent;
-    const synopsisElement = document.querySelector(
-      "pre.description-text.collapsed"
-    );
-    const synopsis = synopsisElement
-      ? Array.from(synopsisElement.childNodes)
-          .filter(
-            (node): node is Text => node.nodeType === dom.window.Node.TEXT_NODE
-          )
-          .map((textNode) => textNode.textContent?.trim() ?? "")
-          .join(" ")
-      : "";
-
-    const urlCoverNovel = document
-      .querySelector("div.story-cover>img")
-      ?.getAttribute("src");
+    const title = extractTitle(document);
+    const synopsis = extractSynopsis(document, dom);
+    const urlCoverNovel = extractUrlCoverNovel(document);
 
     if (!title || !urlCoverNovel) {
       throw new Error("Can't get title or urlCoverNovel");
     }
 
-    const stories = document.querySelectorAll(
-      ".table-of-contents a.story-parts__part"
-    );
+    const allChapters = extractAllChapters(document, url);
 
-    const allChapters = Array.from(stories)
-      .map((story) => {
-        const title = story.querySelector(".part-title")?.textContent;
-        const urlChapter = story.getAttribute("href");
-        const fullUrlChapter = `${originUrl}${urlChapter}`;
-        const publishedAtStr = story.querySelector(".right-label")?.textContent;
-        let publishedAt = null;
-        if (
-          publishedAtStr?.includes("hours ago") ||
-          publishedAtStr?.includes("hour ago") ||
-          publishedAtStr?.includes("minutes ago") ||
-          publishedAtStr?.includes("a few seconds ago")
-        ) {
-          const today = now(getLocalTimeZone());
-          publishedAt = today.toDate().toISOString();
-        } else if (publishedAtStr?.includes("a day ago")) {
-          const today = now(getLocalTimeZone());
-          today.subtract({ days: 1 });
-          publishedAt = today.toDate().toISOString();
-        } else if (publishedAtStr) {
-          publishedAt = new Date(publishedAtStr).toISOString();
-        }
-
-        if (!title || !urlChapter) {
-          return null;
-        }
-
-        return {
-          title,
-          urlChapter: fullUrlChapter,
-          publishedAt,
-        };
-      })
-      .filter((chapter, index, self) => self.indexOf(chapter) === index)
-      .filter((chapter) => chapter !== null);
-
-    const authorPseudonymElement = document.querySelector(
-      "div.author-info__username>a"
-    );
-
-    const authorPseudonym = authorPseudonymElement?.textContent;
-    const authorUrlProfile = authorPseudonymElement?.getAttribute("href");
-
-    if (!authorPseudonym || !authorUrlProfile) {
-      throw new Error("Can't get authorPseudonym or authorUrlProfile");
-    }
-
-    const authorProfilePhotoEl = document.querySelector(".author-info__badge");
-
-    const authorUrlCoverProfile =
-      authorProfilePhotoEl?.getAttribute("src") ?? undefined;
+    const { authorPseudonym, authorUrlProfile, authorUrlCoverProfile } =
+      extractAuthorProfile(document);
 
     const formData = {
       urlNovel: url,
       title,
       synopsis,
       note: "",
-      urlCoverNovel: urlCoverNovel,
+      urlCoverNovel,
       chapters: allChapters,
       authorName: "",
       authorPseudonym,

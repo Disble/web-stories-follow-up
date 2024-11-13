@@ -1,15 +1,17 @@
 "use server";
-
 import { PublicationStatus } from "@repo/layer-prisma";
 import { db } from "@repo/layer-prisma/db";
 import type { NovelFindBySlugPayload } from "@repo/layer-prisma/model/novel/novel.interface";
 import { SessionError } from "@repo/types/utils/errors";
-import { JSDOM } from "jsdom";
 import { revalidatePath } from "next/cache";
 import { api } from "@repo/layer-fetch/api";
 import type { FeedPublishPostBody } from "@repo/layer-fetch/model/feed/feed.interface";
 import { PATH_DASHBOARD } from "#routes/index";
-import { getLocalTimeZone, now } from "@internationalized/date";
+import {
+  extractAllChapters,
+  fetchPageDocument,
+} from "#scrapers/wattpad-scraper";
+import { filterChaptersToUpdate, mapChaptersToDb } from "#scrapers/update-db";
 
 export async function upsertTemplate(
   novelId: string,
@@ -47,42 +49,30 @@ export async function upsertTemplate(
 export async function updateChapters(
   slug: string,
   url: string,
-  chapters: NovelFindBySlugPayload["chapters"],
+  dbChapters: NovelFindBySlugPayload["chapters"],
   novelPlatformId: string
 ) {
-  const currentChapters = await scrapeCurrentChapters(url);
+  const currentScrapedChapters = await scrapeCurrentChapters(url);
 
-  if ("error" in currentChapters) {
+  if ("error" in currentScrapedChapters) {
     return false;
   }
 
-  const existingChapterUrls = new Set(
-    chapters.map((chapter) => chapter.urlChapter)
-  );
-  const currentChapterUrls = new Set(
-    currentChapters.map((chapter) => chapter.urlChapter)
-  );
+  const { newCurrentScrapedChapters, toRemoveDbChapters } =
+    filterChaptersToUpdate(currentScrapedChapters, dbChapters);
 
-  const newChaptersOnly = currentChapters.filter(
-    (chapter) => !existingChapterUrls.has(chapter.urlChapter)
-  );
+  if (newCurrentScrapedChapters.length > 0 || toRemoveDbChapters.length > 0) {
+    const { newCurrentScrapedChaptersToCreate, toRemoveDbChaptersIds } =
+      mapChaptersToDb(
+        newCurrentScrapedChapters,
+        toRemoveDbChapters,
+        novelPlatformId
+      );
 
-  const removedChapters = chapters.filter(
-    (chapter) => !currentChapterUrls.has(chapter.urlChapter)
-  );
-
-  if (newChaptersOnly.length > 0 || removedChapters.length > 0) {
-    db.chapter.createMany(
-      newChaptersOnly.map((chapter) => ({
-        title: chapter.title,
-        urlChapter: chapter.urlChapter,
-        publishedAt: chapter.publishedAt,
-        novelPlatformId,
-        isTracking: true,
-      }))
-    );
-
-    db.chapter.deleteMany(removedChapters.map((chapter) => chapter.id));
+    await Promise.all([
+      db.chapter.createMany(newCurrentScrapedChaptersToCreate),
+      db.chapter.deleteMany(toRemoveDbChaptersIds),
+    ]);
   }
 
   revalidatePath(`${PATH_DASHBOARD.novel}/${slug}`);
@@ -92,55 +82,8 @@ export async function updateChapters(
 
 export async function scrapeCurrentChapters(url: string) {
   try {
-    const originUrl = new URL(url).origin;
-
-    const response = await fetch(url);
-    const html = await response.text();
-
-    const dom = new JSDOM(html);
-    const document = dom.window.document;
-
-    const stories = document.querySelectorAll(
-      ".table-of-contents a.story-parts__part"
-    );
-
-    const allChapters = Array.from(stories)
-      .map((story) => {
-        const title = story.querySelector(".part-title")?.textContent;
-        const urlChapter = story.getAttribute("href");
-        const fullUrlChapter = `${originUrl}${urlChapter}`;
-        const publishedAtStr = story.querySelector(".right-label")?.textContent;
-        let publishedAt = null;
-        if (
-          publishedAtStr?.includes("hours ago") ||
-          publishedAtStr?.includes("hour ago") ||
-          publishedAtStr?.includes("minutes ago") ||
-          publishedAtStr?.includes("a few seconds ago")
-        ) {
-          const today = now(getLocalTimeZone());
-          publishedAt = today.toDate().toISOString();
-        } else if (publishedAtStr?.includes("a day ago")) {
-          const today = now(getLocalTimeZone());
-          today.subtract({ days: 1 });
-          publishedAt = today.toDate().toISOString();
-        } else if (publishedAtStr) {
-          publishedAt = new Date(publishedAtStr).toISOString();
-        }
-
-        if (!title || !urlChapter) {
-          return null;
-        }
-
-        return {
-          title,
-          urlChapter: fullUrlChapter,
-          publishedAt,
-        };
-      })
-      .filter((chapter, index, self) => self.indexOf(chapter) === index)
-      .filter((chapter) => chapter !== null);
-
-    return allChapters;
+    const { document } = await fetchPageDocument(url);
+    return extractAllChapters(document, url);
   } catch (error) {
     return {
       error: "Error al obtener el contenido de la novela",

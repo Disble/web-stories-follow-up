@@ -205,6 +205,52 @@ model Parameter {
   updatedAt DateTime @updatedAt
 }
 
+model Log {
+  id          String    @id @default(cuid())
+  // Who/What initiated the action
+  source      String    // e.g., 'CRON', 'API', 'USER'
+  // What happened
+  action      LogAction
+  status      LogStatus @default(SUCCESS)
+  // Basic info
+  message     String    
+  details     Json?
+  // Performance & scheduling
+  startTime   DateTime  @default(now())
+  duration    Int?      // Duration in milliseconds
+  // Response data
+  httpStatus  Int?      // HTTP status code if applicable
+  error       Json?     // Error details if status is ERROR
+
+  @@index([source, action])
+  @@index([status])
+  @@index([startTime])
+}
+
+enum LogStatus {
+  SUCCESS
+  ERROR
+  WARNING
+}
+
+enum LogAction {
+  // Scraping actions
+  SCRAPE_START
+  SCRAPE_COMPLETE
+  CHAPTER_CREATE
+  CHAPTER_UPDATE
+  CHAPTER_DELETE
+  // Publishing actions
+  FACEBOOK_PUBLISH
+  // Console Cron Job
+  CRON_JOB_HISTORY_GET
+  // System actions
+  CRON_START
+  CRON_COMPLETE
+  API_REQUEST
+  ERROR
+}
+
 enum PublicationStatus {
   DRAFT
   HIDDEN

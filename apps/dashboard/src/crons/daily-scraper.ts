@@ -4,13 +4,22 @@ import type { FeedPublishPostBody } from "@repo/layer-fetch/model/feed/feed.inte
 import { PublicationStatus } from "@repo/layer-prisma";
 import { db } from "@repo/layer-prisma/db";
 import type { NovelListPayload } from "@repo/layer-prisma/model/novel/novel.interface";
-import { JSDOM } from "jsdom";
 import {
   parseZonedDateTime,
   now,
   getLocalTimeZone,
 } from "@internationalized/date";
 import type { ParameterListPayload } from "@repo/layer-prisma/model/parameter/parameter.interface";
+import { performance } from "node:perf_hooks";
+import {
+  extractAllChapters,
+  fetchPageDocument,
+} from "#scrapers/wattpad-scraper";
+import { filterChaptersToUpdate, mapChaptersToDb } from "#scrapers/update-db";
+import {
+  processNovelScrapingLogs,
+  processPublicationLogs,
+} from "#scrapers/cron-logs";
 
 export async function dailyScrap() {
   const novels = await db.novel.listActivePreferents();
@@ -24,7 +33,8 @@ export async function dailyScrap() {
 
   const fbPublicationTimeStamp = getPublicationTime(paramPublicationTime);
 
-  const promises = novels.map(async (novel) => {
+  const novelScrapingStartTime = performance.mark("novel-scraping-start");
+  const scrapingPromises = novels.map(async (novel) => {
     const novelPlatformPreferred = novel.novelPlatforms[0];
 
     if (!novelPlatformPreferred) {
@@ -36,7 +46,19 @@ export async function dailyScrap() {
       novelPlatformPreferred.chapters,
       novelPlatformPreferred.id
     );
+  });
 
+  const scrapingResults = await Promise.allSettled(scrapingPromises);
+  const novelScrapingEndTime = performance.mark("novel-scraping-end");
+
+  const { novelsScrapedRejectedErrors } = await processNovelScrapingLogs(
+    scrapingResults,
+    novelScrapingStartTime,
+    novelScrapingEndTime
+  );
+
+  const publishStartTime = performance.mark("publish-start");
+  const publicationPromises = novels.map(async (novel) => {
     const lastChapters = await db.chapter.cronFindLastChaptersEnabledToPublish(
       novel.id
     );
@@ -45,10 +67,12 @@ export async function dailyScrap() {
       throw new Error("Novel template is null");
     }
 
-    for (const chapter of lastChapters) {
-      const templateWithLink = `${novel.template.text} \n ${chapter.urlChapter}`;
+    let fulfilledPublicationsByNovel = 0;
 
-      await publishNewChapterInFacebook(
+    for (const chapter of lastChapters) {
+      const templateWithLink = `${novel.template.text} \n\n${chapter.urlChapter}`;
+
+      const dbPublication = await publishNewChapterInFacebook(
         {
           message: templateWithLink,
           link: chapter.urlChapter,
@@ -57,103 +81,68 @@ export async function dailyScrap() {
         },
         chapter.id
       );
+
+      dbPublication && fulfilledPublicationsByNovel++;
     }
+
+    return fulfilledPublicationsByNovel;
   });
 
-  return Promise.allSettled(promises);
+  const publicationResults = await Promise.allSettled(publicationPromises);
+  const publishEndTime = performance.mark("publish-end");
+
+  const {
+    chaptersRejectedErrors,
+    totalChaptersPublished,
+    rejectedPublications,
+  } = await processPublicationLogs(
+    publicationResults,
+    publishStartTime,
+    publishEndTime
+  );
+
+  return {
+    novelsScrapedRejectedErrors,
+    publicationResults,
+    chaptersRejectedErrors,
+    totalChaptersPublished,
+    totalChaptersRejected: rejectedPublications.length,
+    numberNovelsScraped: novels.length,
+  };
 }
 
 export async function updateChapters(
   url: string,
-  chapters: NovelListPayload["novelPlatforms"][0]["chapters"],
+  dbChapters: NovelListPayload["novelPlatforms"][0]["chapters"],
   novelPlatformId: string
 ) {
-  const currentChapters = await scrapeCurrentChapters(url);
+  const currentScrapedChapters = await scrapeCurrentChapters(url);
 
-  if ("error" in currentChapters) {
-    throw new Error(`Error fetching ${url}`);
+  if ("error" in currentScrapedChapters) {
+    throw new Error(`Error fetching or scraping ${url}`);
   }
 
-  const existingChapterUrls = new Set(
-    chapters.map((chapter) => chapter.urlChapter)
-  );
-  const currentChapterUrls = new Set(
-    currentChapters.map((chapter) => chapter.urlChapter)
-  );
+  const { newCurrentScrapedChapters, toRemoveDbChapters } =
+    filterChaptersToUpdate(currentScrapedChapters, dbChapters);
 
-  const newChaptersOnly = currentChapters.filter(
-    (chapter) => !existingChapterUrls.has(chapter.urlChapter)
-  );
+  if (newCurrentScrapedChapters.length > 0 || toRemoveDbChapters.length > 0) {
+    const { newCurrentScrapedChaptersToCreate, toRemoveDbChaptersIds } =
+      mapChaptersToDb(
+        newCurrentScrapedChapters,
+        toRemoveDbChapters,
+        novelPlatformId
+      );
 
-  const removedChapters = chapters.filter(
-    (chapter) => !currentChapterUrls.has(chapter.urlChapter)
-  );
-
-  if (newChaptersOnly.length > 0 || removedChapters.length > 0) {
-    db.chapter.cronCreateMany(
-      newChaptersOnly.map((chapter) => ({
-        title: chapter.title,
-        urlChapter: chapter.urlChapter,
-        publishedAt: chapter.publishedAt,
-        novelPlatformId,
-        isTracking: true,
-      }))
-    );
-
-    db.chapter.cronDeleteMany(removedChapters.map((chapter) => chapter.id));
+    await Promise.all([
+      db.chapter.cronCreateMany(newCurrentScrapedChaptersToCreate),
+      db.chapter.cronDeleteMany(toRemoveDbChaptersIds),
+    ]);
   }
 }
 
 export async function scrapeCurrentChapters(url: string) {
-  const originUrl = new URL(url).origin;
-
-  const response = await fetch(url);
-  const html = await response.text();
-
-  const dom = new JSDOM(html);
-  const document = dom.window.document;
-
-  const stories = document.querySelectorAll(
-    ".table-of-contents a.story-parts__part"
-  );
-
-  const allChapters = Array.from(stories)
-    .map((story) => {
-      const title = story.querySelector(".part-title")?.textContent;
-      const urlChapter = story.getAttribute("href");
-      const fullUrlChapter = `${originUrl}${urlChapter}`;
-      const publishedAtStr = story.querySelector(".right-label")?.textContent;
-      let publishedAt = null;
-      if (
-        publishedAtStr?.includes("hours ago") ||
-        publishedAtStr?.includes("hour ago") ||
-        publishedAtStr?.includes("minutes ago") ||
-        publishedAtStr?.includes("a few seconds ago")
-      ) {
-        const today = now(getLocalTimeZone());
-        publishedAt = today.toDate().toISOString();
-      } else if (publishedAtStr?.includes("a day ago")) {
-        const today = now(getLocalTimeZone());
-        today.subtract({ days: 1 });
-        publishedAt = today.toDate().toISOString();
-      } else if (publishedAtStr) {
-        publishedAt = new Date(publishedAtStr).toISOString();
-      }
-
-      if (!title || !urlChapter) {
-        return null;
-      }
-
-      return {
-        title,
-        urlChapter: fullUrlChapter,
-        publishedAt,
-      };
-    })
-    .filter((chapter, index, self) => self.indexOf(chapter) === index)
-    .filter((chapter) => chapter !== null);
-
-  return allChapters;
+  const { document } = await fetchPageDocument(url);
+  return extractAllChapters(document, url);
 }
 
 export async function publishNewChapterInFacebook(
@@ -168,7 +157,7 @@ export async function publishNewChapterInFacebook(
     throw new Error("Error publishing chapter in Facebook");
   }
 
-  const publication = await db.publication.cronCreate({
+  const dbPublication = await db.publication.cronCreate({
     idPublishedFacebook: post.id,
     message: body.message,
     link: body.link,
@@ -182,11 +171,13 @@ export async function publishNewChapterInFacebook(
     },
   });
 
-  if (!publication) {
+  if (!dbPublication) {
     throw new Error(
       "Publication created in Facebook, but could not save to database"
     );
   }
+
+  return dbPublication;
 }
 
 function getPublicationTime(paramPublicationTime: ParameterListPayload) {

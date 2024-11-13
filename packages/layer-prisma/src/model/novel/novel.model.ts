@@ -107,6 +107,11 @@ export class NovelModel extends PrismaDB {
             isPreferred: true,
           },
         },
+        NOT: {
+          template: {
+            is: null,
+          },
+        },
       },
       select: novelListSelect,
     });
