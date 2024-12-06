@@ -1,7 +1,12 @@
 import { PrismaDB } from "#abstract-factory/prisma-db.abstract";
 import type { Prisma } from "@repo/database";
 import { SessionError } from "@repo/types/utils/errors";
-import { publicationListSelect } from "./publication.interface";
+import {
+  type PublicationListOptions,
+  publicationListSelect,
+  publicationListSimpleSelect,
+  type PublicationTimeRange,
+} from "./publication.interface";
 
 export class PublicationModel extends PrismaDB {
   public async create(data: Prisma.PublicationCreateInput) {
@@ -70,5 +75,32 @@ export class PublicationModel extends PrismaDB {
         limit,
         includePageCount: true,
       });
+  }
+
+  public async list({
+    timeRange = "last-3-months",
+  }: PublicationListOptions = {}) {
+    const prisma = await this.connect.protected();
+
+    const months: Record<PublicationTimeRange, number> = {
+      "last-3-months": 3,
+      "last-6-months": 6,
+      "last-12-months": 12,
+    };
+
+    if (prisma instanceof SessionError) {
+      return prisma.message;
+    }
+
+    return prisma.publication.findMany({
+      where: {
+        createdAt: {
+          gte: new Date(
+            new Date().setMonth(new Date().getMonth() - months[timeRange])
+          ),
+        },
+      },
+      select: publicationListSimpleSelect,
+    });
   }
 }

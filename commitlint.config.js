@@ -13,6 +13,7 @@ module.exports = {
         "api",
         "packages",
       ]
-    ]
+    ],
+    "body-max-length": [2, "always", 255],
   }
 }
