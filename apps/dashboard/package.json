@@ -25,8 +25,12 @@
   "dependencies": {
     "@codejamboree/replace-tags": "^1.2.2",
     "@custom-react-hooks/use-debounce": "^1.5.1",
+    "@custom-react-hooks/use-window-size": "^1.5.1",
+    "@formkit/tempo": "^0.1.2",
     "@hookform/resolvers": "^3.9.0",
     "@internationalized/date": "^3.5.6",
+    "@nivo/bar": "^0.88.0",
+    "@nivo/calendar": "^0.88.0",
     "@react-aria/i18n": "^3.12.3",
     "bcrypt": "^5.1.1",
     "jsdom": "^25.0.0",

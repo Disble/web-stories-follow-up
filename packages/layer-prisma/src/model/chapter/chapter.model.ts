@@ -1,6 +1,7 @@
 import { PrismaDB } from "#abstract-factory/prisma-db.abstract";
 import { NovelStatus, type Prisma } from "@repo/database";
 import { SessionError } from "@repo/types/utils/errors";
+import { chapterListSelect } from "./chapter.interface";
 
 const TRANSACTION_TIMEOUT = 40 * 1000;
 
@@ -76,6 +77,26 @@ export class ChapterModel extends PrismaDB {
         timeout: TRANSACTION_TIMEOUT,
       }
     );
+  }
+
+  public async listLast10ChaptersAdded({
+    limit = 10,
+  }: {
+    limit?: number;
+  }) {
+    const prisma = await this.connect.protected();
+
+    if (prisma instanceof SessionError) {
+      return prisma.message;
+    }
+
+    return prisma.chapter.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: limit,
+      select: chapterListSelect,
+    });
   }
 
   public async cronFindLastChaptersEnabledToPublish(novelId: string) {

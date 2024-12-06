@@ -1,62 +1,35 @@
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Divider,
-  CircularProgress,
-} from "@repo/ui/nextui";
+import CardLogBarScrapingApi from "#components/charts/bars/card-log-bar-scraping-api";
+import CardPublicationApi from "#components/charts/calendar/card-publication-api";
+import { Suspense } from "react";
+import { Skeleton } from "@repo/ui/nextui";
+import ListTailNovelsApi from "#components/charts/list/list-tail-novels-api";
 
-export default async function Page(): Promise<JSX.Element> {
+export default function Page(): JSX.Element {
   return (
-    <div className="flex flex-col gap-4 p-6">
-      <h1 className="text-3xl font-bold text-primary">
-        Dashboard de Publicidad Automatizada
-      </h1>
-      <Card fullWidth shadow="none">
-        <CardHeader className="flex gap-3">
-          <div className="flex flex-col">
-            <p className="text-md">
-              Bienvenido a tu panel de control de publicidad en Facebook
-            </p>
-            <p className="text-small text-default-500">
-              Aquí encontrarás un resumen de tus campañas de novelas ligeras
-            </p>
-          </div>
-        </CardHeader>
-        <Divider />
-        <CardBody>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card shadow="sm">
-              <CardBody>
-                <CircularProgress
-                  classNames={{
-                    svg: "w-28 h-28 drop-shadow-md",
-                    indicator: "stroke-primary",
-                    track: "stroke-default/10",
-                    value: "text-2xl font-semibold text-primary",
-                  }}
-                  value={70}
-                  strokeWidth={4}
-                  showValueLabel={true}
-                />
-                <p className="text-center mt-2">Rendimiento de Campañas</p>
-              </CardBody>
-            </Card>
-            <Card shadow="sm">
-              <CardBody>
-                <h2 className="text-2xl font-bold">15</h2>
-                <p>Novelas en Promoción</p>
-              </CardBody>
-            </Card>
-            <Card shadow="sm">
-              <CardBody>
-                <h2 className="text-2xl font-bold">5,234</h2>
-                <p>Clics en Anuncios</p>
-              </CardBody>
-            </Card>
-          </div>
-        </CardBody>
-      </Card>
+    <div className="grid grid-cols-1 grid-rows-[300px_350px_1fr] lg:grid-rows-none gap-4 p-2 md:p-5 lg:grid-cols-[3fr_1fr]">
+      <Suspense
+        fallback={
+          <Skeleton className="w-full h-full max-h-[25svh] md:max-h-[45svh] min-w-0 col-span-1 row-start-2 rounded-lg" />
+        }
+      >
+        <CardPublicationApi />
+      </Suspense>
+      <Suspense
+        fallback={
+          <Skeleton className="w-full h-full max-h-[40svh] min-w-0 col-span-1 row-start-1 rounded-lg" />
+        }
+      >
+        <CardLogBarScrapingApi />
+      </Suspense>
+      <Suspense
+        fallback={
+          <Skeleton className="w-full h-[70svh] rounded-lg col-span-1 row-start-3 lg:col-span-1 lg:row-span-2 lg:row-start-1 lg:col-start-2" />
+        }
+      >
+        <div className="col-span-1 row-start-3 lg:col-span-1 lg:row-span-2 lg:row-start-1 lg:col-start-2">
+          <ListTailNovelsApi />
+        </div>
+      </Suspense>
     </div>
   );
 }
