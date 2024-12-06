@@ -32,3 +32,22 @@ export const publicationListSelect = {
 export type PublicationListPayload = Prisma.PublicationGetPayload<{
   select: typeof publicationListSelect;
 }>;
+
+export const publicationListSimpleSelect = {
+  id: true,
+  scheduledPublishTime: true,
+  createdAt: true,
+} satisfies Prisma.PublicationSelect;
+
+export type PublicationListSimplePayload = Prisma.PublicationGetPayload<{
+  select: typeof publicationListSimpleSelect;
+}>;
+
+export type PublicationTimeRange =
+  | "last-3-months"
+  | "last-6-months"
+  | "last-12-months";
+
+export type PublicationListOptions = {
+  timeRange?: PublicationTimeRange;
+};
