@@ -1,112 +1,144 @@
-import { now } from "@internationalized/date";
+import { now, getLocalTimeZone } from "@internationalized/date";
 import { JSDOM } from "jsdom";
-import { getLocalTimeZone } from "@internationalized/date";
 
+/**
+ * Fetches a page and returns its document and DOM object.
+ */
 export async function fetchPageDocument(url: string) {
   const response = await fetch(url);
   const html = await response.text();
   const dom = new JSDOM(html);
   const document = dom.window.document;
-
-  return {
-    document,
-    dom,
-  };
+  return { document, dom };
 }
 
-export function extractTableOfContents(document: Document) {
-  return document.querySelectorAll(".table-of-contents a.story-parts__part");
+/**
+ * Takes the title directly from the document's <title> and trims
+ * everything after " – " (which is " – Author – Wattpad").
+ */
+export function extractTitle(document: Document): string | null {
+  if (!document.title) return null;
+  return document.title.split(" – ")[0].trim();
 }
 
-export function extractTitle(document: Document) {
-  return document.querySelector("div.story-info>span.sr-only")?.textContent;
+/**
+ * The "synopsis" is in a <pre> inside a container <div class="glL-c">.
+ * Since that class seems stable (not a hash), we use it with > pre.
+ */
+export function extractSynopsis(document: Document): string {
+  const pre = document.querySelector("div.glL-c > pre");
+  return pre?.textContent?.trim() ?? "";
 }
 
-export function extractSynopsis(document: Document, dom: JSDOM) {
-  const synopsisElement = document.querySelector(
-    "pre.description-text.collapsed"
+/**
+ * The cover always lives in:
+ *   <div data-testid="cover"><img src="…"></div>
+ */
+export function extractUrlCoverNovel(document: Document): string | undefined {
+  return (
+    document
+      .querySelector('div[data-testid="cover"] img')
+      ?.getAttribute("src") ?? undefined
   );
-  const synopsis = synopsisElement
-    ? Array.from(synopsisElement.childNodes)
-        .filter(
-          (node): node is Text => node.nodeType === dom.window.Node.TEXT_NODE
-        )
-        .map((textNode) => textNode.textContent?.trim() ?? "")
-        .join(" ")
-    : "";
-
-  return synopsis;
 }
 
-export function extractUrlCoverNovel(document: Document) {
-  return document.querySelector("div.story-cover>img")?.getAttribute("src");
+/**
+ * All parts of the table of contents are under:
+ *   <div data-testid="toc">
+ *     <ul aria-label="story-parts">
+ *       <a href="…">…</a>
+ *     </ul>
+ *   </div>
+ */
+export function extractTableOfContents(
+  document: Document
+): NodeListOf<HTMLAnchorElement> {
+  return document.querySelectorAll(
+    'div[data-testid="toc"] ul[aria-label="story-parts"] a'
+  );
 }
 
+/**
+ * Extracts title, url and publication date from each chapter.
+ * We use:
+ *   - link.href                        → the URL
+ *   - link.querySelector('[data-testid="new-part-icon"] + div')
+ *       .textContent                  → the title text
+ *   - link.children[1].textContent   → the date (it's the second <div>)
+ */
 export function extractAllChapters(document: Document, url: string) {
-  const originUrl = new URL(url).origin;
-  const tableOfContents = extractTableOfContents(document);
-  const allChapters = Array.from(tableOfContents)
-    .map((story) => {
-      const title = story.querySelector(".part-title")?.textContent;
-      const urlChapter = story.getAttribute("href");
-      const fullUrlChapter = `${originUrl}${urlChapter}`;
-      const publishedAtStr = story.querySelector(".right-label")?.textContent;
-      let publishedAt = null;
-      if (
-        publishedAtStr?.includes("hours ago") ||
-        publishedAtStr?.includes("hour ago") ||
-        publishedAtStr?.includes("minutes ago") ||
-        publishedAtStr?.includes("a few seconds ago")
-      ) {
-        const today = now(getLocalTimeZone());
-        publishedAt = today.toDate().toISOString();
-      } else if (publishedAtStr?.includes("a day ago")) {
-        const today = now(getLocalTimeZone());
-        today.subtract({ days: 1 });
-        publishedAt = today.toDate().toISOString();
-      } else if (publishedAtStr) {
-        publishedAt = new Date(publishedAtStr).toISOString();
-      }
-
-      if (!title || !urlChapter) {
-        return null;
-      }
-
-      return {
-        title,
-        urlChapter: fullUrlChapter,
-        publishedAt,
-      };
-    })
-    .filter((chapter, index, self) => self.indexOf(chapter) === index)
-    .filter((chapter) => chapter !== null);
-
-  if (allChapters.length === 0) {
+  const toc = extractTableOfContents(document);
+  if (toc.length === 0) {
     throw new Error(`0 chapters scraped in ${url}`);
   }
 
-  return allChapters;
+  const chapters = Array.from(toc).map((link) => {
+    const titleEl = link.querySelector('[data-testid="new-part-icon"] + div');
+    const title = titleEl?.textContent?.trim() ?? null;
+    const urlChapter = link.href;
+    const dateStr = link.children[1]?.textContent?.trim() ?? "";
+
+    let publishedAt: string | null = null;
+    if (/hours? ago|minutes? ago|seconds? ago/.test(dateStr)) {
+      publishedAt = now(getLocalTimeZone()).toDate().toISOString();
+    } else if (/a day ago/.test(dateStr)) {
+      const today = now(getLocalTimeZone()).subtract({ days: 1 });
+      publishedAt = today.toDate().toISOString();
+    } else if (dateStr) {
+      publishedAt = new Date(dateStr).toISOString();
+    }
+
+    if (!title || !urlChapter) return null;
+    return { title, urlChapter, publishedAt };
+  });
+
+  // Filter out nulls and duplicates by URL
+  const unique = chapters
+    .filter((c): c is NonNullable<typeof c> => !!c)
+    .filter(
+      (c, i, all) => all.findIndex((c2) => c2.urlChapter === c.urlChapter) === i
+    );
+
+  if (unique.length === 0) {
+    throw new Error(`0 chapters scraped in ${url}`);
+  }
+  return unique;
 }
 
+/**
+ * Author profile:
+ *   <a href="/user/..." aria-label="by NAME. Tap to go to the author's profile page.">
+ *     Name
+ *   </a>
+ * right before an <img> with the avatar.
+ */
 export function extractAuthorProfile(document: Document) {
-  const authorPseudonymElement = document.querySelector(
-    "div.author-info__username>a"
+  const authorLink = document.querySelector<HTMLAnchorElement>(
+    'a[aria-label^="by "]'
   );
-  const authorPseudonym = authorPseudonymElement?.textContent;
-  const authorUrlProfile = authorPseudonymElement?.getAttribute("href");
-
-  if (!authorPseudonym || !authorUrlProfile) {
-    throw new Error("Can't get authorPseudonym or authorUrlProfile");
+  if (!authorLink) {
+    throw new Error("Could not find the author link");
   }
 
-  const authorProfilePhotoEl = document.querySelector(".author-info__badge");
+  const authorPseudonym = authorLink.textContent?.trim() ?? "";
+  const authorUrlProfile = extractWattpadUsername(authorLink.href);
 
-  const authorUrlCoverProfile =
-    authorProfilePhotoEl?.getAttribute("src") ?? undefined;
+  // The avatar is in the image that shares container with that <a>
+  const avatarImg = authorLink
+    .closest("div")
+    ?.querySelector<HTMLImageElement>("img");
+  const authorUrlCoverProfile = avatarImg?.src;
 
   return {
     authorPseudonym,
     authorUrlProfile,
     authorUrlCoverProfile,
   };
+}
+
+/**
+ * Extracts just the pathname from a Wattpad URL
+ */
+export function extractWattpadUsername(url: string): string {
+  return new URL(url).pathname;
 }
