@@ -1,0 +1,75 @@
+---
+description: Use this guide when you have to perform tests
+globs: 
+alwaysApply: false
+---
+# Testing Best Practices
+
+This document outlines best practices for testing in our project, focusing on unit tests, integration tests, and end-to-end tests.
+
+## Test Structure
+
+- Organize tests to mirror the source code structure
+- Use descriptive test names that explain the expected behavior
+- Follow the Arrange-Act-Assert pattern
+- Keep tests independent of each other
+- Use setup and teardown functions for repeated test logic
+- Group related tests with describe blocks
+
+## Unit Testing
+
+- Test individual functions and components in isolation
+- Mock external dependencies using Jest mocks
+- Use React Testing Library for component testing
+- Focus on testing behavior, not implementation details
+- Keep unit tests fast and focused
+- Aim for high test coverage of business logic
+
+## Integration Testing
+
+- Test the interaction between multiple components or functions
+- Use realistic test data that mimics production
+- Mock external services but test real component interactions
+- Focus on testing user workflows and feature behaviors
+- Use proper setup and teardown for test data
+
+## End-to-End Testing
+
+- Use Playwright or Cypress for E2E testing
+- Focus on critical user journeys
+- Keep E2E tests minimal but comprehensive
+- Implement proper test data management
+- Use visual regression testing where appropriate
+- Run E2E tests in CI/CD pipeline
+
+## Mock Data
+
+- Create reusable mock data factories
+- Use realistic mock data that mirrors production
+- Implement proper typing for mock data
+- Keep mock data maintainable and organized
+- Use tools like MSW for API mocking
+
+## Testing Hooks and Context
+
+- Test custom hooks with renderHook
+- Test context providers with proper wrapper components
+- Focus on the behavior exposed to components
+- Test edge cases and error conditions
+- Use proper async testing patterns
+
+## Test Coverage
+
+- Aim for high coverage of business logic
+- Configure Jest for accurate coverage reporting
+- Use coverage reports to identify untested code
+- Don't chase 100% coverage at the expense of test quality
+- Focus on meaningful tests rather than coverage percentages
+
+## Performance
+
+- Keep tests fast by proper mocking and isolation
+- Use Jest's watch mode for development
+- Implement test sharding for large test suites
+- Configure proper timeouts for async tests
+- Use snapshot testing judiciously

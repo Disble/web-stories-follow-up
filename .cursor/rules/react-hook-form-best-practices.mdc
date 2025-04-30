@@ -1,0 +1,58 @@
+---
+description: Best practices for form handling with React Hook Form
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# React Hook Form Best Practices
+
+This document outlines best practices for working with React Hook Form in our project, focusing on performance, validation, and TypeScript integration.
+
+## Form Setup
+
+- Use `useForm` hook for form state management and validation
+- Implement defaultValues to initialize form fields
+- Define proper TypeScript interfaces for form data
+- Use form context for complex, nested forms
+- Set mode to appropriate validation trigger (onBlur, onChange, onSubmit)
+
+## Form Registration
+
+- Use register method for basic form fields
+- Implement Controller component for controlled components
+- Apply consistent naming convention for form fields
+- Use watch selectively to avoid unnecessary rerenders
+- Take advantage of form arrays for dynamic fields
+
+## Validation
+
+- Define validation schemas with Zod, Yup, or Joi
+- Use resolver to integrate schema validation
+- Implement custom validation functions for complex cases
+- Display validation errors clearly to users
+- Use error mapping to transform error messages
+- Handle async validation properly
+
+## Performance
+
+- Avoid unnecessary rerenders with proper field registration
+- Use `shouldUnregister` option consciously
+- Implement conditional form fields efficiently
+- Use FormProvider for complex forms
+- Consider field arrays for dynamic form elements
+- Don't overuse watch function
+
+## TypeScript Integration
+
+- Define proper types for form values
+- Use generic typing with useForm<FormValues>()
+- Leverage TypeScript for validation schemas
+- Apply proper typing for error messages
+- Use type inference where possible
+
+## Form Submission
+
+- Implement proper loading states during submission
+- Handle submission errors gracefully
+- Reset form after successful submission when appropriate
+- Provide clear feedback to users
+- Use handleSubmit to process form data 

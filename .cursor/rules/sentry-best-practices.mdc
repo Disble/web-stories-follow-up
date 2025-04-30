@@ -1,0 +1,9 @@
+---
+description: Best practices for error tracking with Sentry
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+- Initialize Sentry early in your application lifecycle.
+- Use Sentry's breadcrumb feature to track user actions leading to errors.
+- Implement custom error handling with Sentry's captureException method.
+- Set up release tracking and source maps for better error context in production. 

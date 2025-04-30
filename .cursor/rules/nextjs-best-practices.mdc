@@ -1,0 +1,49 @@
+---
+description: Best practices for Next.js applications and routing
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Next.js Best Practices
+
+This document outlines best practices for Next.js development in our project, focusing on app router, data fetching, page optimization, and project structure.
+
+## App Router Structure
+
+- Use the App Router directory structure for new features
+- Organize by feature/module, not by file type
+- Keep page components in `page.tsx` files
+- Place shared layouts in `layout.tsx` files
+- Use loading states with `loading.tsx`
+- Implement error boundaries with `error.tsx`
+
+## Data Fetching
+
+- Prefer React Server Components (RSC) for data fetching
+- Use `fetch` with appropriate cache settings for server components
+- For client components, use React Query or SWR for data fetching
+- Implement proper error handling and loading states
+
+## Performance Optimization
+
+- Use Image component for optimized images
+- Implement proper code splitting with dynamic imports
+- Utilize Next.js built-in optimizations (`next/font`, etc.)
+- Apply proper caching strategies with `fetch`
+
+## Project Organization
+
+- Place reusable components in `components/` directories
+- Keep utility functions in `utils/` or `lib/` directories
+- Store types in `types/` directories
+- Organize API routes logically in the `api` directory
+
+## Monorepo Considerations
+
+- Follow the workspace pattern for shared code
+- Use absolute imports for better code organization
+- Leverage Next.js module path aliases
+
+- Utilize Next.js 15's new features like the App Router for improved performance and routing.
+- Implement server-side rendering (SSR) for better SEO and initial load times.
+- Use `getStaticProps` and `getStaticPaths` for static generation where applicable.
+- Leverage Next.js built-in image optimization with the `next/image` component. 

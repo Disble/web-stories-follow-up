@@ -1,0 +1,52 @@
+---
+description: Best practices for styling with Tailwind CSS
+globs: **/*.ts,**/*.tsx,**/*.css
+alwaysApply: false
+---
+# Tailwind CSS Best Practices
+
+This document outlines Tailwind CSS best practices for our project, focusing on maintainability, performance, and organization.
+
+## Class Organization
+
+- Follow a consistent order of utility classes (layout → typography → visual styles)
+- Group related classes together for readability
+- Use @apply in CSS files for recurring combinations of utility classes
+- Extract component classes for complex, repeated UI elements
+- Maintain consistent naming for custom components and utilities
+
+## Custom Configuration
+
+- Extend the theme in `tailwind.config.js` to maintain design system consistency
+- Define custom colors, spacing, and typography settings in the config
+- Use CSS variables for dynamic theming when appropriate
+- Create custom variants for specific interactive states
+- Implement design tokens through Tailwind's theme system
+
+## Performance
+
+- Enable JIT (Just-In-Time) mode for faster builds and smaller CSS output
+- Use PurgeCSS properly by including all files with Tailwind classes in the purge configuration
+- Optimize for production by removing unused styles
+- Consider code splitting CSS for large applications
+- Use responsive utilities judiciously to avoid CSS bloat
+
+## Component Patterns
+
+- Create reusable component classes with @apply for consistent styling
+- Use Tailwind with CSS modules for component-specific styles when needed
+- Implement responsive designs with Tailwind's responsive modifiers
+- Leverage Tailwind's state variants for interactive elements
+
+## Maintainability
+
+- Document custom utilities and component classes
+- Use consistent spacing and sizing scales
+- Implement dark mode with Tailwind's dark variant
+- Organize custom components in a logical structure
+- Use plugins for specialized functionality
+
+- Use utility classes directly in your JSX for rapid development.
+- Create custom components with Tailwind classes for reusability.
+- Utilize the `@apply` directive in CSS for complex, reusable styles.
+- Implement responsive design using Tailwind's responsive utility classes. 

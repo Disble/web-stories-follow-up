@@ -1,0 +1,60 @@
+---
+description: Best practices for using Turbo in monorepos
+globs: **/*.ts,**/*.tsx,**/*.js,**/*.jsx
+alwaysApply: false
+---
+# Turbo Best Practices
+
+This document outlines best practices for using Turborepo in our monorepo, focusing on workspace configuration, task dependencies, and performance optimization.
+
+## Workspace Configuration
+
+- Organize packages by type (apps, packages, config, etc.)
+- Use consistent package naming conventions
+- Implement proper workspace dependencies in package.json
+- Leverage package.json workspaces field correctly
+- Keep turbo.json clean and well-structured
+- Set appropriate access levels for packages
+
+## Task Configuration
+
+- Define reusable task pipelines in turbo.json
+- Use explicit dependencies between tasks
+- Implement proper caching strategies for each task
+- Configure input/output files correctly for optimal caching
+- Leverage env vars in pipeline definitions when needed
+- Use task inheritance for common configurations
+
+## Cache Optimization
+
+- Configure proper outputs for each task for accurate caching
+- Use .turbo/cache to store cache results
+- Implement remote caching for CI/CD pipelines when appropriate
+- Add proper gitignore patterns for cache directories
+- Use cache priming for faster CI builds
+- Configure appropriate cache invalidation
+
+## Dependencies Management
+
+- Use strict workspace protocols (workspace:*)
+- Implement consistent versioning strategies
+- Leverage npm/yarn/pnpm workspace features
+- Avoid duplicated dependencies across packages
+- Use peer dependencies appropriately
+- Configure proper build order with dependencies
+
+## CI/CD Integration
+
+- Use turbo to parallelize CI workflows
+- Implement proper caching in CI pipelines
+- Configure concurrency settings for optimal performance
+- Use proper pruning for deployment packages
+- Leverage turbo for incremental builds
+
+## Development Workflows
+
+- Use filtered runs for faster development (--filter)
+- Implement consistent dev scripts across packages
+- Leverage Watch mode for development
+- Use scoped commands for targeted operations
+- Configure proper development dependencies

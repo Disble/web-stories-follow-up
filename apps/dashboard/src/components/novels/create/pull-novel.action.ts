@@ -94,10 +94,10 @@ type DataNovelServer = z.infer<typeof dataNovelServer>;
 
 export async function scrapeNovel(url: string) {
   try {
-    const { document, dom } = await fetchPageDocument(url);
+    const { document } = await fetchPageDocument(url);
 
     const title = extractTitle(document);
-    const synopsis = extractSynopsis(document, dom);
+    const synopsis = extractSynopsis(document);
     const urlCoverNovel = extractUrlCoverNovel(document);
 
     if (!title || !urlCoverNovel) {

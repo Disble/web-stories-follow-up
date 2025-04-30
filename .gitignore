@@ -44,3 +44,5 @@ packages/layer-prisma/dist/
 # tsbuildinfo
 *.tsbuildinfo
 
+# cursor
+.cursor/planning/

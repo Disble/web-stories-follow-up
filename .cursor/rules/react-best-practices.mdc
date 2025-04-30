@@ -1,0 +1,49 @@
+---
+description: Best practices for React development
+globs: **/*.ts,**/*.tsx,**/*.js,**/*.jsx
+alwaysApply: false
+---
+# React Best Practices
+
+This document outlines React best practices for our project, focusing on component design, state management, performance optimization, and TypeScript integration.
+
+## Component Design
+
+- Use functional components with hooks instead of class components
+- Follow the Single Responsibility Principle - each component should do one thing well
+- Keep components small and focused (< 250 lines of code)
+- Use composition over inheritance to reuse component logic
+- Extract reusable logic into custom hooks
+- Implement proper prop validation with TypeScript types
+
+## State Management
+
+- Use React Context for global state where appropriate
+- Leverage React Query for server state management
+- Implement useState and useReducer for local component state
+- Keep state as local as possible to the components that need it
+- Consider using Zustand or Redux Toolkit for complex global state
+
+## Performance Optimization
+
+- Use React.memo() for expensive renders when needed
+- Implement useMemo() and useCallback() for computational/referential stability
+- Avoid unnecessary re-renders by structuring state properly
+- Use proper dependency arrays in useEffect and other hooks
+- Split large components for better code splitting
+- Implement virtualization for long lists (react-window or react-virtualized)
+
+## Code Organization
+
+- Group related components in feature directories
+- Keep utility functions separate from component logic
+- Use consistent naming conventions (PascalCase for components)
+- Maintain clear separation between container and presentational components
+- Store shared types in dedicated type files
+
+## Testing
+
+- Write unit tests for business logic and hooks
+- Implement component tests with React Testing Library
+- Focus on behavior over implementation
+- Test edge cases and error states
