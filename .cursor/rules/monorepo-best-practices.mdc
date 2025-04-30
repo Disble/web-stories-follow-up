@@ -1,0 +1,61 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Monorepo Best Practices
+
+This document outlines best practices for working with our monorepo structure, focusing on organization, dependency management, and development workflows.
+
+## Repository Structure
+
+- Organize code into logical groups:
+  - `apps/`: Front-end applications
+  - `packages/`: Shared libraries and utilities
+  - `config/`: Shared configuration
+  - `docs/`: Documentation
+- Use consistent naming conventions across packages
+- Maintain clear README files for each package
+- Keep package.json files consistent and well-organized
+
+## Dependency Management
+
+- Use workspace protocols for internal dependencies (`workspace:*`)
+- Hoist common dependencies to the root when possible
+- Maintain a single version of each dependency across the repo
+- Define clear peer dependencies to avoid version conflicts
+- Use proper version ranges for external dependencies
+- Document dependency decisions when necessary
+
+## Development Workflow
+
+- Set up consistent scripts across packages (build, test, lint, etc.)
+- Configure proper task dependencies with Turborepo
+- Use scoped commands for targeted development
+- Implement efficient testing strategies for the monorepo
+- Configure proper gitignore rules for generated files
+- Use changesets or similar tools for versioning
+
+## Shared Configuration
+
+- Centralize common configuration (TypeScript, ESLint, etc.)
+- Use composition for extending configurations
+- Implement proper inheritance patterns for configs
+- Maintain backward compatibility when changing shared configs
+- Document configuration decisions
+
+## CI/CD Integration
+
+- Configure efficient CI workflows for the monorepo
+- Use proper caching strategies for faster builds
+- Implement incremental builds when possible
+- Set up deployment pipelines for each application
+- Use scoped testing to optimize CI runtime
+
+## Code Sharing
+
+- Extract reusable code into shared packages
+- Implement clear interfaces for shared libraries
+- Document API boundaries between packages
+- Configure proper build order based on dependencies
+- Use proper imports for shared code (absolute paths, etc.)
